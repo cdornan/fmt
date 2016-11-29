@@ -9,7 +9,7 @@ module Fmt
 )
 where
 
-import Data.Text
+import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Data.Text.Lazy.Builder hiding (fromString)
 import Data.Monoid
@@ -26,7 +26,7 @@ instance FromBuilder String where
   fromBuilder = TL.unpack . toLazyText
   {-# INLINE fromBuilder #-}
 
-instance FromBuilder Text where
+instance FromBuilder T.Text where
   fromBuilder = TL.toStrict . toLazyText
   {-# INLINE fromBuilder #-}
 
