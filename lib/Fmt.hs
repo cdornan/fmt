@@ -6,6 +6,13 @@ module Fmt
   (>%),
   (>%%<),
 
+  (%<<),
+  (>>%),
+  (>>%%<<),
+
+  (>%%<<),
+  (>>%%<),
+
   FromBuilder(..),
 )
 where
@@ -28,6 +35,34 @@ import Data.Text.Buildable
 
 (>%%<) :: (Buildable a, FromBuilder b) => Builder -> a -> b
 (>%%<) x a = fromBuilder (x <> build a)
+
+----------------------------------------------------------------------------
+-- Operators with 'Show'
+----------------------------------------------------------------------------
+
+(%<<) :: (Show a, FromBuilder b) => Builder -> a -> b
+(%<<) x a = x %< show a
+{-# INLINE (%<<) #-}
+
+(>>%) :: (FromBuilder b) => Builder -> Builder -> b
+(>>%) x a = x >% a
+{-# INLINE (>>%) #-}
+
+(>>%%<<) :: (Show a, FromBuilder b) => Builder -> a -> b
+(>>%%<<) x a = x %< show a
+{-# INLINE (>>%%<<) #-}
+
+----------------------------------------------------------------------------
+-- Combinations
+----------------------------------------------------------------------------
+
+(>>%%<) :: (Buildable a, FromBuilder b) => Builder -> a -> b
+(>>%%<) x a = x >%%< a
+{-# INLINE (>>%%<) #-}
+
+(>%%<<) :: (Show a, FromBuilder b) => Builder -> a -> b
+(>%%<<) x a = x >>%%<< a
+{-# INLINE (>%%<<) #-}
 
 -- TODO: an IO () instance? so that it would work as a cool printf-less printf
 -- TODO: something for indentation
