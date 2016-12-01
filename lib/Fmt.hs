@@ -81,8 +81,11 @@ infixl 1 >%%<<
 -- TODO: something like https://hackage.haskell.org/package/groom
 -- TODO: reexport Buildable
 -- TODO: write docs
+-- TODO: mention things that work (<n+1>, <f n>, <show n>)
 -- TODO: colors?
--- TODO: tests
+-- TODO: add NL for newline?
+-- TODO: have to decide on whether it would be >%< or >%%< or maybe >|<
+-- TODO: actually, what about |< and >|?
 -- TODO: what effect does it have on compilation time? what effect do
 --       other formatting libraries have on compilation time?
 
