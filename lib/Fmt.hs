@@ -36,6 +36,10 @@ import Data.Text.Buildable
 (>%%<) :: (Buildable a, FromBuilder b) => Builder -> a -> b
 (>%%<) x a = fromBuilder (x <> build a)
 
+infixl 1 %<
+infixl 1 >%
+infixl 1 >%%<
+
 ----------------------------------------------------------------------------
 -- Operators with 'Show'
 ----------------------------------------------------------------------------
@@ -52,6 +56,10 @@ import Data.Text.Buildable
 (>>%%<<) x a = x %< show a
 {-# INLINE (>>%%<<) #-}
 
+infixl 1 %<<
+infixl 1 >>%
+infixl 1 >>%%<<
+
 ----------------------------------------------------------------------------
 -- Combinations
 ----------------------------------------------------------------------------
@@ -63,6 +71,9 @@ import Data.Text.Buildable
 (>%%<<) :: (Show a, FromBuilder b) => Builder -> a -> b
 (>%%<<) x a = x >>%%<< a
 {-# INLINE (>%%<<) #-}
+
+infixl 1 >>%%<
+infixl 1 >%%<<
 
 -- TODO: an IO () instance? so that it would work as a cool printf-less printf
 -- TODO: something for indentation
