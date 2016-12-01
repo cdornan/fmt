@@ -75,12 +75,12 @@ infixl 1 >>%%<<
 infixl 1 >>%%<
 infixl 1 >%%<<
 
--- TODO: an IO () instance? so that it would work as a cool printf-less printf
 -- TODO: something for indentation
 -- TODO: something to format a record nicely (with generics, probably)
 -- TODO: something like https://hackage.haskell.org/package/groom
 -- TODO: reexport Buildable
 -- TODO: write docs
+-- TODO: mention printf in description so that it would be findable
 -- TODO: mention things that work (<n+1>, <f n>, <show n>)
 -- TODO: colors?
 -- TODO: add NL for newline?
