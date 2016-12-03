@@ -5,7 +5,7 @@ description:
   Nice formatting library
 homepage:            http://github.com/aelve/fmt
 bug-reports:         http://github.com/aelve/fmt/issues
-license:             MIT
+license:             BSD3
 license-file:        LICENSE
 author:              Artyom
 maintainer:          yom@artyom.me
