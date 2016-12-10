@@ -16,6 +16,9 @@ module Fmt
   FromBuilder(..),
 
   Buildable(..),
+
+  -- * Formatters
+  indent,
 )
 where
 
@@ -77,7 +80,27 @@ infixr 1 >>%%<<
 infixr 1 >>%%<
 infixr 1 >%%<<
 
--- TODO: something for indentation
+----------------------------------------------------------------------------
+-- Formatters
+----------------------------------------------------------------------------
+
+indent :: (FromBuilder b) => Int -> Builder -> b
+indent n a = fromBuilder (go (toLazyText a))
+  where
+    spaces = fromText (T.replicate n (T.singleton ' '))
+    -- We don't use 'lines' because it doesn't distinguish between trailing
+    -- newline being present/absent. We want the following behavior:
+    --     >>> indent 2 "hi"
+    --     "  hi"
+    --     >>> indent 2 "hi\n"
+    --     "  hi\n"
+    go t | TL.null t = mempty
+    go t = let (l, t') = TL.break ((==) '\n') t
+           in spaces <> if TL.null t'
+                          then fromLazyText l
+                          else fromLazyText l <>
+                               (singleton '\n' <> go (TL.tail t'))
+
 -- TODO: something to format a record nicely (with generics, probably)
 -- TODO: something like https://hackage.haskell.org/package/groom
 -- TODO: write docs

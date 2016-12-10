@@ -52,6 +52,22 @@ main = hspec $ do
     ("number: "%<n>%"\n"<>
      "string: "%<s>%"") ==%> "number: 25\nstring: !"
 
+  describe "formatters" $ do
+    describe "'indent'" $ do
+      it "simple examples" $ do
+        indent 0 "hi" ==%> "hi"
+        indent 0 "\nhi\n\n" ==%> "\nhi\n\n"
+        indent 2 "hi" ==%> "  hi"
+        indent 2 "hi\n" ==%> "  hi\n"
+        indent 2 "" ==%> ""
+        indent 2 "hi\nbye" ==%> "  hi\n  bye"
+        indent 2 "hi\nbye\n" ==%> "  hi\n  bye\n"
+      it "formatting a block" $ do
+        ("Some numbers:\n"<>
+         indent 2 (
+           "odd: "%<n>%"\n"<>
+           "even: "%<n+1>%"")) ==%> "Some numbers:\n  odd: 25\n  even: 26"
+
   describe "output as" $ do
     it "String" $
       ("a"%<n>%"b" :: String) `shouldBe` "a25b"

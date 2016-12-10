@@ -2,6 +2,8 @@
 
 * Made all operators associate to the right (`Builder` documentation says it's faster than the opposite).
 
+* Added `indent`.
+
 * Reexported `Buildable`.
 
 # 0.0.0.2
