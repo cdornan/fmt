@@ -29,53 +29,53 @@ import Data.Text.Buildable
 -- Operators with 'Buildable'
 ----------------------------------------------------------------------------
 
-(%<) :: (Buildable a, FromBuilder b) => Builder -> a -> b
-(%<) x a = fromBuilder (x <> build a)
+(%<) :: (FromBuilder b) => Builder -> Builder -> b
+(%<) str rest = fromBuilder (str <> rest)
 
-(>%) :: (FromBuilder b) => Builder -> Builder -> b
-(>%) x a = fromBuilder (x <> a)
+(>%) :: (Buildable a, FromBuilder b) => a -> Builder -> b
+(>%) a rest = fromBuilder (build a <> rest)
 
-(>%%<) :: (Buildable a, FromBuilder b) => Builder -> a -> b
-(>%%<) x a = fromBuilder (x <> build a)
+(>%%<) :: (Buildable a, FromBuilder b) => a -> Builder -> b
+(>%%<) a rest = fromBuilder (build a <> rest)
 
-infixl 1 %<
-infixl 1 >%
-infixl 1 >%%<
+infixr 1 %<
+infixr 1 >%
+infixr 1 >%%<
 
 ----------------------------------------------------------------------------
 -- Operators with 'Show'
 ----------------------------------------------------------------------------
 
-(%<<) :: (Show a, FromBuilder b) => Builder -> a -> b
-(%<<) x a = x %< show a
+(%<<) :: (FromBuilder b) => Builder -> Builder -> b
+(%<<) str rest = str %< rest
 {-# INLINE (%<<) #-}
 
-(>>%) :: (FromBuilder b) => Builder -> Builder -> b
-(>>%) x a = x >% a
+(>>%) :: (Show a, FromBuilder b) => a -> Builder -> b
+(>>%) a rest = show a >% rest
 {-# INLINE (>>%) #-}
 
-(>>%%<<) :: (Show a, FromBuilder b) => Builder -> a -> b
-(>>%%<<) x a = x %< show a
+(>>%%<<) :: (Show a, FromBuilder b) => a -> Builder -> b
+(>>%%<<) a rest = show a >% rest
 {-# INLINE (>>%%<<) #-}
 
-infixl 1 %<<
-infixl 1 >>%
-infixl 1 >>%%<<
+infixr 1 %<<
+infixr 1 >>%
+infixr 1 >>%%<<
 
 ----------------------------------------------------------------------------
 -- Combinations
 ----------------------------------------------------------------------------
 
-(>>%%<) :: (Buildable a, FromBuilder b) => Builder -> a -> b
-(>>%%<) x a = x >%%< a
+(>>%%<) :: (Buildable a, FromBuilder b) => a -> Builder -> b
+(>>%%<) a rest = a >%%< rest
 {-# INLINE (>>%%<) #-}
 
-(>%%<<) :: (Show a, FromBuilder b) => Builder -> a -> b
-(>%%<<) x a = x >>%%<< a
+(>%%<<) :: (Show a, FromBuilder b) => a -> Builder -> b
+(>%%<<) a rest = a >>%%<< rest
 {-# INLINE (>%%<<) #-}
 
-infixl 1 >>%%<
-infixl 1 >%%<<
+infixr 1 >>%%<
+infixr 1 >%%<<
 
 -- TODO: something for indentation
 -- TODO: something to format a record nicely (with generics, probably)

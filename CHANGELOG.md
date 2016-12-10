@@ -1,5 +1,7 @@
 # 0.0.0.3
 
+* Made all operators associate to the right (`Builder` documentation says it's faster than the opposite).
+
 * Reexported `Buildable`.
 
 # 0.0.0.2
