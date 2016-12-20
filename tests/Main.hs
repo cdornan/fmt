@@ -67,6 +67,19 @@ main = hspec $ do
          indent 2 (
            "odd: "%<n>%"\n"<>
            "even: "%<n+1>%"")) ==%> "Some numbers:\n  odd: 25\n  even: 26"
+    describe "integer" $ do
+      it "hexF" $ do
+        (""%<hexF n>%"") ==%> "19"
+    describe "floating-point" $ do
+      let f1_3 = 1.2999999999999998 :: Double
+      it "floatF" $ do
+        (""%<floatF f1_3>%"") ==%> "1.2999999999999998"
+      it "exptF" $ do
+        (""%<exptF 2 f1_3>%"") ==%> "1.30e0"
+      it "fixedF" $ do
+        (""%<fixedF 2 f1_3>%"") ==%> "1.30"
+      it "precF" $ do
+        (""%<precF 2 f1_3>%"") ==%> "1.3"
 
   describe "output as" $ do
     it "String" $

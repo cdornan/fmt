@@ -19,6 +19,15 @@ module Fmt
 
   -- * Formatters
   indent,
+
+  -- ** Integers
+  hexF,
+
+  -- ** Floating-point
+  floatF,
+  exptF,
+  fixedF,
+  precF,
 )
 where
 
@@ -27,6 +36,7 @@ import qualified Data.Text.Lazy as TL
 import Data.Text.Lazy.Builder hiding (fromString)
 import Data.Monoid
 import Data.Text.Buildable
+import qualified Data.Text.Format as TF
 
 ----------------------------------------------------------------------------
 -- Operators with 'Buildable'
@@ -101,13 +111,47 @@ indent n a = fromBuilder (go (toLazyText a))
                           else fromLazyText l <>
                                (singleton '\n' <> go (TL.tail t'))
 
+hexF :: Integral a => a -> Builder
+hexF = TF.hex
+
+floatF :: Real a => a -> Builder
+floatF = TF.shortest
+
+exptF :: Real a => Int -> a -> Builder
+exptF = TF.expt
+
+fixedF :: Real a => Int -> a -> Builder
+fixedF = TF.fixed
+
+precF :: Real a => Int -> a -> Builder
+precF = TF.prec
+
+{- TODO add these:
+* commas, ords
+* left, right, center, fitLeft, fitRight
+* base, bin, oct, hex
+* something to format bytestrings as hex
+* 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
+* something that would show time and date in a standard way
+* conditional formatting (if x then y else mempty)
+-}
+
+-- TODO: mention that fmt doesn't do the neat thing that formatting does with (<>)
 -- TODO: something to format a record nicely (with generics, probably)
 -- TODO: something like https://hackage.haskell.org/package/groom
+-- TODO: something for wrapping lists (not indenting, just hard-wrapping)
 -- TODO: write docs
--- TODO: mention printf in description so that it would be findable
+-- TODO: reexport (<>)?
+-- TODO: write that if %< >% are hated, you can just use
+--       provided formatters and <> (add Fmt.DIY for that?)
+-- TODO: write that it can be used in parallel with formatting?
+-- TODO: mention printf in cabal description so that it would be findable
 -- TODO: mention things that work (<n+1>, <f n>, <show n>)
 -- TODO: colors?
--- TODO: add NL for newline?
+-- TODO: clarify philosophy (“take a free spot in design space; write the
+--       best possible library around it, not just a proof of concept”)
+-- TODO: clarify what exactly is hard about writing `formatting` formatters
+-- TODO: add NL or _NL for newline? or (<\>) or (<>\)? and also (>%\)?
 -- TODO: have to decide on whether it would be >%< or >%%< or maybe >|<
 -- TODO: actually, what about |< and >|?
 -- TODO: what effect does it have on compilation time? what effect do

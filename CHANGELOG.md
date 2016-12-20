@@ -4,6 +4,8 @@
 
 * Added `indent`.
 
+* Added `hexF` and floating-point formatters.
+
 * Reexported `Buildable`.
 
 # 0.0.0.2
