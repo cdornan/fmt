@@ -22,14 +22,20 @@ If you hate it already, it's okay! I don't like it much either, to be honest. Bu
 
 Let's say that `n = 9` and `city = "Beijing"`. First, here's how we could produce “There are 9 million bicycles in Beijing.” only with things that are in base:
 
-| Method           | Code                                                               |
-| ---------------- | ------------------------------------------------------------------ |
-| `(++)`           | `"There are " ++ show n ++ " million bicycles in " ++ city ++ "."` |
-| `concat`         | `concat ["There are ", show n, " million bicycles in", city, "."]` |
-| `Text.Printf`    | `printf "There are %d million bicycles in %s." n city`             |
-
-[text-format]: https://hackage.haskell.org/package/text-format
-[formatting]: https://hackage.haskell.org/package/formatting
+<table>
+  <tr>
+    <td><b><code>(++)</code></b></td>
+    <td><code>"There are " ++ show n ++ " million bicycles in " ++ city ++ "."</code></td>
+  </tr>
+  <tr>
+    <td><b><code>concat</code></b></td>
+    <td><code>concat ["There are ", show n, " million bicycles in", city, "."]</code></td>
+  </tr>
+  <tr>
+    <td><b><code>Text.Printf</code></b></td>
+    <td><code>printf "There are %d million bicycles in %s." n city</code></td>
+  </tr>
+</table>
 
 The first two are bad for obvious reasons:
 
@@ -41,10 +47,19 @@ The first two are bad for obvious reasons:
 
 Next come [text-format][] and [formatting][], one from Bryan O'Sullivan, another from Chris Done. Based on a very representative survey (sample size = 2) I conducted among industry professionals (i.e. my friends), [formatting][] is the most popular formatting library used in Production™, so let's start with it.
 
-| Library          | Code                                                                  |
-| ---------------- | --------------------------------------------------------------------- |
-| [formatting][]   | `sformat ("There are "%int%" million bicycles in "%build%".") n city` |
-| [text-format][]  | `format "There are {} million bicycles in {}." (n, city)`             |
+[text-format]: https://hackage.haskell.org/package/text-format
+[formatting]: https://hackage.haskell.org/package/formatting
+
+<table>
+  <tr>
+    <td><b><a href="https://hackage.haskell.org/package/formatting">formatting</a></b></td>
+    <td><code>sformat ("There are "%int%" million bicycles in "%build%".") n city</code></td>
+  </tr>
+  <tr>
+    <td><b><a href="https://hackage.haskell.org/package/text-format">text-format</a></b></td>
+    <td><code>format "There are {} million bicycles in {}." (n, city)</code></td>
+  </tr>
+</table>
 
 [formatting][] is type-safe and uses in-place formatters. What I have found is that writing your own formatters is somewhat non-obvious, and composing them in non-trivial ways is even more non-obvious, which is my main gripe about formatting – I don't understand how it works and I often have to go through “format things manually with `<>` and `build`, then stick it into the string” if I want to do something more-or-less complicated. The only thing `Format` gives me is the ability to put arguments after `sformat` instead of putting them between string pieces – and it's actually questionable whether it's a good thing or not! (Not to mention that if my variables are long enough that putting them between string pieces looks bad, perhaps I should've used `let` anyway.)
 
@@ -55,10 +70,16 @@ There are some other libraries, e.g. [category-printf][] and [xformat][]. They d
 [category-printf]: https://hackage.haskell.org/package/category-printf
 [xformat]: https://hackage.haskell.org/package/xformat
 
-| Library             | Code                                                                  |
-| ------------------- | --------------------------------------------------------------------- |
-| [category-printf][] | `printf ("There are ".s." million bicycles in ".i.".") n city`        |
-| [xformat][]         | `showf ("There are "%Int%" million bicycles in "%String%".") n city`  |
+<table>
+  <tr>
+    <td><b><a href="https://hackage.haskell.org/package/category-printf">category-printf</a></b></td>
+    <td><code>printf ("There are ".s." million bicycles in ".i.".") n city</code></td>
+  </tr>
+  <tr>
+    <td><b><a href="https://hackage.haskell.org/package/xformat">xformat</a></b></td>
+    <td><code>showf ("There are "%Int%" million bicycles in "%String%".") n city</code></td>
+  </tr>
+</table>
 
 Finally, there's a cottage industry of libraries using Template Haskell (they tend to have “interpolation” in their names rather than “format” or “printf”). One bad thing about all of them is that it's pretty hard to use GHC's parser in Template Haskell and so either they have to do with interpolating variables only, or call into a separate Haskell parser (e.g. [haskell-src-exts][]). Most don't bother.
 
@@ -66,9 +87,12 @@ Finally, there's a cottage industry of libraries using Template Haskell (they te
 
 [interpolate]: https://hackage.haskell.org/package/interpolate
 
-| Library             | Code                                               |
-| ------------------- | -------------------------------------------------- |
-| [interpolate][]     | `[i|There are #{n} million bicycles in #{city}.|]` |
+<table>
+  <tr>
+    <td><b><a href="https://hackage.haskell.org/package/interpolate">interpolate</a></b></td>
+    <td><code>[i|There are #{n} million bicycles in #{city}.|]</code></td>
+  </tr>
+</table>
 
 I like TH-based formatting libraries, especially since they have the nicest syntax for multiline strings, but unfortunately they tend to be unusable as formatting libraries (no utilities for floating-point printing or left/right alignment or whatever) and they don't play well with editors (simplest example: the syntax highlighter has no idea that `n` in a quasi-quote is a variable).
 
