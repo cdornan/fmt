@@ -43,7 +43,7 @@ The first two are bad for obvious reasons:
   * `String` is kinda slow
   * there are few “built-in” formatters, and existing ones (`showFFloat`, etc) are cumbersome to use
   
-`printf` is actually pretty good and concise, but it's not typesafe and doesn't produce `Text`, so in many cases using it is either annoying or forbidden. ~Which is a pity because I love `printf`.~
+`printf` is actually pretty good and concise, but it's not typesafe and doesn't produce `Text`, so in many cases using it is either annoying or forbidden.
 
 Next come [text-format][] and [formatting][], one from Bryan O'Sullivan, another from Chris Done. Based on a very representative survey (sample size = 2) I conducted among industry professionals (i.e. my friends), [formatting][] is the most popular formatting library used in Production™, so let's start with it.
 
@@ -98,9 +98,9 @@ I like TH-based formatting libraries, especially since they have the nicest synt
 
 Okay, where does this all leave us? [formatting][] is hard to use in non-trivial situations, and the rest are either worse/not-better than [formatting][] or not typesafe (and thus you can't use them even if you like them).
 
-Perhaps I should've just figured out how to use [formatting][] and write a nice tutorial for it. However, exploring the design space is more fun (and *much* easier to when the library is your own). (Also, writing `sformat` everywhere sucks because I never know how to indent it properly. That's actually the main reason why I wrote this library, but I'll never admit it.)
+Perhaps I should've just figured out how to use [formatting][] and write a nice tutorial for it. However, exploring the design space is more fun (and *much* easier to when the library is your own). 
 
-Ahem.
+(Also, writing `sformat` everywhere sucks because I never know how to indent it properly. That's actually the main reason why I wrote this library, but I'll never admit it.)
 
 ## The idea
 
