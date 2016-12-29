@@ -6,6 +6,8 @@
 
 *A new formatting library. Fast, powerful, simple to use, contains no magic.*
 
+## !! Not ready for release yet !! (many features are missing)
+
 [fmt]: https://hackage.haskell.org/package/fmt
 
 ## A comparison with other libraries
