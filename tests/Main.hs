@@ -21,7 +21,7 @@ import Fmt
 
 main :: IO ()
 main = hspec $ do
-  let n = 25 :: Int
+  let n = 25 :: Integer
       s = "!" :: String
 
   it "simple examples" $ do
@@ -70,6 +70,16 @@ main = hspec $ do
     describe "integer" $ do
       it "hexF" $ do
         (""%<hexF n>%"") ==%> "19"
+      it "-hexF" $ do
+        (""%<hexF (-n)>%"") ==%> "-19"
+      it "octF" $ do
+        (""%<octF n>%"") ==%> "31"
+      it "binF" $ do
+        (""%<binF n>%"") ==%> "11001"
+      it "baseF" $ do
+        (""%<baseF 36 (n^n)>%"") ==%> "54kbbzw21jhueg5jb0ggr4p"
+      it "-baseF" $ do
+        (""%<baseF 36 (-(n^n))>%"") ==%> "-54kbbzw21jhueg5jb0ggr4p"
     describe "floating-point" $ do
       let f1_3 = 1.2999999999999998 :: Double
       it "floatF" $ do

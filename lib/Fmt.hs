@@ -22,6 +22,9 @@ module Fmt
 
   -- ** Integers
   hexF,
+  octF,
+  binF,
+  baseF,
 
   -- ** Floating-point
   floatF,
@@ -31,6 +34,8 @@ module Fmt
 )
 where
 
+import Numeric
+import Data.Char
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Data.Text.Lazy.Builder hiding (fromString)
@@ -114,6 +119,34 @@ indent n a = fromBuilder (go (toLazyText a))
 hexF :: Integral a => a -> Builder
 hexF = TF.hex
 
+octF :: Integral a => a -> Builder
+octF = baseF 8
+
+binF :: Integral a => a -> Builder
+binF = baseF 2
+
+baseF :: Integral a => Int -> a -> Builder
+baseF numBase = build . atBase numBase
+
+-- The following code is taken from 'formatting' (which took it from
+-- "Numeric.Lens" from 'lens').
+atBase :: Integral a => Int -> a -> String
+atBase b _ | b < 2 || b > 36 = error ("baseF: Invalid base " ++ show b)
+atBase b n =
+  showSigned' (showIntAtBase (toInteger b) intToDigit') (toInteger n) ""
+{-# INLINE atBase #-}
+
+showSigned' :: Real a => (a -> ShowS) -> a -> ShowS
+showSigned' f n
+  | n < 0     = showChar '-' . f (negate n)
+  | otherwise = f n
+
+intToDigit' :: Int -> Char
+intToDigit' i
+  | i >= 0  && i < 10 = chr (ord '0' + i)
+  | i >= 10 && i < 36 = chr (ord 'a' + i - 10)
+  | otherwise = error ("intToDigit': Invalid int " ++ show i)
+
 floatF :: Real a => a -> Builder
 floatF = TF.shortest
 
@@ -129,7 +162,6 @@ precF = TF.prec
 {- TODO add these:
 * commas, ords
 * left, right, center, fitLeft, fitRight
-* base, bin, oct, hex
 * something to format bytestrings as hex
 * 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
 * something that would show time and date in a standard way

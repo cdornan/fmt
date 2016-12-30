@@ -4,7 +4,7 @@
 
 * Added `indent`.
 
-* Added `hexF` and floating-point formatters.
+* Added `hexF`, `octF`, `binF`, `baseF` and floating-point formatters.
 
 * Reexported `Buildable`.
 
