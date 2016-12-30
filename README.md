@@ -10,7 +10,11 @@
 
 [fmt]: https://hackage.haskell.org/package/fmt
 
-## A comparison with other libraries
+## A very brief comparison with other formatting libraries
+
+TODO
+
+## An overview of other formatting libraries
 
 First of all: if you're trying to choose a formatting library, syntax should be your starting point, as you likely wouldn't want to use a formatting library if you hate its syntax. [citation needed] That's why I'm going to start with an example of [fmt][]'s syntax (note that it's the full string, no `format` or `printf` needed):
 
