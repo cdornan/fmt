@@ -6,6 +6,8 @@
 
 * Added `hexF`, `octF`, `binF`, `baseF` and floating-point formatters.
 
+* Added `base64F` and `base16F`.
+
 * Reexported `Buildable`.
 
 # 0.0.0.2

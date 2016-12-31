@@ -20,6 +20,10 @@ module Fmt
   -- * Formatters
   indent,
 
+  -- ** Bytestrings
+  base16F,
+  base64F,
+
   -- ** Integers
   hexF,
   octF,
@@ -37,11 +41,15 @@ where
 import Numeric
 import Data.Char
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy as TL
 import Data.Text.Lazy.Builder hiding (fromString)
 import Data.Monoid
 import Data.Text.Buildable
 import qualified Data.Text.Format as TF
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Base16 as B16
+import qualified Data.ByteString.Base64 as B64
 
 ----------------------------------------------------------------------------
 -- Operators with 'Buildable'
@@ -116,6 +124,12 @@ indent n a = fromBuilder (go (toLazyText a))
                           else fromLazyText l <>
                                (singleton '\n' <> go (TL.tail t'))
 
+base16F :: BS.ByteString -> Builder
+base16F = fromText . T.decodeLatin1 . B16.encode
+
+base64F :: BS.ByteString -> Builder
+base64F = fromText . T.decodeLatin1 . B64.encode
+
 hexF :: Integral a => a -> Builder
 hexF = TF.hex
 
@@ -162,10 +176,10 @@ precF = TF.prec
 {- TODO add these:
 * commas, ords
 * left, right, center, fitLeft, fitRight
-* something to format bytestrings as hex
 * 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
 * something that would show time and date in a standard way
 * conditional formatting (if x then y else mempty)
+* optimise base16F and base64F
 -}
 
 -- TODO: mention that fmt doesn't do the neat thing that formatting does with (<>)

@@ -26,6 +26,9 @@ library
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.6 && <5,
+                       base16-bytestring,
+                       base64-bytestring,
+                       bytestring,
                        text,
                        text-format >= 0.3
   ghc-options:         -Wall -fno-warn-unused-do-bind
