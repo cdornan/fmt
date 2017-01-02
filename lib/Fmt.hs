@@ -20,6 +20,13 @@ module Fmt
   -- * Formatters
   indent,
 
+  -- ** Padding/trimming
+  prefixF,
+  suffixF,
+  padLeftF,
+  padRightF,
+  padCenterF,
+
   -- ** Bytestrings
   base16F,
   base64F,
@@ -124,6 +131,35 @@ indent n a = fromBuilder (go (toLazyText a))
                           else fromLazyText l <>
                                (singleton '\n' <> go (TL.tail t'))
 
+
+-- | Fit in the given length, truncating on the left.
+prefixF :: Buildable a => Int -> a -> Builder
+prefixF size =
+  fromLazyText . TL.take (fromIntegral size) . toLazyText . build
+
+-- | Fit in the given length, truncating on the right.
+suffixF :: Buildable a => Int -> a -> Builder
+suffixF size =
+  fromLazyText .
+  (\t -> TL.drop (TL.length t - fromIntegral size) t) .
+  toLazyText . build
+
+-- | Pad the left hand side of a string until it reaches k characters
+-- wide, if necessary filling with character c.
+padLeftF :: Buildable a => Int -> Char -> a -> Builder
+padLeftF = TF.left
+
+-- | Pad the right hand side of a string until it reaches k characters
+-- wide, if necessary filling with character c.
+padRightF :: Buildable a => Int -> Char -> a -> Builder
+padRightF = TF.right
+
+-- | Pad the left & right hand side of a string until it reaches k characters
+-- wide, if necessary filling with character c.
+padCenterF :: Buildable a => Int -> Char -> a -> Builder
+padCenterF i c =
+  fromLazyText . TL.center (fromIntegral i) c . toLazyText . build
+
 base16F :: BS.ByteString -> Builder
 base16F = fromText . T.decodeLatin1 . B16.encode
 
@@ -175,33 +211,41 @@ precF = TF.prec
 
 {- TODO add these:
 * commas, ords
-* left, right, center, fitLeft, fitRight
 * 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
 * something that would show time and date in a standard way
 * conditional formatting (if x then y else mempty)
 * optimise base16F and base64F
+* make it possible to use base16F and base64F with lazy bytestrings?
 -}
 
--- TODO: mention that fmt doesn't do the neat thing that formatting does with (<>)
--- TODO: something to format a record nicely (with generics, probably)
--- TODO: something like https://hackage.haskell.org/package/groom
--- TODO: something for wrapping lists (not indenting, just hard-wrapping)
--- TODO: write docs
--- TODO: reexport (<>)?
--- TODO: write that if %< >% are hated, you can just use
---       provided formatters and <> (add Fmt.DIY for that?)
--- TODO: write that it can be used in parallel with formatting?
--- TODO: mention printf in cabal description so that it would be findable
--- TODO: mention things that work (<n+1>, <f n>, <show n>)
--- TODO: colors?
--- TODO: clarify philosophy (“take a free spot in design space; write the
---       best possible library around it, not just a proof of concept”)
--- TODO: clarify what exactly is hard about writing `formatting` formatters
--- TODO: add NL or _NL for newline? or (<\>) or (<>\)? and also (>%\)?
--- TODO: have to decide on whether it would be >%< or >%%< or maybe >|<
--- TODO: actually, what about |< and >|?
--- TODO: what effect does it have on compilation time? what effect do
---       other formatting libraries have on compilation time?
+{- DOCS TODOS
+
+* mention that fmt doesn't do the neat thing that formatting does with (<>)
+* write that if %< >% are hated or if it's inconvenient in some cases,
+  you can just use provided formatters and <> (add Fmt.DIY for that?)
+  (e.g. "pub:" <> base16F foo)
+* write that it can be used in parallel with formatting?
+* mention printf in cabal description so that it would be findable
+* mention things that work (<n+1>, <f n>, <show n>)
+* clarify philosophy (“take a free spot in design space; write the
+  best possible library around it, not just a proof of concept”)
+* clarify what exactly is hard about writing `formatting` formatters
+
+-}
+
+{- OTHER TODOS
+
+* something to format a record nicely (with generics, probably)
+* something like https://hackage.haskell.org/package/groom
+* something for wrapping lists (not indenting, just hard-wrapping)
+* reexport (<>)?
+* colors?
+* add NL or _NL for newline? or (<\>) or (<>\)? and also (>%\)?
+* have to decide on whether it would be >%< or >%%< or maybe >|<
+* actually, what about |< and >|?
+* what effect does it have on compilation time? what effect do
+  other formatting libraries have on compilation time?
+-}
 
 class FromBuilder a where
   fromBuilder :: Builder -> a

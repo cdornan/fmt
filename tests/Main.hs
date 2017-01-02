@@ -67,6 +67,53 @@ main = hspec $ do
          indent 2 (
            "odd: "%<n>%"\n"<>
            "even: "%<n+1>%"")) ==%> "Some numbers:\n  odd: 25\n  even: 26"
+    describe "padding" $ do
+      it "prefixF" $ do
+        prefixF (-1) ("hello" :: Text) ==#> ""
+        prefixF   0  ("hello" :: Text) ==#> ""
+        prefixF   1  ("hello" :: Text) ==#> "h"
+        prefixF   2  ("hello" :: Text) ==#> "he"
+        prefixF   3  ("hello" :: Text) ==#> "hel"
+        prefixF   5  ("hello" :: Text) ==#> "hello"
+        prefixF 1000 ("hello" :: Text) ==#> "hello"
+        prefixF 1000 (""      :: Text) ==#> ""
+      it "suffixF" $ do
+        suffixF (-1) ("hello" :: Text) ==#> ""
+        suffixF   0  ("hello" :: Text) ==#> ""
+        suffixF   1  ("hello" :: Text) ==#> "o"
+        suffixF   2  ("hello" :: Text) ==#> "lo"
+        suffixF   3  ("hello" :: Text) ==#> "llo"
+        suffixF   5  ("hello" :: Text) ==#> "hello"
+        suffixF 1000 ("hello" :: Text) ==#> "hello"
+        suffixF 1000 (""      :: Text) ==#> ""
+      it "padLeftF" $ do
+        padLeftF (-1) '!' ("hello" :: Text) ==#> "hello"
+        padLeftF   0  '!' ("hello" :: Text) ==#> "hello"
+        padLeftF   1  '!' ("hello" :: Text) ==#> "hello"
+        padLeftF   5  '!' ("hello" :: Text) ==#> "hello"
+        padLeftF   6  '!' ("hello" :: Text) ==#> "!hello"
+        padLeftF   7  '!' ("hello" :: Text) ==#> "!!hello"
+        padLeftF   7  '!' (""      :: Text) ==#> "!!!!!!!"
+      it "padRightF" $ do
+        padRightF (-1) '!' ("hello" :: Text) ==#> "hello"
+        padRightF   0  '!' ("hello" :: Text) ==#> "hello"
+        padRightF   1  '!' ("hello" :: Text) ==#> "hello"
+        padRightF   5  '!' ("hello" :: Text) ==#> "hello"
+        padRightF   6  '!' ("hello" :: Text) ==#> "hello!"
+        padRightF   7  '!' ("hello" :: Text) ==#> "hello!!"
+        padRightF   7  '!' (""      :: Text) ==#> "!!!!!!!"
+      it "padCenterF" $ do
+        padCenterF (-1) '!' ("hello" :: Text) ==#> "hello"
+        padCenterF   0  '!' ("hello" :: Text) ==#> "hello"
+        padCenterF   1  '!' ("hello" :: Text) ==#> "hello"
+        padCenterF   5  '!' ("hello" :: Text) ==#> "hello"
+        padCenterF   6  '!' ("hello" :: Text) ==#> "!hello"
+        padCenterF   7  '!' ("hello" :: Text) ==#> "!hello!"
+        padCenterF   7  '!' ("hell"  :: Text) ==#> "!!hell!"
+        padCenterF   7  '!' ("hel"   :: Text) ==#> "!!hel!!"
+        padCenterF   8  '!' ("hell"  :: Text) ==#> "!!hell!!"
+        padCenterF   8  '!' ("hel"   :: Text) ==#> "!!!hel!!"
+        padCenterF   8  '!' (""      :: Text) ==#> "!!!!!!!!"
     describe "integer" $ do
       it "hexF" $ do
         (""%<hexF n>%"") ==%> "19"
@@ -107,3 +154,6 @@ main = hspec $ do
 
 (==%>) :: Text -> Text -> Expectation
 (==%>) = shouldBe
+
+(==#>) :: Builder -> Builder -> Expectation
+(==#>) = shouldBe
