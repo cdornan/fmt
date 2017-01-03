@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Fmt
 (
@@ -32,6 +33,9 @@ module Fmt
   base64F,
 
   -- ** Integers
+  ordinalF,
+  commaizeF,
+  -- *** Base conversion
   hexF,
   octF,
   binF,
@@ -166,6 +170,38 @@ base16F = fromText . T.decodeLatin1 . B16.encode
 base64F :: BS.ByteString -> Builder
 base64F = fromText . T.decodeLatin1 . B64.encode
 
+-- Taken from 'formatting'
+ordinalF :: (Buildable a, Integral a) => a -> Builder
+ordinalF n
+  | tens > 3 && tens < 21 = build n <> "th"
+  | otherwise = build n <> case n `mod` 10 of
+                             1 -> "st"
+                             2 -> "nd"
+                             3 -> "rd"
+                             _ -> "th"
+  where
+    tens = n `mod` 100
+
+commaizeF :: (Buildable a, Integral a) => a -> Builder
+commaizeF = groupInt 3 ','
+
+-- Taken from 'formatting'
+groupInt :: (Buildable n, Integral n) => Int -> Char -> n -> Builder
+groupInt 0 _ = build
+groupInt i c =
+    fromLazyText . TL.reverse .
+    foldr merge "" .
+    TL.zip (zeros <> cycle' zeros') .
+    TL.reverse .
+    toLazyText . build
+  where
+    zeros = TL.replicate (fromIntegral i) (TL.singleton '0')
+    zeros' = TL.singleton c <> TL.tail zeros
+    merge (f, c') rest
+      | f == c = TL.singleton c <> TL.singleton c' <> rest
+      | otherwise = TL.singleton c' <> rest
+    cycle' xs = xs <> cycle' xs
+
 hexF :: Integral a => a -> Builder
 hexF = TF.hex
 
@@ -210,7 +246,7 @@ precF :: Real a => Int -> a -> Builder
 precF = TF.prec
 
 {- TODO add these:
-* commas, ords
+* something that would cut a string by adding ellipsis to the center
 * 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
 * something that would show time and date in a standard way
 * conditional formatting (if x then y else mempty)
@@ -221,6 +257,8 @@ precF = TF.prec
 {- DOCS TODOS
 
 * mention that fmt doesn't do the neat thing that formatting does with (<>)
+  (or maybe it does? there's a monoid instance for functions after all,
+  though I might also have to write a IsString instance for (a -> Builder))
 * write that if %< >% are hated or if it's inconvenient in some cases,
   you can just use provided formatters and <> (add Fmt.DIY for that?)
   (e.g. "pub:" <> base16F foo)
@@ -235,6 +273,8 @@ precF = TF.prec
 
 {- OTHER TODOS
 
+* credit people properly in the comments (use git blame to find
+  who wrote what code)
 * something to format a record nicely (with generics, probably)
 * something like https://hackage.haskell.org/package/groom
 * something for wrapping lists (not indenting, just hard-wrapping)
