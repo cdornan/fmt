@@ -186,14 +186,15 @@ commaizeF :: (Buildable a, Integral a) => a -> Builder
 commaizeF = groupInt 3 ','
 
 -- Taken from 'formatting'
-groupInt :: (Buildable n, Integral n) => Int -> Char -> n -> Builder
-groupInt 0 _ = build
-groupInt i c =
+groupInt :: (Buildable a, Integral a) => Int -> Char -> a -> Builder
+groupInt 0 _ n = build n
+groupInt i c n =
     fromLazyText . TL.reverse .
     foldr merge "" .
     TL.zip (zeros <> cycle' zeros') .
     TL.reverse .
     toLazyText . build
+      $ n
   where
     zeros = TL.replicate (fromIntegral i) (TL.singleton '0')
     zeros' = TL.singleton c <> TL.tail zeros
@@ -201,6 +202,8 @@ groupInt i c =
       | f == c = TL.singleton c <> TL.singleton c' <> rest
       | otherwise = TL.singleton c' <> rest
     cycle' xs = xs <> cycle' xs
+    -- Suppress the warning about redundant Integral constraint
+    _ = toInteger n
 
 hexF :: Integral a => a -> Builder
 hexF = TF.hex
