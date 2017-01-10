@@ -1,5 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Fmt
 (
@@ -20,6 +22,15 @@ module Fmt
 
   -- * Formatters
   indent,
+  nameF,
+
+  -- ** Lists
+  listF,
+  blockListF,
+
+  -- ** Maps
+  mapF,
+  blockMapF,
 
   -- ** Padding/trimming
   prefixF,
@@ -49,6 +60,10 @@ module Fmt
 )
 where
 
+import GHC.Exts (IsList, Item)
+import qualified GHC.Exts as IsList (toList)
+import Data.List
+import Data.Foldable (toList)
 import Numeric
 import Data.Char
 import qualified Data.Text as T
@@ -135,6 +150,76 @@ indent n a = fromBuilder (go (toLazyText a))
                           else fromLazyText l <>
                                singleton '\n' <> go (TL.tail t')
 
+nameF :: (Buildable a, Buildable b) => a -> b -> Builder
+nameF k v = case TL.lines (toLazyText (build v)) of
+    []  -> build k <> ":\n"
+    [l] -> build k <> ": " <> fromLazyText l <> "\n"
+    ls  -> build k <> ":\n" <>
+           mconcat ["  " <> fromLazyText s <> "\n" | s <- ls]
+
+-- | Simple comma-separated list formatter
+listF :: (Foldable f, Buildable a) => f a -> Builder
+listF xs = mconcat $
+  "[" :
+  intersperse ", " (map build (toList xs)) ++
+  ["]"]
+
+{-# SPECIALIZE listF :: Buildable a => [a] -> Builder #-}
+
+{- Note [Builder appending]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The documentation for 'Builder' says that it's preferrable to associate
+'Builder' appends to the right (i.e. @a <> (b <> c)@). The maximum possible
+association-to-the-right is achieved when we avoid appending builders
+until the last second (i.e. in the latter scenario):
+
+    -- (a1 <> x) <> (a2 <> x) <> ...
+    mconcat [a <> x | a <- as]
+
+    -- a1 <> x <> a2 <> x <> ...
+    mconcat $ concat [[a, x] | a <- as]
+
+However, benchmarks have shown that the former way is actually faster.
+-}
+
+blockListF :: forall f a. (Foldable f, Buildable a) => f a -> Builder
+blockListF xs
+  | null items      = "[]\n"
+  | True `elem` mls = mconcat (intersperse "\n" items)
+  | otherwise       = mconcat items
+  where
+    (mls, items) = unzip $ map buildItem (toList xs)
+    -- Returns 'True' if the item is multiline
+    buildItem :: a -> (Bool, Builder)
+    buildItem x = case TL.lines (toLazyText (build x)) of
+      []     -> (False, "-\n")
+      (l:ls) -> (not (null ls),
+                 "- " <> fromLazyText l <> "\n" <>
+                     mconcat ["  " <> fromLazyText s <> "\n" | s <- ls])
+
+{-# SPECIALIZE blockListF :: Buildable a => [a] -> Builder #-}
+
+-- | Simple JSON-like map formatter; works for Map, HashMap, etc
+mapF :: (IsList t, Item t ~ (k, v), Buildable k, Buildable v)
+     => t -> Builder
+mapF xs =
+  "{" <> mconcat (intersperse ", " (map buildPair (IsList.toList xs))) <> "}"
+  where
+    buildPair (k, v) = build k <> ": " <> build v
+
+blockMapF :: (IsList t, Item t ~ (k, v), Buildable k, Buildable v)
+          => t -> Builder
+blockMapF xs
+  | null items = "{}\n"
+  | otherwise  = mconcat items
+  where
+    items = map (uncurry nameF) (IsList.toList xs)
+
+-- TODO:
+--   • all this stuff with custom passed formatters for elem/key/value
+--   • maybe add something like blockMapF_ and blockListF_ that would add
+--     a blank line automatically? or `---` and `:::` or something?
 
 -- | Fit in the given length, truncating on the left.
 prefixF :: Buildable a => Int -> a -> Builder
@@ -272,6 +357,8 @@ precF = TF.prec
 * clarify philosophy (“take a free spot in design space; write the
   best possible library around it, not just a proof of concept”)
 * clarify what exactly is hard about writing `formatting` formatters
+* write that [(a,b)] works too and could be used
+* use 4 spaces instead of 2?
 
 -}
 

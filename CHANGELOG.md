@@ -1,16 +1,15 @@
 # 0.0.0.3
 
+* Added some formatters:
+
+    * `indent`
+    * formatters for lists and maps (`listF`, etc)
+    * `hexF`, `octF`, `binF`, `baseF` and floating-point formatters
+    * `ordinalF` and `commaizeF`
+    * padding and trimming formatters
+    * `base64F` and `base16F`
+
 * Made all operators associate to the right (`Builder` documentation says it's faster than the opposite).
-
-* Added `indent`.
-
-* Added `hexF`, `octF`, `binF`, `baseF` and floating-point formatters.
-
-* Added `ordinalF` and `commaizeF`.
-
-* Added padding and trimming formatters.
-
-* Added `base64F` and `base16F`.
 
 * Reexported `Buildable`.
 

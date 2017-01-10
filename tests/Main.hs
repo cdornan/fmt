@@ -11,7 +11,12 @@ import Data.Monoid ((<>))
 -- Text
 import Data.Text (Text)
 import qualified Data.Text.Lazy as TL
-import Data.Text.Lazy.Builder (Builder)
+import Data.Text.Lazy.Builder (Builder, fromLazyText)
+-- Various data structures
+import qualified Data.Vector as V
+import Data.Vector (Vector)
+import qualified Data.Map as M
+import Data.Map (Map)
 -- Tests
 import Test.Hspec
 
@@ -78,6 +83,110 @@ main = hspec $ do
          indent 2 (
            "odd: "%<n>%"\n"<>
            "even: "%<n+1>%"")) ==%> "Some numbers:\n  odd: 25\n  even: 26"
+
+    describe "'listF'" $ do
+      it "simple examples" $ do
+        listF ([] :: [Int]) ==#> "[]"
+        listF [n] ==#> "[25]"
+        listF [n,n+1] ==#> "[25, 26]"
+        listF [s,s<>s,"",s<>s<>s] ==#> "[!, !!, , !!!]"
+      it "different Foldables" $ do
+        listF ([1,2,3] :: [Int]) ==#> "[1, 2, 3]"
+        listF (V.fromList [1,2,3] :: Vector Int) ==#> "[1, 2, 3]"
+        listF (M.fromList [(1,2),(3,4),(5,6)] :: Map Int Int) ==#> "[2, 4, 6]"
+
+    describe "'blockListF'" $ do
+      let unlinesB = fromLazyText . TL.unlines
+      it "empty list" $ do
+        blockListF ([] :: [Int]) ==#> "[]\n"
+      it "null elements" $ do
+        blockListF ([""] :: [Text]) ==#>
+          unlinesB ["-"]
+        blockListF (["",""] :: [Text]) ==#>
+          unlinesB ["-",
+                    "-"]
+        blockListF (["","a",""] :: [Text]) ==#>
+          unlinesB ["-",
+                    "- a",
+                    "-"]
+      it "single-line elements" $ do
+        blockListF (["a"] :: [Text]) ==#>
+          unlinesB ["- a"]
+        blockListF (["a","b"] :: [Text]) ==#>
+          unlinesB ["- a",
+                    "- b"]
+        blockListF (["a","b","ccc"] :: [Text]) ==#>
+          unlinesB ["- a",
+                    "- b",
+                    "- ccc"]
+      it "multi-line elements" $ do
+        blockListF (["a\nx"] :: [Text]) ==#>
+          unlinesB ["- a",
+                    "  x"]
+        blockListF (["a\n x"] :: [Text]) ==#>
+          unlinesB ["- a",
+                    "   x"]
+        blockListF (["a\n x"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#>
+          unlinesB ["- a",
+                    "   x",
+                    "",
+                    "-  b",
+                    "  xx",
+                    "  y y ",
+                    "",
+                    "- c",
+                    "  "]
+      it "mix of single-line and multi-line" $ do
+        blockListF (["a\nx","b"] :: [Text]) ==#>
+          unlinesB ["- a",
+                    "  x",
+                    "",
+                    "- b"]
+        blockListF (["a\nx","b\n"] :: [Text]) ==#>
+          unlinesB ["- a",
+                    "  x",
+                    "",
+                    "- b"]
+        blockListF (["a"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#>
+          unlinesB ["- a",
+                    "",
+                    "-  b",
+                    "  xx",
+                    "  y y ",
+                    "",
+                    "- c",
+                    "  "]
+
+    describe "'mapF'" $ do
+      it "simple examples" $ do
+        mapF ([] :: [(Int, Int)]) ==#> "{}"
+        mapF [(n,n+1)] ==#> "{25: 26}"
+        mapF [(s,n)] ==#> "{!: 25}"
+        mapF [('a',True),('b',False),('c',True)] ==#>
+          "{a: True, b: False, c: True}"
+      it "different map types" $ do
+        let m = [('a',True),('b',False),('d',False),('c',True)]
+        mapF m ==#> "{a: True, b: False, d: False, c: True}"
+        mapF (M.fromList m) ==#> "{a: True, b: False, c: True, d: False}"
+
+    describe "'blockMapF'" $ do
+      let unlinesB = fromLazyText . TL.unlines
+      it "empty map" $ do
+        blockMapF ([] :: [(Int, Int)]) ==#> "{}\n"
+      it "complex example" $ do
+        blockMapF ([("hi", ""),
+                    ("foo"," a\n  b"),
+                    ("bar","a"),
+                    ("baz","a\ng")] :: [(Text, Text)]) ==#>
+          unlinesB ["hi:",
+                    "foo:",
+                    "   a",
+                    "    b",
+                    "bar: a",
+                    "baz:",
+                    "  a",
+                    "  g"]
+
     describe "padding" $ do
       it "prefixF" $ do
         prefixF (-1) ("hello" :: Text) ==#> ""
