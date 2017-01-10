@@ -52,6 +52,17 @@ main = hspec $ do
     ("number: "%<n>%"\n"<>
      "string: "%<s>%"") ==%> "number: 25\nstring: !"
 
+  describe "output as" $ do
+    it "String" $
+      ("a"%<n>%"b" :: String) `shouldBe` "a25b"
+    it "Text" $
+      ("a"%<n>%"b" :: Text) `shouldBe` "a25b"
+    it "Lazy Text" $
+      ("a"%<n>%"b" :: TL.Text) `shouldBe` "a25b"
+    it "Builder" $
+      ("a"%<n>%"b" :: Builder) `shouldBe` "a25b"
+
+
   describe "formatters" $ do
     describe "'indent'" $ do
       it "simple examples" $ do
@@ -114,39 +125,31 @@ main = hspec $ do
         padCenterF   8  '!' ("hell"  :: Text) ==#> "!!hell!!"
         padCenterF   8  '!' ("hel"   :: Text) ==#> "!!!hel!!"
         padCenterF   8  '!' (""      :: Text) ==#> "!!!!!!!!"
+
     describe "integer" $ do
       it "hexF" $ do
-        (""%<hexF n>%"") ==%> "19"
+        hexF n ==#> "19"
       it "-hexF" $ do
-        (""%<hexF (-n)>%"") ==%> "-19"
+        hexF (-n) ==#> "-19"
       it "octF" $ do
-        (""%<octF n>%"") ==%> "31"
+        octF n ==#> "31"
       it "binF" $ do
-        (""%<binF n>%"") ==%> "11001"
+        binF n ==#> "11001"
       it "baseF" $ do
-        (""%<baseF 36 (n^n)>%"") ==%> "54kbbzw21jhueg5jb0ggr4p"
+        baseF 36 (n^n) ==#> "54kbbzw21jhueg5jb0ggr4p"
       it "-baseF" $ do
-        (""%<baseF 36 (-(n^n))>%"") ==%> "-54kbbzw21jhueg5jb0ggr4p"
+        baseF 36 (-(n^n)) ==#> "-54kbbzw21jhueg5jb0ggr4p"
+
     describe "floating-point" $ do
       let f1_3 = 1.2999999999999998 :: Double
       it "floatF" $ do
-        (""%<floatF f1_3>%"") ==%> "1.2999999999999998"
+        floatF f1_3 ==#> "1.2999999999999998"
       it "exptF" $ do
-        (""%<exptF 2 f1_3>%"") ==%> "1.30e0"
+        exptF 2 f1_3 ==#> "1.30e0"
       it "fixedF" $ do
-        (""%<fixedF 2 f1_3>%"") ==%> "1.30"
+        fixedF 2 f1_3 ==#> "1.30"
       it "precF" $ do
-        (""%<precF 2 f1_3>%"") ==%> "1.3"
-
-  describe "output as" $ do
-    it "String" $
-      ("a"%<n>%"b" :: String) `shouldBe` "a25b"
-    it "Text" $
-      ("a"%<n>%"b" :: Text) `shouldBe` "a25b"
-    it "Lazy Text" $
-      ("a"%<n>%"b" :: TL.Text) `shouldBe` "a25b"
-    it "Builder" $
-      ("a"%<n>%"b" :: Builder) `shouldBe` "a25b"
+        precF 2 f1_3 ==#> "1.3"
 
 ----------------------------------------------------------------------------
 -- Utilities

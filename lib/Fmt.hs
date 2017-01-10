@@ -133,7 +133,7 @@ indent n a = fromBuilder (go (toLazyText a))
            in spaces <> if TL.null t'
                           then fromLazyText l
                           else fromLazyText l <>
-                               (singleton '\n' <> go (TL.tail t'))
+                               singleton '\n' <> go (TL.tail t')
 
 
 -- | Fit in the given length, truncating on the left.
@@ -255,6 +255,7 @@ precF = TF.prec
 * conditional formatting (if x then y else mempty)
 * optimise base16F and base64F
 * make it possible to use base16F and base64F with lazy bytestrings?
+* tupleF? or some other way to format pairs?
 -}
 
 {- DOCS TODOS
@@ -282,6 +283,7 @@ precF = TF.prec
 * something like https://hackage.haskell.org/package/groom
 * something for wrapping lists (not indenting, just hard-wrapping)
 * reexport (<>)?
+* reexport 'Builder'
 * colors?
 * add NL or _NL for newline? or (<\>) or (<>\)? and also (>%\)?
 * have to decide on whether it would be >%< or >%%< or maybe >|<
