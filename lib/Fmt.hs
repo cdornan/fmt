@@ -25,12 +25,12 @@ module Fmt
   nameF,
 
   -- ** Lists
-  listF,
-  blockListF,
+  listF, listF',
+  blockListF, blockListF',
 
   -- ** Maps
-  mapF,
-  blockMapF,
+  mapF, mapF',
+  blockMapF, blockMapF',
 
   -- ** Padding/trimming
   prefixF,
@@ -159,12 +159,16 @@ nameF k v = case TL.lines (toLazyText (build v)) of
 
 -- | Simple comma-separated list formatter
 listF :: (Foldable f, Buildable a) => f a -> Builder
-listF xs = mconcat $
+listF = listF' build
+{-# INLINE listF #-}
+
+listF' :: (Foldable f) => (a -> Builder) -> f a -> Builder
+listF' fbuild xs = mconcat $
   "[" :
-  intersperse ", " (map build (toList xs)) ++
+  intersperse ", " (map fbuild (toList xs)) ++
   ["]"]
 
-{-# SPECIALIZE listF :: Buildable a => [a] -> Builder #-}
+{-# SPECIALIZE listF' :: (a -> Builder) -> [a] -> Builder #-}
 
 {- Note [Builder appending]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -184,7 +188,11 @@ However, benchmarks have shown that the former way is actually faster.
 -}
 
 blockListF :: forall f a. (Foldable f, Buildable a) => f a -> Builder
-blockListF xs
+blockListF = blockListF' build
+{-# INLINE blockListF #-}
+
+blockListF' :: forall f a. (Foldable f) => (a -> Builder) -> f a -> Builder
+blockListF' fbuild xs
   | null items      = "[]\n"
   | True `elem` mls = mconcat (intersperse "\n" items)
   | otherwise       = mconcat items
@@ -192,32 +200,41 @@ blockListF xs
     (mls, items) = unzip $ map buildItem (toList xs)
     -- Returns 'True' if the item is multiline
     buildItem :: a -> (Bool, Builder)
-    buildItem x = case TL.lines (toLazyText (build x)) of
+    buildItem x = case TL.lines (toLazyText (fbuild x)) of
       []     -> (False, "-\n")
       (l:ls) -> (not (null ls),
                  "- " <> fromLazyText l <> "\n" <>
                      mconcat ["  " <> fromLazyText s <> "\n" | s <- ls])
 
-{-# SPECIALIZE blockListF :: Buildable a => [a] -> Builder #-}
+{-# SPECIALIZE blockListF' :: (a -> Builder) -> [a] -> Builder #-}
 
 -- | Simple JSON-like map formatter; works for Map, HashMap, etc
 mapF :: (IsList t, Item t ~ (k, v), Buildable k, Buildable v)
      => t -> Builder
-mapF xs =
+mapF = mapF' build build
+{-# INLINE mapF #-}
+
+mapF' :: (IsList t, Item t ~ (k, v))
+      => (k -> Builder) -> (v -> Builder) -> t -> Builder
+mapF' fbuild_k fbuild_v xs =
   "{" <> mconcat (intersperse ", " (map buildPair (IsList.toList xs))) <> "}"
   where
-    buildPair (k, v) = build k <> ": " <> build v
+    buildPair (k, v) = fbuild_k k <> ": " <> fbuild_v v
 
 blockMapF :: (IsList t, Item t ~ (k, v), Buildable k, Buildable v)
           => t -> Builder
-blockMapF xs
+blockMapF = blockMapF' build build
+{-# INLINE blockMapF #-}
+
+blockMapF' :: (IsList t, Item t ~ (k, v))
+           => (k -> Builder) -> (v -> Builder) -> t -> Builder
+blockMapF' fbuild_k fbuild_v xs
   | null items = "{}\n"
   | otherwise  = mconcat items
   where
-    items = map (uncurry nameF) (IsList.toList xs)
+    items = map (\(k, v) -> nameF (fbuild_k k) (fbuild_v v)) (IsList.toList xs)
 
 -- TODO:
---   • all this stuff with custom passed formatters for elem/key/value
 --   • maybe add something like blockMapF_ and blockListF_ that would add
 --     a blank line automatically? or `---` and `:::` or something?
 
