@@ -64,22 +64,31 @@ module Fmt
 )
 where
 
-import GHC.Exts (IsList, Item)
-import qualified GHC.Exts as IsList (toList)
+-- Generic useful things
 import Data.List
-import Data.Foldable (toList)
-import Numeric
 import Data.Char
+import Data.Monoid
+import Lens.Micro
+import Numeric
+-- Text
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy as TL
-import Data.Text.Lazy.Builder hiding (fromString)
-import Data.Monoid
+-- 'Buildable' and text-format
 import Data.Text.Buildable
 import qualified Data.Text.Format as TF
+-- Text 'Builder'
+import Data.Text.Lazy.Builder hiding (fromString)
+-- 'Foldable' and 'IsList' for list/map formatters
+import Data.Foldable (toList)
+import GHC.Exts (IsList, Item)
+import qualified GHC.Exts as IsList (toList)
+-- Bytestring
 import qualified Data.ByteString as BS
+-- Formatting bytestrings
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Base64 as B64
+
 
 ----------------------------------------------------------------------------
 -- Operators with 'Buildable'
@@ -296,7 +305,30 @@ instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
 
 -- | Format a list like a tuple. Used to define 'tupleF'.
 tupleLikeF :: [Builder] -> Builder
-tupleLikeF xs = "(" <> mconcat (intersperse ", " xs) <> ")"
+tupleLikeF xs
+  | True `elem` mls = mconcat (intersperse "\n,\n" items)
+  | otherwise = "(" <> mconcat (intersperse ", " xs) <> ")"
+  where
+    (mls, items) = unzip $ zipWith3 buildItem
+                             xs (set _head True falses) (set _last True falses)
+    -- A list of 'False's which has the same length as 'xs'
+    falses = map (const False) xs
+    -- Returns 'True' if the item is multiline
+    buildItem :: Builder
+              -> Bool              -- ^ Is the item the first?
+              -> Bool              -- ^ Is the item the last?
+              -> (Bool, Builder)
+    buildItem x isFirst isLast =
+      case map fromLazyText (TL.lines (toLazyText x)) of
+        [] | isFirst && isLast -> (False, "()")
+           | isFirst           -> (False, "(")
+           |            isLast -> (False, "  )\n")
+        ls ->
+           (not (null (tail ls)),
+            mconcat . intersperse "\n" $
+              ls & _head %~ (if isFirst then ("( " <>) else ("  " <>))
+                 & _tail.each %~ ("  " <>)
+                 & _last %~ (if isLast then (<> " )\n") else id))
 
 -- | Fit in the given length, truncating on the left.
 prefixF :: Buildable a => Int -> a -> Builder
@@ -411,12 +443,14 @@ precF :: Real a => Int -> a -> Builder
 precF = TF.prec
 
 {- TODO add these:
+
 * something that would cut a string by adding ellipsis to the center
 * 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
 * something that would show time and date in a standard way
 * conditional formatting (if x then y else mempty)
 * optimise base16F and base64F
 * make it possible to use base16F and base64F with lazy bytestrings?
+* add something for indenting all lines except for the first one?
 -}
 
 {- DOCS TODOS
@@ -434,8 +468,6 @@ precF = TF.prec
   best possible library around it, not just a proof of concept”)
 * clarify what exactly is hard about writing `formatting` formatters
 * write that [(a,b)] works too and could be used
-* use 4 spaces instead of 2?
-
 -}
 
 {- OTHER TODOS
@@ -453,6 +485,8 @@ precF = TF.prec
 * actually, what about |< and >|?
 * what effect does it have on compilation time? what effect do
   other formatting libraries have on compilation time?
+* add tests for tupleF and tupleLikeF
+* use 4 spaces instead of 2?
 -}
 
 class FromBuilder a where
