@@ -3,7 +3,7 @@
 * Added some formatters:
 
     * `indent`
-    * formatters for lists and maps (`listF`, etc)
+    * formatters for lists, maps and tuples (`listF`, etc)
     * `hexF`, `octF`, `binF`, `baseF` and floating-point formatters
     * `ordinalF` and `commaizeF`
     * padding and trimming formatters

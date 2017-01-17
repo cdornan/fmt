@@ -32,6 +32,10 @@ module Fmt
   mapF, mapF',
   blockMapF, blockMapF',
 
+  -- ** Tuples
+  tupleF,
+  tupleLikeF,
+
   -- ** Padding/trimming
   prefixF,
   suffixF,
@@ -237,6 +241,62 @@ blockMapF' fbuild_k fbuild_v xs
 -- TODO:
 --   • maybe add something like blockMapF_ and blockListF_ that would add
 --     a blank line automatically? or `---` and `:::` or something?
+--   • should also add something to _not_ add a blank line between list
+--     entries (e.g. when they are 'name'd and can be clearly differentiated)
+--   • should also add something that would truncate lists in the middle
+--     (and maybe not in the middle as well)
+--   • the problem is that the user might want to combine them so I guess
+--     we can't make a separate combinator for each
+
+class TupleF a where
+  tupleF :: a -> Builder
+
+instance (Buildable a1, Buildable a2)
+  => TupleF (a1, a2) where
+  tupleF (a1, a2) = tupleLikeF
+    [build a1, build a2]
+
+instance (Buildable a1, Buildable a2, Buildable a3)
+  => TupleF (a1, a2, a3) where
+  tupleF (a1, a2, a3) = tupleLikeF
+    [build a1, build a2, build a3]
+
+instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4)
+  => TupleF (a1, a2, a3, a4) where
+  tupleF (a1, a2, a3, a4) = tupleLikeF
+    [build a1, build a2, build a3, build a4]
+
+instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
+          Buildable a5)
+  => TupleF (a1, a2, a3, a4, a5) where
+  tupleF (a1, a2, a3, a4, a5) = tupleLikeF
+    [build a1, build a2, build a3, build a4,
+     build a5]
+
+instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
+          Buildable a5, Buildable a6)
+  => TupleF (a1, a2, a3, a4, a5, a6) where
+  tupleF (a1, a2, a3, a4, a5, a6) = tupleLikeF
+    [build a1, build a2, build a3, build a4,
+     build a5, build a6]
+
+instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
+          Buildable a5, Buildable a6, Buildable a7)
+  => TupleF (a1, a2, a3, a4, a5, a6, a7) where
+  tupleF (a1, a2, a3, a4, a5, a6, a7) = tupleLikeF
+    [build a1, build a2, build a3, build a4,
+     build a5, build a6, build a7]
+
+instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
+          Buildable a5, Buildable a6, Buildable a7, Buildable a8)
+  => TupleF (a1, a2, a3, a4, a5, a6, a7, a8) where
+  tupleF (a1, a2, a3, a4, a5, a6, a7, a8) = tupleLikeF
+    [build a1, build a2, build a3, build a4,
+     build a5, build a6, build a7, build a8]
+
+-- | Format a list like a tuple. Used to define 'tupleF'.
+tupleLikeF :: [Builder] -> Builder
+tupleLikeF xs = "(" <> mconcat (intersperse ", " xs) <> ")"
 
 -- | Fit in the given length, truncating on the left.
 prefixF :: Buildable a => Int -> a -> Builder
@@ -357,7 +417,6 @@ precF = TF.prec
 * conditional formatting (if x then y else mempty)
 * optimise base16F and base64F
 * make it possible to use base16F and base64F with lazy bytestrings?
-* tupleF? or some other way to format pairs?
 -}
 
 {- DOCS TODOS
