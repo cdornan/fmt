@@ -96,7 +96,6 @@ main = hspec $ do
         listF (M.fromList [(1,2),(3,4),(5,6)] :: Map Int Int) ==#> "[2, 4, 6]"
 
     describe "'blockListF'" $ do
-      let unlinesB = fromLazyText . TL.unlines
       it "empty list" $ do
         blockListF ([] :: [Int]) ==#> "[]\n"
       it "null elements" $ do
@@ -170,7 +169,6 @@ main = hspec $ do
         mapF (M.fromList m) ==#> "{a: True, b: False, c: True, d: False}"
 
     describe "'blockMapF'" $ do
-      let unlinesB = fromLazyText . TL.unlines
       it "empty map" $ do
         blockMapF ([] :: [(Int, Int)]) ==#> "{}\n"
       it "complex example" $ do
@@ -186,6 +184,136 @@ main = hspec $ do
                     "baz:",
                     "  a",
                     "  g"]
+
+    describe "tuples" $ do
+      it "tupleF" $ do
+        -- we don't need complicated tests here, they're all tested in
+        -- 'tupleLikeF' tests
+        tupleF (n, s) ==#> "(25, !)"
+        tupleF (n, s, n, s) ==#> "(25, !, 25, !)"
+        tupleF (n, s, n, s, 'a', 'b', 'c', 'd') ==#>
+          "(25, !, 25, !, a, b, c, d)"
+      describe "tupleLikeF" $ do
+        describe "one-line" $ do
+          it "()" $ do
+            tupleLikeF [] ==#> "()"
+          it "('')" $ do
+            tupleLikeF [""] ==#> "()"
+          it "(a)" $ do
+            tupleLikeF ["a"] ==#> "(a)"
+          it "(a,b)" $ do
+            tupleLikeF ["a", "b"] ==#> "(a, b)"
+          it "(a,'')" $ do
+            tupleLikeF ["a", ""] ==#> "(a, )"
+          it "('',b)" $ do
+            tupleLikeF ["", "b"] ==#> "(, b)"
+          it "('','')" $ do
+            tupleLikeF ["", ""] ==#> "(, )"
+          it "(a,b,c)" $ do
+            tupleLikeF ["a", "ba", "caba"] ==#> "(a, ba, caba)"
+        it "weird case" $ do
+          -- not sure whether I should fix it or not
+          tupleLikeF ["a\n"] ==#> "(a\n)"
+        describe "multiline" $ do
+          describe "all non-empty" $ do
+            it "1 element (2 lines)" $ do
+              tupleLikeF ["a\nx"] ==#> unlinesB ["( a",
+                                                 "  x )"]
+              tupleLikeF ["a\n x"] ==#> unlinesB ["( a",
+                                                  "   x )"]
+              tupleLikeF [" a\nx\n"] ==#> unlinesB ["(  a",
+                                                    "  x )"]
+            it "1 element (3 lines)" $ do
+              tupleLikeF ["a\nb\nc"] ==#> unlinesB ["( a",
+                                                    "  b",
+                                                    "  c )"]
+            it "2 elements (1 line + 2 lines)" $ do
+              tupleLikeF ["a", "b\nc"] ==#>
+                unlinesB ["( a",
+                          ",",
+                          "  b",
+                          "  c )"]
+            it "2 elements (2 lines + 1 line)" $ do
+              tupleLikeF ["a\nb", "c"] ==#>
+                unlinesB ["( a",
+                          "  b",
+                          ",",
+                          "  c )"]
+            it "3 elements (each has 2 lines)" $ do
+              tupleLikeF ["a\nb", "c\nd", "e\nf"] ==#>
+                unlinesB ["( a",
+                          "  b",
+                          ",",
+                          "  c",
+                          "  d",
+                          ",",
+                          "  e",
+                          "  f )"]
+          describe "some empty" $ do
+            it "2 elements (0 + 2)" $ do
+              tupleLikeF ["", "a\nb"] ==#>
+                unlinesB ["(",
+                          ",",
+                          "  a",
+                          "  b )"]
+            it "2 elements (2 + 0)" $ do
+              tupleLikeF ["a\nb", ""] ==#>
+                unlinesB ["( a",
+                          "  b",
+                          ",",
+                          "  )"]
+            it "3 elements (0 + 2 + 0)" $ do
+              tupleLikeF ["", "a\nb", ""] ==#>
+                unlinesB ["(",
+                          ",",
+                          "  a",
+                          "  b",
+                          ",",
+                          "  )"]
+            it "3 elements (2 + 0 + 2)" $ do
+              tupleLikeF ["a\nb", "", "c\nd"] ==#>
+                unlinesB ["( a",
+                          "  b",
+                          ",",
+                          ",",
+                          "  c",
+                          "  d )"]
+            it "4 elements (2 + 0 + 0 + 2)" $ do
+              tupleLikeF ["a\nb", "", "", "c\nd"] ==#>
+                unlinesB ["( a",
+                          "  b",
+                          ",",
+                          ",",
+                          ",",
+                          "  c",
+                          "  d )"]
+
+        {-
+tupleLikeF xs
+  | True `elem` mls = mconcat (intersperse "\n,\n" items)
+  | otherwise = "(" <> mconcat (intersperse ", " xs) <> ")"
+  where
+    (mls, items) = unzip $ zipWith3 buildItem
+                             xs (set _head True falses) (set _last True falses)
+    -- A list of 'False's which has the same length as 'xs'
+    falses = map (const False) xs
+    -- Returns 'True' if the item is multiline
+    buildItem :: Builder
+              -> Bool              -- ^ Is the item the first?
+              -> Bool              -- ^ Is the item the last?
+              -> (Bool, Builder)
+    buildItem x isFirst isLast =
+      case map fromLazyText (TL.lines (toLazyText x)) of
+        [] | isFirst && isLast -> (False, "()")
+           | isFirst           -> (False, "(")
+           |            isLast -> (False, "  )\n")
+        ls ->
+           (not (null (tail ls)),
+            mconcat . intersperse "\n" $
+              ls & _head %~ (if isFirst then ("( " <>) else ("  " <>))
+                 & _tail.each %~ ("  " <>)
+                 & _last %~ (if isLast then (<> " )\n") else id))
+-}
 
     describe "padding" $ do
       it "prefixF" $ do
@@ -269,3 +397,6 @@ main = hspec $ do
 
 (==#>) :: Builder -> Builder -> Expectation
 (==#>) = shouldBe
+
+unlinesB :: [TL.Text] -> Builder
+unlinesB = fromLazyText . TL.unlines

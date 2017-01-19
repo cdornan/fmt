@@ -306,7 +306,7 @@ instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
 -- | Format a list like a tuple. Used to define 'tupleF'.
 tupleLikeF :: [Builder] -> Builder
 tupleLikeF xs
-  | True `elem` mls = mconcat (intersperse "\n,\n" items)
+  | True `elem` mls = mconcat (intersperse ",\n" items)
   | otherwise = "(" <> mconcat (intersperse ", " xs) <> ")"
   where
     (mls, items) = unzip $ zipWith3 buildItem
@@ -321,14 +321,14 @@ tupleLikeF xs
     buildItem x isFirst isLast =
       case map fromLazyText (TL.lines (toLazyText x)) of
         [] | isFirst && isLast -> (False, "()")
-           | isFirst           -> (False, "(")
+           | isFirst           -> (False, "(\n")
            |            isLast -> (False, "  )\n")
         ls ->
            (not (null (tail ls)),
-            mconcat . intersperse "\n" $
+            mconcat . map (<> "\n") $
               ls & _head %~ (if isFirst then ("( " <>) else ("  " <>))
                  & _tail.each %~ ("  " <>)
-                 & _last %~ (if isLast then (<> " )\n") else id))
+                 & _last %~ (if isLast then (<> " )") else id))
 
 -- | Fit in the given length, truncating on the left.
 prefixF :: Buildable a => Int -> a -> Builder
