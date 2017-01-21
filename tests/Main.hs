@@ -369,6 +369,14 @@ main = hspec $ do
       it "precF" $ do
         precF 2 f1_3 ==#> "1.3"
 
+    describe "conditionals" $ do
+      it "whenF" $ do
+        whenF True "hi" ==#> "hi"
+        whenF False "hi" ==#> ""
+      it "unlessF" $ do
+        unlessF True "hi" ==#> ""
+        unlessF False "hi" ==#> "hi"
+
 ----------------------------------------------------------------------------
 -- Utilities
 ----------------------------------------------------------------------------

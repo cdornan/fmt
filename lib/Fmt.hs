@@ -65,6 +65,10 @@ module Fmt
   exptF,
   fixedF,
   precF,
+
+  -- ** Conditional formatting
+  whenF,
+  unlessF,
 )
 where
 
@@ -469,14 +473,24 @@ fixedF = TF.fixed
 precF :: Real a => Int -> a -> Builder
 precF = TF.prec
 
+whenF :: Bool -> Builder -> Builder
+whenF True  x = x
+whenF False x = mempty
+{-# INLINE whenF #-}
+
+unlessF :: Bool -> Builder -> Builder
+unlessF False x = x
+unlessF True  x = mempty
+{-# INLINE unlessF #-}
+
 {- TODO add these:
 
 * something that would cut a string by adding ellipsis to the center
 * 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
 * something that would show time and date in a standard way
-* conditional formatting (if x then y else mempty)
 * optimise base16F and base64F
 * make it possible to use base16F and base64F with lazy bytestrings?
+* make hexF work for ByteStrings? 'base16F' seems hard to remember
 * add something for indenting all lines except for the first one?
 * something for JSON lists and maps?
 -}
@@ -513,7 +527,6 @@ precF = TF.prec
 * actually, what about |< and >|?
 * what effect does it have on compilation time? what effect do
   other formatting libraries have on compilation time?
-* add tests for tupleF and tupleLikeF
 * use 4 spaces instead of 2?
 -}
 
