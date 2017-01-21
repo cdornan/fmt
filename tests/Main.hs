@@ -288,32 +288,13 @@ main = hspec $ do
                           "  c",
                           "  d )"]
 
-        {-
-tupleLikeF xs
-  | True `elem` mls = mconcat (intersperse "\n,\n" items)
-  | otherwise = "(" <> mconcat (intersperse ", " xs) <> ")"
-  where
-    (mls, items) = unzip $ zipWith3 buildItem
-                             xs (set _head True falses) (set _last True falses)
-    -- A list of 'False's which has the same length as 'xs'
-    falses = map (const False) xs
-    -- Returns 'True' if the item is multiline
-    buildItem :: Builder
-              -> Bool              -- ^ Is the item the first?
-              -> Bool              -- ^ Is the item the last?
-              -> (Bool, Builder)
-    buildItem x isFirst isLast =
-      case map fromLazyText (TL.lines (toLazyText x)) of
-        [] | isFirst && isLast -> (False, "()")
-           | isFirst           -> (False, "(")
-           |            isLast -> (False, "  )\n")
-        ls ->
-           (not (null (tail ls)),
-            mconcat . intersperse "\n" $
-              ls & _head %~ (if isFirst then ("( " <>) else ("  " <>))
-                 & _tail.each %~ ("  " <>)
-                 & _last %~ (if isLast then (<> " )\n") else id))
--}
+    describe "ADTs" $ do
+      it "maybeF" $ do
+        maybeF (Nothing :: Maybe Int) ==#> "<Nothing>"
+        maybeF (Just 3 :: Maybe Int) ==#> "3"
+      it "eitherF" $ do
+        eitherF (Left 1 :: Either Int Int) ==#> "<Left:> 1"
+        eitherF (Right 1 :: Either Int Int) ==#> "<Right:> 1"
 
     describe "padding" $ do
       it "prefixF" $ do

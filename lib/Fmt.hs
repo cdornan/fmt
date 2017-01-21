@@ -36,6 +36,10 @@ module Fmt
   tupleF,
   tupleLikeF,
 
+  -- ** ADTs
+  maybeF,
+  eitherF,
+
   -- ** Padding/trimming
   prefixF,
   suffixF,
@@ -330,6 +334,29 @@ tupleLikeF xs
                  & _tail.each %~ ("  " <>)
                  & _last %~ (if isLast then (<> " )") else id))
 
+{- |
+Like 'build' for 'Maybe', but displays 'Nothing' as @<Nothing>@ instead of an empty string.
+
+'build':
+
+>>> build (Nothing :: Maybe Int)
+""
+>>> build (Just 1 :: Maybe Int)
+"1"
+
+'maybeF':
+
+>>> maybeF (Nothing :: Maybe Int)
+"<Nothing>"
+>>> maybeF (Just 1 :: Maybe Int)
+"1"
+-}
+maybeF :: Buildable a => Maybe a -> Builder
+maybeF = maybe "<Nothing>" build
+
+eitherF :: (Buildable a, Buildable b) => Either a b -> Builder
+eitherF = either (\x -> "<Left:> " <> build x) (\x -> "<Right:> " <> build x)
+
 -- | Fit in the given length, truncating on the left.
 prefixF :: Buildable a => Int -> a -> Builder
 prefixF size =
@@ -451,6 +478,7 @@ precF = TF.prec
 * optimise base16F and base64F
 * make it possible to use base16F and base64F with lazy bytestrings?
 * add something for indenting all lines except for the first one?
+* something for JSON lists and maps?
 -}
 
 {- DOCS TODOS
