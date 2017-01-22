@@ -8,10 +8,11 @@
     * `ordinalF` and `commaizeF`
     * padding and trimming formatters
     * `base64F` and `base16F`
+    * conditionals (`whenF` and `unlessF`)
 
 * Made all operators associate to the right (`Builder` documentation says it's faster than the opposite).
 
-* Reexported `Buildable`.
+* Reexported `Buildable` and `Builder`.
 
 # 0.0.0.2
 
