@@ -16,8 +16,8 @@ module Fmt
   (>%%<<),
   (>>%%<),
 
+  Builder,
   FromBuilder(..),
-
   Buildable(..),
 
   -- * Formatters
@@ -520,7 +520,6 @@ unlessF True  x = mempty
 * something like https://hackage.haskell.org/package/groom
 * something for wrapping lists (not indenting, just hard-wrapping)
 * reexport (<>)?
-* reexport 'Builder'
 * colors?
 * add NL or _NL for newline? or (<\>) or (<>\)? and also (>%\)?
 * have to decide on whether it would be >%< or >%%< or maybe >|<
