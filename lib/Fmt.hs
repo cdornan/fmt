@@ -178,6 +178,10 @@ nameF k v = case TL.lines (toLazyText (build v)) of
     ls  -> build k <> ":\n" <>
            mconcat ["  " <> fromLazyText s <> "\n" | s <- ls]
 
+----------------------------------------------------------------------------
+-- List formatters
+----------------------------------------------------------------------------
+
 -- | Simple comma-separated list formatter
 listF :: (Foldable f, Buildable a) => f a -> Builder
 listF = listF' build
@@ -229,6 +233,10 @@ blockListF' fbuild xs
 
 {-# SPECIALIZE blockListF' :: (a -> Builder) -> [a] -> Builder #-}
 
+----------------------------------------------------------------------------
+-- Map formatters
+----------------------------------------------------------------------------
+
 -- | Simple JSON-like map formatter; works for Map, HashMap, etc
 mapF :: (IsList t, Item t ~ (k, v), Buildable k, Buildable v)
      => t -> Builder
@@ -255,15 +263,9 @@ blockMapF' fbuild_k fbuild_v xs
   where
     items = map (\(k, v) -> nameF (fbuild_k k) (fbuild_v v)) (IsList.toList xs)
 
--- TODO:
---   • maybe add something like blockMapF_ and blockListF_ that would add
---     a blank line automatically? or `---` and `:::` or something?
---   • should also add something to _not_ add a blank line between list
---     entries (e.g. when they are 'name'd and can be clearly differentiated)
---   • should also add something that would truncate lists in the middle
---     (and maybe not in the middle as well)
---   • the problem is that the user might want to combine them so I guess
---     we can't make a separate combinator for each
+----------------------------------------------------------------------------
+-- Tuple formatters
+----------------------------------------------------------------------------
 
 class TupleF a where
   tupleF :: a -> Builder
@@ -338,6 +340,10 @@ tupleLikeF xs
                  & _tail.each %~ ("  " <>)
                  & _last %~ (if isLast then (<> " )") else id))
 
+----------------------------------------------------------------------------
+-- ADT formatters
+----------------------------------------------------------------------------
+
 {- |
 Like 'build' for 'Maybe', but displays 'Nothing' as @<Nothing>@ instead of an empty string.
 
@@ -360,6 +366,10 @@ maybeF = maybe "<Nothing>" build
 
 eitherF :: (Buildable a, Buildable b) => Either a b -> Builder
 eitherF = either (\x -> "<Left:> " <> build x) (\x -> "<Right:> " <> build x)
+
+----------------------------------------------------------------------------
+-- Other formatters
+----------------------------------------------------------------------------
 
 -- | Fit in the given length, truncating on the left.
 prefixF :: Buildable a => Int -> a -> Builder
@@ -473,6 +483,10 @@ fixedF = TF.fixed
 precF :: Real a => Int -> a -> Builder
 precF = TF.prec
 
+----------------------------------------------------------------------------
+-- Conditional formatters
+----------------------------------------------------------------------------
+
 whenF :: Bool -> Builder -> Builder
 whenF True  x = x
 whenF False x = mempty
@@ -483,51 +497,9 @@ unlessF False x = x
 unlessF True  x = mempty
 {-# INLINE unlessF #-}
 
-{- TODO add these:
-
-* something that would cut a string by adding ellipsis to the center
-* 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
-* something that would show time and date in a standard way
-* optimise base16F and base64F
-* make it possible to use base16F and base64F with lazy bytestrings?
-* make hexF work for ByteStrings? 'base16F' seems hard to remember
-* add something for indenting all lines except for the first one?
-* something for JSON lists and maps?
--}
-
-{- DOCS TODOS
-
-* mention that fmt doesn't do the neat thing that formatting does with (<>)
-  (or maybe it does? there's a monoid instance for functions after all,
-  though I might also have to write a IsString instance for (a -> Builder))
-* write that if %< >% are hated or if it's inconvenient in some cases,
-  you can just use provided formatters and <> (add Fmt.DIY for that?)
-  (e.g. "pub:" <> base16F foo)
-* write that it can be used in parallel with formatting?
-* mention printf in cabal description so that it would be findable
-* mention things that work (<n+1>, <f n>, <show n>)
-* clarify philosophy (“take a free spot in design space; write the
-  best possible library around it, not just a proof of concept”)
-* clarify what exactly is hard about writing `formatting` formatters
-* write that [(a,b)] works too and could be used
--}
-
-{- OTHER TODOS
-
-* credit people properly in the comments (use git blame to find
-  who wrote what code)
-* something to format a record nicely (with generics, probably)
-* something like https://hackage.haskell.org/package/groom
-* something for wrapping lists (not indenting, just hard-wrapping)
-* reexport (<>)?
-* colors?
-* add NL or _NL for newline? or (<\>) or (<>\)? and also (>%\)?
-* have to decide on whether it would be >%< or >%%< or maybe >|<
-* actually, what about |< and >|?
-* what effect does it have on compilation time? what effect do
-  other formatting libraries have on compilation time?
-* use 4 spaces instead of 2?
--}
+----------------------------------------------------------------------------
+-- FromBuilder
+----------------------------------------------------------------------------
 
 class FromBuilder a where
   fromBuilder :: Builder -> a
@@ -547,3 +519,66 @@ instance FromBuilder T.Text where
 instance FromBuilder TL.Text where
   fromBuilder = toLazyText
   {-# INLINE fromBuilder #-}
+
+----------------------------------------------------------------------------
+-- TODOs
+----------------------------------------------------------------------------
+
+{- add these:
+
+* something that would cut a string by adding ellipsis to the center
+* 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
+* something that would show time and date in a standard way
+* optimise base16F and base64F
+* make it possible to use base16F and base64F with lazy bytestrings?
+* make hexF work for ByteStrings? 'base16F' seems hard to remember
+* add something for indenting all lines except for the first one?
+* something for JSON lists and maps?
+-}
+
+{- list/map:
+
+* maybe add something like blockMapF_ and blockListF_ that would add
+  a blank line automatically? or `---` and `:::` or something?
+* should also add something to _not_ add a blank line between list
+  entries (e.g. when they are 'name'd and can be clearly differentiated)
+* should also add something that would truncate lists in the middle
+  (and maybe not in the middle as well)
+* the problem is that the user might want to combine them so I guess
+  we can't make a separate combinator for each
+-}
+
+{- docs
+
+* mention that fmt doesn't do the neat thing that formatting does with (<>)
+  (or maybe it does? there's a monoid instance for functions after all,
+  though I might also have to write a IsString instance for (a -> Builder))
+* write that if %< >% are hated or if it's inconvenient in some cases,
+  you can just use provided formatters and <> (add Fmt.DIY for that?)
+  (e.g. "pub:" <> base16F foo)
+* write that it can be used in parallel with formatting?
+* mention printf in cabal description so that it would be findable
+* mention things that work (<n+1>, <f n>, <show n>)
+* clarify philosophy (“take a free spot in design space; write the
+  best possible library around it, not just a proof of concept”)
+* clarify what exactly is hard about writing `formatting` formatters
+* write that [(a,b)] works too and could be used
+-}
+
+{- others
+
+* credit people properly in the comments (use git blame to find
+  who wrote what code)
+* something to format a record nicely (with generics, probably)
+* something like https://hackage.haskell.org/package/groom
+* something for wrapping lists (not indenting, just hard-wrapping)
+* reexport (<>)? don't know whether to use Semigroup or Monoid, though
+* colors?
+* should it be called 'listBlock' or 'blockList'?
+* add NL or _NL for newline? or (<\>) or (<>\)? and also (>%\)?
+* have to decide on whether it would be >%< or >%%< or maybe >|<
+* actually, what about |< and >|?
+* what effect does it have on compilation time? what effect do
+  other formatting libraries have on compilation time?
+* use 4 spaces instead of 2?
+-}
