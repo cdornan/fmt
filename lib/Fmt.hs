@@ -489,12 +489,12 @@ precF = TF.prec
 
 whenF :: Bool -> Builder -> Builder
 whenF True  x = x
-whenF False x = mempty
+whenF False _ = mempty
 {-# INLINE whenF #-}
 
 unlessF :: Bool -> Builder -> Builder
 unlessF False x = x
-unlessF True  x = mempty
+unlessF True  _ = mempty
 {-# INLINE unlessF #-}
 
 ----------------------------------------------------------------------------
