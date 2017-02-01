@@ -43,6 +43,7 @@ test-suite tests
                      , containers
                      , fmt
                      , hspec >= 2.2 && < 2.5
+                     , neat-interpolation
                      , text
                      , vector
   ghc-options:         -Wall -fno-warn-unused-do-bind

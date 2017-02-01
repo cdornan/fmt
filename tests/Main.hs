@@ -1,5 +1,6 @@
 {-# LANGUAGE
-OverloadedStrings
+OverloadedStrings,
+QuasiQuotes
   #-}
 
 
@@ -10,8 +11,9 @@ module Main where
 import Data.Monoid ((<>))
 -- Text
 import Data.Text (Text)
+import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
-import Data.Text.Lazy.Builder (Builder, fromLazyText)
+import NeatInterpolation
 -- Various data structures
 import qualified Data.Vector as V
 import Data.Vector (Vector)
@@ -99,62 +101,164 @@ main = hspec $ do
       it "empty list" $ do
         blockListF ([] :: [Int]) ==#> "[]\n"
       it "null elements" $ do
-        blockListF ([""] :: [Text]) ==#>
-          unlinesB ["-"]
-        blockListF (["",""] :: [Text]) ==#>
-          unlinesB ["-",
-                    "-"]
-        blockListF (["","a",""] :: [Text]) ==#>
-          unlinesB ["-",
-                    "- a",
-                    "-"]
+        blockListF ([""] :: [Text]) ==#> [text|
+          -
+          |]
+        blockListF (["",""] :: [Text]) ==#> [text|
+          -
+          -
+          |]
+        blockListF (["","a",""] :: [Text]) ==#> [text|
+          -
+          - a
+          -
+          |]
       it "single-line elements" $ do
-        blockListF (["a"] :: [Text]) ==#>
-          unlinesB ["- a"]
-        blockListF (["a","b"] :: [Text]) ==#>
-          unlinesB ["- a",
-                    "- b"]
-        blockListF (["a","b","ccc"] :: [Text]) ==#>
-          unlinesB ["- a",
-                    "- b",
-                    "- ccc"]
+        blockListF (["a"] :: [Text]) ==#> [text|
+          - a
+          |]
+        blockListF (["a","b"] :: [Text]) ==#> [text|
+          -_a
+          -_b
+          |]
+        blockListF (["a","b","ccc"] :: [Text]) ==#> [text|
+          - a
+          - b
+          - ccc
+          |]
       it "multi-line elements" $ do
-        blockListF (["a\nx"] :: [Text]) ==#>
-          unlinesB ["- a",
-                    "  x"]
-        blockListF (["a\n x"] :: [Text]) ==#>
-          unlinesB ["- a",
-                    "   x"]
-        blockListF (["a\n x"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#>
-          unlinesB ["- a",
-                    "   x",
-                    "",
-                    "-  b",
-                    "  xx",
-                    "  y y ",
-                    "",
-                    "- c",
-                    "  "]
+        blockListF (["a\nx"] :: [Text]) ==#> [text|
+          - a
+            x
+          |]
+        blockListF (["a\n x"] :: [Text]) ==#> [text|
+          - a
+             x
+          |]
+        blockListF (["a\n x"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#> [text|
+          - a
+             x
+
+          -  b
+            xx
+            y y_
+
+          - c
+          __
+          |]
       it "mix of single-line and multi-line" $ do
-        blockListF (["a\nx","b"] :: [Text]) ==#>
-          unlinesB ["- a",
-                    "  x",
-                    "",
-                    "- b"]
-        blockListF (["a\nx","b\n"] :: [Text]) ==#>
-          unlinesB ["- a",
-                    "  x",
-                    "",
-                    "- b"]
-        blockListF (["a"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#>
-          unlinesB ["- a",
-                    "",
-                    "-  b",
-                    "  xx",
-                    "  y y ",
-                    "",
-                    "- c",
-                    "  "]
+        blockListF (["a\nx","b"] :: [Text]) ==#> [text|
+          - a
+            x
+
+          - b
+          |]
+        blockListF (["a\nx","b\n"] :: [Text]) ==#> [text|
+          - a
+            x
+
+          - b
+          |]
+        blockListF (["a"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#> [text|
+          - a
+
+          -  b
+            xx
+            y y_
+
+          - c
+          __
+          |]
+    describe "'jsonListF'" $ do
+      it "empty list" $ do
+        jsonListF ([] :: [Int]) ==#> "[]\n"
+      it "null elements" $ do
+        jsonListF ([""] :: [Text]) ==#> [text|
+          [
+
+          ]
+          |]
+        jsonListF (["",""] :: [Text]) ==#> [text|
+          [
+
+          ,
+          ]
+          |]
+        jsonListF (["","a",""] :: [Text]) ==#> [text|
+          [
+
+          , a
+          ,
+          ]
+          |]
+      it "single-line elements" $ do
+        jsonListF (["a"] :: [Text]) ==#> [text|
+          [
+            a
+          ]
+          |]
+        jsonListF (["a","b"] :: [Text]) ==#> [text|
+          [
+            a
+          , b
+          ]
+          |]
+        jsonListF (["a","b","ccc"] :: [Text]) ==#> [text|
+          [
+            a
+          , b
+          , ccc
+          ]
+          |]
+      it "multi-line elements" $ do
+        jsonListF (["a\nx"] :: [Text]) ==#> [text|
+          [
+            a
+            x
+          ]
+          |]
+        jsonListF (["a\n x"] :: [Text]) ==#> [text|
+          [
+            a
+             x
+          ]
+          |]
+        jsonListF (["a\n x"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#> [text|
+          [
+            a
+             x
+          ,  b
+            xx
+            y y_
+          , c
+          __
+          ]
+          |]
+      it "mix of single-line and multi-line" $ do
+        jsonListF (["a\nx","b"] :: [Text]) ==#> [text|
+          [
+            a
+            x
+          , b
+          ]
+          |]
+        jsonListF (["a\nx","b\n"] :: [Text]) ==#> [text|
+          [
+            a
+            x
+          , b
+          ]
+          |]
+        jsonListF (["a"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#> [text|
+          [
+            a
+          ,  b
+            xx
+            y y_
+          , c
+          __
+          ]
+          |]
 
     describe "'mapF'" $ do
       it "simple examples" $ do
@@ -175,15 +279,16 @@ main = hspec $ do
         blockMapF ([("hi", ""),
                     ("foo"," a\n  b"),
                     ("bar","a"),
-                    ("baz","a\ng")] :: [(Text, Text)]) ==#>
-          unlinesB ["hi:",
-                    "foo:",
-                    "   a",
-                    "    b",
-                    "bar: a",
-                    "baz:",
-                    "  a",
-                    "  g"]
+                    ("baz","a\ng")] :: [(Text, Text)]) ==#> [text|
+          hi:
+          foo:
+             a
+              b
+          bar: a
+          baz:
+            a
+            g
+          |]
 
     describe "tuples" $ do
       it "tupleF" $ do
@@ -217,76 +322,92 @@ main = hspec $ do
         describe "multiline" $ do
           describe "all non-empty" $ do
             it "1 element (2 lines)" $ do
-              tupleLikeF ["a\nx"] ==#> unlinesB ["( a",
-                                                 "  x )"]
-              tupleLikeF ["a\n x"] ==#> unlinesB ["( a",
-                                                  "   x )"]
-              tupleLikeF [" a\nx\n"] ==#> unlinesB ["(  a",
-                                                    "  x )"]
+              tupleLikeF ["a\nx"] ==#> [text|
+                ( a
+                  x )
+                |]
+              tupleLikeF ["a\n x"] ==#> [text|
+                ( a
+                   x )
+                |]
+              tupleLikeF [" a\nx\n"] ==#> [text|
+                (  a
+                  x )
+                |]
             it "1 element (3 lines)" $ do
-              tupleLikeF ["a\nb\nc"] ==#> unlinesB ["( a",
-                                                    "  b",
-                                                    "  c )"]
+              tupleLikeF ["a\nb\nc"] ==#> [text|
+                ( a
+                  b
+                  c )
+                |]
             it "2 elements (1 line + 2 lines)" $ do
-              tupleLikeF ["a", "b\nc"] ==#>
-                unlinesB ["( a",
-                          ",",
-                          "  b",
-                          "  c )"]
+              tupleLikeF ["a", "b\nc"] ==#> [text|
+                ( a
+                ,
+                  b
+                  c )
+                |]
             it "2 elements (2 lines + 1 line)" $ do
-              tupleLikeF ["a\nb", "c"] ==#>
-                unlinesB ["( a",
-                          "  b",
-                          ",",
-                          "  c )"]
+              tupleLikeF ["a\nb", "c"] ==#> [text|
+                ( a
+                  b
+                ,
+                  c )
+                |]
             it "3 elements (each has 2 lines)" $ do
-              tupleLikeF ["a\nb", "c\nd", "e\nf"] ==#>
-                unlinesB ["( a",
-                          "  b",
-                          ",",
-                          "  c",
-                          "  d",
-                          ",",
-                          "  e",
-                          "  f )"]
+              tupleLikeF ["a\nb", "c\nd", "e\nf"] ==#> [text|
+                ( a
+                  b
+                ,
+                  c
+                  d
+                ,
+                  e
+                  f )
+                |]
           describe "some empty" $ do
             it "2 elements (0 + 2)" $ do
-              tupleLikeF ["", "a\nb"] ==#>
-                unlinesB ["(",
-                          ",",
-                          "  a",
-                          "  b )"]
+              tupleLikeF ["", "a\nb"] ==#> [text|
+                (
+                ,
+                  a
+                  b )
+                |]
             it "2 elements (2 + 0)" $ do
-              tupleLikeF ["a\nb", ""] ==#>
-                unlinesB ["( a",
-                          "  b",
-                          ",",
-                          "  )"]
+              tupleLikeF ["a\nb", ""] ==#> [text|
+                ( a
+                  b
+                ,
+                  )
+                |]
             it "3 elements (0 + 2 + 0)" $ do
-              tupleLikeF ["", "a\nb", ""] ==#>
-                unlinesB ["(",
-                          ",",
-                          "  a",
-                          "  b",
-                          ",",
-                          "  )"]
+              tupleLikeF ["", "a\nb", ""] ==#> [text|
+                (
+                ,
+                  a
+                  b
+                ,
+                  )
+                |]
             it "3 elements (2 + 0 + 2)" $ do
-              tupleLikeF ["a\nb", "", "c\nd"] ==#>
-                unlinesB ["( a",
-                          "  b",
-                          ",",
-                          ",",
-                          "  c",
-                          "  d )"]
+              tupleLikeF ["a\nb", "", "c\nd"] ==#> [text|
+                ( a
+                  b
+                ,
+                ,
+                  c
+                  d )
+                |]
             it "4 elements (2 + 0 + 0 + 2)" $ do
-              tupleLikeF ["a\nb", "", "", "c\nd"] ==#>
-                unlinesB ["( a",
-                          "  b",
-                          ",",
-                          ",",
-                          ",",
-                          "  c",
-                          "  d )"]
+              tupleLikeF ["a\nb", "", "", "c\nd"] ==#> [text|
+                ( a
+                  b
+                ,
+                ,
+                ,
+                  c
+                  d )
+                |]
 
     describe "ADTs" $ do
       it "maybeF" $ do
@@ -384,8 +505,5 @@ main = hspec $ do
 (==%>) :: Text -> Text -> Expectation
 (==%>) = shouldBe
 
-(==#>) :: Builder -> Builder -> Expectation
-(==#>) = shouldBe
-
-unlinesB :: [TL.Text] -> Builder
-unlinesB = fromLazyText . TL.unlines
+(==#>) :: Builder -> Text -> Expectation
+(==#>) a b = a `shouldBe` build (T.replace "_" " " b)

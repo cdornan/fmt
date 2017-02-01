@@ -27,10 +27,12 @@ module Fmt
   -- ** Lists
   listF, listF',
   blockListF, blockListF',
+  jsonListF, jsonListF',
 
   -- ** Maps
   mapF, mapF',
   blockMapF, blockMapF',
+  --jsonMapF, jsonMapF',
 
   -- ** Tuples
   tupleF,
@@ -233,6 +235,29 @@ blockListF' fbuild xs
 
 {-# SPECIALIZE blockListF' :: (a -> Builder) -> [a] -> Builder #-}
 
+jsonListF :: forall f a. (Foldable f, Buildable a) => f a -> Builder
+jsonListF = jsonListF' build
+{-# INLINE jsonListF #-}
+
+jsonListF' :: forall f a. (Foldable f) => (a -> Builder) -> f a -> Builder
+jsonListF' fbuild xs
+  | null items = "[]\n"
+  | otherwise  = "[\n" <> mconcat items <> "]\n"
+  where
+    items = zipWith buildItem (True : repeat False) (toList xs)
+    -- Item builder
+    buildItem :: Bool -> a -> Builder
+    buildItem isFirst x =
+      case map fromLazyText (TL.lines (toLazyText (fbuild x))) of
+        [] | isFirst   -> "\n"
+           | otherwise -> ",\n"
+        ls ->
+            mconcat . map (<> "\n") $
+              ls & _head %~ (if isFirst then ("  " <>) else (", " <>))
+                 & _tail.each %~ ("  " <>)
+
+{-# SPECIALIZE jsonListF' :: (a -> Builder) -> [a] -> Builder #-}
+
 ----------------------------------------------------------------------------
 -- Map formatters
 ----------------------------------------------------------------------------
@@ -330,9 +355,10 @@ tupleLikeF xs
               -> (Bool, Builder)
     buildItem x isFirst isLast =
       case map fromLazyText (TL.lines (toLazyText x)) of
-        [] | isFirst && isLast -> (False, "()")
+        [] | isFirst && isLast -> (False, "()\n")
            | isFirst           -> (False, "(\n")
            |            isLast -> (False, "  )\n")
+           | otherwise         -> (False, "")
         ls ->
            (not (null (tail ls)),
             mconcat . map (<> "\n") $
@@ -581,4 +607,6 @@ instance FromBuilder TL.Text where
 * what effect does it have on compilation time? what effect do
   other formatting libraries have on compilation time?
 * use 4 spaces instead of 2?
+* change tuples to correspond to jsonList
+* be consistent about newlines after tuples/maps/lists
 -}
