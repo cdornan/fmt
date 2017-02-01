@@ -42,7 +42,7 @@ test-suite tests
   build-depends:       base >=4.6 && <5
                      , containers
                      , fmt
-                     , hspec >= 2.2 && < 2.4
+                     , hspec >= 2.2 && < 2.5
                      , text
                      , vector
   ghc-options:         -Wall -fno-warn-unused-do-bind
