@@ -21,7 +21,7 @@ module Fmt
   Buildable(..),
 
   -- * Formatters
-  indent,
+  indent, indent',
   nameF,
 
   -- ** Lists
@@ -155,23 +155,6 @@ infixr 1 >%%<<
 ----------------------------------------------------------------------------
 -- Formatters
 ----------------------------------------------------------------------------
-
-indent :: (FromBuilder b) => Int -> Builder -> b
-indent n a = fromBuilder (go (toLazyText a))
-  where
-    spaces = fromText (T.replicate n (T.singleton ' '))
-    -- We don't use 'lines' because it doesn't distinguish between trailing
-    -- newline being present/absent. We want the following behavior:
-    --     >>> indent 2 "hi"
-    --     "  hi"
-    --     >>> indent 2 "hi\n"
-    --     "  hi\n"
-    go t | TL.null t = mempty
-    go t = let (l, t') = TL.break ((==) '\n') t
-           in spaces <> if TL.null t'
-                          then fromLazyText l
-                          else fromLazyText l <>
-                               singleton '\n' <> go (TL.tail t')
 
 nameF :: (Buildable a, Buildable b) => a -> b -> Builder
 nameF k v = case TL.lines (toLazyText (build v)) of
@@ -524,6 +507,41 @@ unlessF True  _ = mempty
 {-# INLINE unlessF #-}
 
 ----------------------------------------------------------------------------
+-- Utilities
+----------------------------------------------------------------------------
+
+indent :: (FromBuilder b) => Int -> Builder -> b
+indent n a = fromBuilder (go (toLazyText a))
+  where
+    spaces = fromText (T.replicate n (T.singleton ' '))
+    -- We don't use 'lines' because it doesn't distinguish between trailing
+    -- newline being present/absent. We want the following behavior:
+    --     >>> indent 2 "hi"
+    --     "  hi"
+    --     >>> indent 2 "hi\n"
+    --     "  hi\n"
+    go t | TL.null t = mempty
+    go t = let (l, t') = TL.break ((==) '\n') t
+           in spaces <> if TL.null t'
+                          then fromLazyText l
+                          else fromLazyText l <> singleton '\n' <>
+                               go (TL.tail t')
+
+-- assumes that the prefix doesn't contain newlines
+indent' :: (FromBuilder b) => Int -> T.Text -> Builder -> b
+indent' n pref a = fromBuilder (go True (toLazyText a))
+  where
+    spaces = fromText (T.replicate n (T.singleton ' '))
+    go isFirst t
+      | TL.null t = if isFirst then fromText pref else ""
+      | otherwise = let (l, t') = TL.break ((==) '\n') t
+                    in (if isFirst then fromText pref else spaces) <>
+                        if TL.null t'
+                          then fromLazyText l
+                          else fromLazyText l <> singleton '\n' <>
+                               go False (TL.tail t')
+
+----------------------------------------------------------------------------
 -- FromBuilder
 ----------------------------------------------------------------------------
 
@@ -558,7 +576,6 @@ instance FromBuilder TL.Text where
 * optimise base16F and base64F
 * make it possible to use base16F and base64F with lazy bytestrings?
 * make hexF work for ByteStrings? 'base16F' seems hard to remember
-* add something for indenting all lines except for the first one?
 * something for JSON lists and maps?
 -}
 
@@ -593,6 +610,7 @@ instance FromBuilder TL.Text where
 
 {- others
 
+* change indentation to always add newlines
 * credit people properly in the comments (use git blame to find
   who wrote what code)
 * something to format a record nicely (with generics, probably)
