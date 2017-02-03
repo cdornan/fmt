@@ -290,6 +290,26 @@ main = hspec $ do
             g
           |]
 
+    describe "'jsonMapF'" $ do
+      it "empty map" $ do
+        jsonMapF ([] :: [(Int, Int)]) ==#> "{}\n"
+      it "complex example" $ do
+        jsonMapF ([("hi", ""),
+                   ("foo"," a\n  b"),
+                   ("bar","a"),
+                   ("baz","a\ng")] :: [(Text, Text)]) ==#> [text|
+          {
+            hi:
+          , foo:
+               a
+                b
+          , bar: a
+          , baz:
+              a
+              g
+          }
+          |]
+
     describe "tuples" $ do
       it "tupleF" $ do
         -- we don't need complicated tests here, they're all tested in

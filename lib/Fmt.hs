@@ -32,7 +32,7 @@ module Fmt
   -- ** Maps
   mapF, mapF',
   blockMapF, blockMapF',
-  --jsonMapF, jsonMapF',
+  jsonMapF, jsonMapF',
 
   -- ** Tuples
   tupleF,
@@ -270,6 +270,28 @@ blockMapF' fbuild_k fbuild_v xs
   | otherwise  = mconcat items
   where
     items = map (\(k, v) -> nameF (fbuild_k k) (fbuild_v v)) (IsList.toList xs)
+
+jsonMapF :: (IsList t, Item t ~ (k, v), Buildable k, Buildable v)
+         => t -> Builder
+jsonMapF = jsonMapF' build build
+{-# INLINE jsonMapF #-}
+
+jsonMapF' :: forall t k v. (IsList t, Item t ~ (k, v))
+          => (k -> Builder) -> (v -> Builder) -> t -> Builder
+jsonMapF' fbuild_k fbuild_v xs
+  | null items = "{}\n"
+  | otherwise  = "{\n" <> mconcat items <> "}\n"
+  where
+    items = zipWith buildItem (True : repeat False) (IsList.toList xs)
+    -- Item builder
+    buildItem :: Bool -> (k, v) -> Builder
+    buildItem isFirst (k, v) = do
+      let kb = (if isFirst then "  " else ", ") <> fbuild_k k
+      case map fromLazyText (TL.lines (toLazyText (fbuild_v v))) of
+        []  -> kb <> ":\n"
+        [l] -> kb <> ": " <> l <> "\n"
+        ls  -> kb <> ":\n" <>
+               mconcat ["    " <> s <> "\n" | s <- ls]
 
 ----------------------------------------------------------------------------
 -- Tuple formatters
@@ -576,7 +598,6 @@ instance FromBuilder TL.Text where
 * optimise base16F and base64F
 * make it possible to use base16F and base64F with lazy bytestrings?
 * make hexF work for ByteStrings? 'base16F' seems hard to remember
-* something for JSON lists and maps?
 -}
 
 {- list/map:
