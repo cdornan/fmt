@@ -49,3 +49,5 @@ test-suite tests
   ghc-options:         -Wall -fno-warn-unused-do-bind
   hs-source-dirs:      tests
   default-language:    Haskell2010
+  if impl(ghc < 7.10)
+    buildable: False
