@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE CPP #-}
 
 module Fmt
 (
@@ -98,6 +99,10 @@ import qualified Data.ByteString as BS
 -- Formatting bytestrings
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Base64 as B64
+
+#if __GLASGOW_HASKELL__ < 710
+import Data.Foldable (Foldable)
+#endif
 
 
 ----------------------------------------------------------------------------
