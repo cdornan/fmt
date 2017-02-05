@@ -40,6 +40,7 @@ test-suite tests
   main-is:             Main.hs
   type:                exitcode-stdio-1.0
   build-depends:       base >=4.6 && <5
+                     , bytestring
                      , containers
                      , fmt
                      , hspec >= 2.2 && < 2.5

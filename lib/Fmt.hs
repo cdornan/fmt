@@ -1,3 +1,4 @@
+{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -50,15 +51,16 @@ module Fmt
   padRightF,
   padCenterF,
 
+  -- ** Hex
+  hexF,
+
   -- ** Bytestrings
-  base16F,
   base64F,
 
   -- ** Integers
   ordinalF,
   commaizeF,
   -- *** Base conversion
-  hexF,
   octF,
   binF,
   baseF,
@@ -85,6 +87,7 @@ import Numeric
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Encoding as TL
 -- 'Buildable' and text-format
 import Data.Text.Buildable
 import qualified Data.Text.Format as TF
@@ -98,8 +101,10 @@ import qualified GHC.Exts as IsList (toList)
 #endif
 -- Bytestring
 import qualified Data.ByteString as BS
+import qualified Data.ByteString.Lazy as BSL
 -- Formatting bytestrings
 import qualified Data.ByteString.Base16 as B16
+import qualified Data.ByteString.Base16.Lazy as B16L
 import qualified Data.ByteString.Base64 as B64
 
 #if __GLASGOW_HASKELL__ < 710
@@ -441,6 +446,22 @@ eitherF :: (Buildable a, Buildable b) => Either a b -> Builder
 eitherF = either (\x -> "<Left:> " <> build x) (\x -> "<Right:> " <> build x)
 
 ----------------------------------------------------------------------------
+-- Hex
+----------------------------------------------------------------------------
+
+class FormatAsHex a where
+  hexF :: a -> Builder
+
+instance FormatAsHex BS.ByteString where
+  hexF = fromText . T.decodeLatin1 . B16.encode
+
+instance FormatAsHex BSL.ByteString where
+  hexF = fromLazyText . TL.decodeLatin1 . B16L.encode
+
+instance {-# OVERLAPPABLE #-} Integral a => FormatAsHex a where
+  hexF = TF.hex
+
+----------------------------------------------------------------------------
 -- Other formatters
 ----------------------------------------------------------------------------
 
@@ -471,9 +492,6 @@ padRightF = TF.right
 padCenterF :: Buildable a => Int -> Char -> a -> Builder
 padCenterF i c =
   fromLazyText . TL.center (fromIntegral i) c . toLazyText . build
-
-base16F :: BS.ByteString -> Builder
-base16F = fromText . T.decodeLatin1 . B16.encode
 
 base64F :: BS.ByteString -> Builder
 base64F = fromText . T.decodeLatin1 . B64.encode
@@ -512,9 +530,6 @@ groupInt i c n =
     cycle' xs = xs <> cycle' xs
     -- Suppress the warning about redundant Integral constraint
     _ = toInteger n
-
-hexF :: Integral a => a -> Builder
-hexF = TF.hex
 
 octF :: Integral a => a -> Builder
 octF = baseF 8
@@ -637,9 +652,7 @@ instance FromBuilder TL.Text where
 * something that would cut a string by adding ellipsis to the center
 * 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
 * something that would show time and date in a standard way
-* optimise base16F and base64F
-* make it possible to use base16F and base64F with lazy bytestrings?
-* make hexF work for ByteStrings? 'base16F' seems hard to remember
+* make it possible to use base64F with lazy bytestrings
 -}
 
 {- list/map:

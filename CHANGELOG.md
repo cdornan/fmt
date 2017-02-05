@@ -4,10 +4,11 @@
 
     * `indent`
     * formatters for lists, maps and tuples (`listF`, etc)
-    * `hexF`, `octF`, `binF`, `baseF` and floating-point formatters
+    * `octF`, `binF`, `baseF` and floating-point formatters
+    * `hexF` which works on both numbers and bytestrings
     * `ordinalF` and `commaizeF`
     * padding and trimming formatters
-    * `base64F` and `base16F`
+    * `base64F`
     * conditionals (`whenF` and `unlessF`)
 
 * Made all operators associate to the right (`Builder` documentation says it's faster than the opposite).

@@ -19,6 +19,8 @@ import qualified Data.Vector as V
 import Data.Vector (Vector)
 import qualified Data.Map as M
 import Data.Map (Map)
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Lazy as BSL
 -- Tests
 import Test.Hspec
 
@@ -486,10 +488,6 @@ main = hspec $ do
         padCenterF   8  '!' (""      :: Text) ==#> "!!!!!!!!"
 
     describe "integer" $ do
-      it "hexF" $ do
-        hexF n ==#> "19"
-      it "-hexF" $ do
-        hexF (-n) ==#> "-19"
       it "octF" $ do
         octF n ==#> "31"
       it "binF" $ do
@@ -517,6 +515,16 @@ main = hspec $ do
       it "unlessF" $ do
         unlessF True "hi" ==#> ""
         unlessF False "hi" ==#> "hi"
+
+    describe "'hexF'" $ do
+      it "Int" $ do
+        hexF n ==#> "19"
+      it "-Int" $ do
+        hexF (-n) ==#> "-19"
+      it "strict ByteString" $ do
+        hexF (BS.pack [15,250]) ==#> "0ffa"
+      it "lazy ByteString" $ do
+        hexF (BSL.pack [15,250]) ==#> "0ffa"
 
 ----------------------------------------------------------------------------
 -- Utilities
