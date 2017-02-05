@@ -5,6 +5,11 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE CPP #-}
 
+-- for FormatAsHex
+#if __GLASGOW_HASKELL__ < 710
+{-# LANGUAGE OverlappingInstances #-}
+#endif
+
 module Fmt
 (
   (%<),
@@ -458,8 +463,13 @@ instance FormatAsHex BS.ByteString where
 instance FormatAsHex BSL.ByteString where
   hexF = fromLazyText . TL.decodeLatin1 . B16L.encode
 
+#if __GLASGOW_HASKELL__ >= 710
 instance {-# OVERLAPPABLE #-} Integral a => FormatAsHex a where
   hexF = TF.hex
+#else
+instance Integral a => FormatAsHex a where
+  hexF = TF.hex
+#endif
 
 ----------------------------------------------------------------------------
 -- Other formatters
