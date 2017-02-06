@@ -22,7 +22,6 @@ source-repository head
 
 library
   exposed-modules:     Fmt
-                       Fmt.IO
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.6 && <5,

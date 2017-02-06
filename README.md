@@ -210,23 +210,6 @@ I recommend the second one, but if you can think of better alternatives, please 
 
 ## Extra features
 
-### Effortless `putStr`
-
-One of the usecases of `printf` is throwaway scripts. Marketing speak on: to capture `printf`'s marketshare, I need to provide a viable solution to those users' business needs. Marketing speak off: it'd be kinda cool to add a `FromBuilder (IO ())` instance so that people would be able to just write strings in `do` and they'd print as if by magic.
-
-Marketing speak on again: but I don't want to lose my core users who value type safety and would likely be alienated by such tricks! Marketing speak off again: okay, I'll just put it into a separate module.
-
-``` haskell
-import Fmt.IO
-
-main = do
-  ...
-  "Found "%<length xs>%" objects. Proceeding..."
-  ...
-```
-
-I wouldn't recommend it over `printf`, as – at least for me – typing `"%<` and `>%"` is slightly annoying and I wouldn't want to do it in throwaway scripts. However, it was easy enough to implement and so I added it anyway. (If someone ends up using it, that's great.)
-
 ### Indentation, multiline formatting, generics
 
 When I'm outputting a debug message, I often include all possible data there (just in case I need it). Since I can't be bothered to add indentation or anything, the end result is usually awful and I suffer.
