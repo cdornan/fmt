@@ -1,3 +1,23 @@
+{- Acknowledgements
+~~~~~~~~~~~~~~~~~~~
+
+* 'prefixF', 'suffixF', 'padCenterF', 'groupInt' are taken from
+      <https://hackage.haskell.org/package/formatting>
+  Written by Github user @mwm
+      <https://github.com/mwm>
+
+* 'ordinalF' is taken from
+      <https://hackage.haskell.org/package/formatting>
+  Written by Chris Done
+      <https://github.com/chrisdone>
+
+* 'atBase' is taken from
+      <https://hackage.haskell.org/package/formatting>, originally from
+      <https://hackage.haskell.org/package/lens>
+  Seems to be written by Johan Kiviniemi
+      <https://github.com/ion1>
+-}
+
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -506,7 +526,6 @@ padCenterF i c =
 base64F :: BS.ByteString -> Builder
 base64F = fromText . T.decodeLatin1 . B64.encode
 
--- Taken from 'formatting'
 ordinalF :: (Buildable a, Integral a) => a -> Builder
 ordinalF n
   | tens > 3 && tens < 21 = build n <> "th"
@@ -521,7 +540,6 @@ ordinalF n
 commaizeF :: (Buildable a, Integral a) => a -> Builder
 commaizeF = groupInt 3 ','
 
--- Taken from 'formatting'
 groupInt :: (Buildable a, Integral a) => Int -> Char -> a -> Builder
 groupInt 0 _ n = build n
 groupInt i c n =
@@ -550,8 +568,6 @@ binF = baseF 2
 baseF :: Integral a => Int -> a -> Builder
 baseF numBase = build . atBase numBase
 
--- The following code is taken from 'formatting' (which took it from
--- "Numeric.Lens" from 'lens').
 atBase :: Integral a => Int -> a -> String
 atBase b _ | b < 2 || b > 36 = error ("baseF: Invalid base " ++ show b)
 atBase b n =
@@ -663,6 +679,7 @@ instance FromBuilder TL.Text where
 * 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
 * something that would show time and date in a standard way
 * make it possible to use base64F with lazy bytestrings
+* fmt and fmtLn? or format and formatLn?
 -}
 
 {- list/map:
@@ -697,8 +714,6 @@ instance FromBuilder TL.Text where
 {- others
 
 * change indentation to always add newlines
-* credit people properly in the comments (use git blame to find
-  who wrote what code)
 * something to format a record nicely (with generics, probably)
 * something like https://hackage.haskell.org/package/groom
 * something for wrapping lists (not indenting, just hard-wrapping)
