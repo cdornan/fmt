@@ -81,6 +81,7 @@ module Fmt
 
   -- ** Bytestrings
   base64F,
+  base64UrlF,
 
   -- ** Integers
   ordinalF,
@@ -128,9 +129,12 @@ import qualified GHC.Exts as IsList (toList)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 -- Formatting bytestrings
-import qualified Data.ByteString.Base16 as B16
-import qualified Data.ByteString.Base16.Lazy as B16L
-import qualified Data.ByteString.Base64 as B64
+import qualified Data.ByteString.Base16          as B16
+import qualified Data.ByteString.Base16.Lazy     as B16L
+import qualified Data.ByteString.Base64          as B64
+import qualified Data.ByteString.Base64.Lazy     as B64L
+import qualified Data.ByteString.Base64.URL      as B64U
+import qualified Data.ByteString.Base64.URL.Lazy as B64UL
 
 #if __GLASGOW_HASKELL__ < 710
 import Data.Foldable (Foldable)
@@ -523,8 +527,17 @@ padCenterF :: Buildable a => Int -> Char -> a -> Builder
 padCenterF i c =
   fromLazyText . TL.center (fromIntegral i) c . toLazyText . build
 
-base64F :: BS.ByteString -> Builder
-base64F = fromText . T.decodeLatin1 . B64.encode
+class FormatAsBase64 a where
+  base64F    :: a -> Builder
+  base64UrlF :: a -> Builder
+
+instance FormatAsBase64 BS.ByteString where
+  base64F    = fromText . T.decodeLatin1 . B64.encode
+  base64UrlF = fromText . T.decodeLatin1 . B64U.encode
+
+instance FormatAsBase64 BSL.ByteString where
+  base64F    = fromLazyText . TL.decodeLatin1 . B64L.encode
+  base64UrlF = fromLazyText . TL.decodeLatin1 . B64UL.encode
 
 ordinalF :: (Buildable a, Integral a) => a -> Builder
 ordinalF n
@@ -678,7 +691,6 @@ instance FromBuilder TL.Text where
 * something that would cut a string by adding ellipsis to the center
 * 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
 * something that would show time and date in a standard way
-* make it possible to use base64F with lazy bytestrings
 * fmt and fmtLn? or format and formatLn?
 -}
 
