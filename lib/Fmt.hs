@@ -32,6 +32,9 @@
 
 module Fmt
 (
+  fmt,
+  fmtLn,
+
   (%<),
   (>%),
   (>%%<),
@@ -113,6 +116,7 @@ import Numeric
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.IO as TL
 import qualified Data.Text.Lazy.Encoding as TL
 -- 'Buildable' and text-format
 import Data.Text.Buildable
@@ -140,6 +144,18 @@ import qualified Data.ByteString.Base64.URL.Lazy as B64UL
 import Data.Foldable (Foldable)
 #endif
 
+
+----------------------------------------------------------------------------
+-- Main functions
+----------------------------------------------------------------------------
+
+fmt :: (Buildable x, FromBuilder b) => x -> b
+fmt = fromBuilder . build
+{-# INLINE fmt #-}
+
+fmtLn :: (Buildable x, FromBuilder b) => x -> b
+fmtLn = fromBuilder . (<> "\n"). build
+{-# INLINE fmtLn #-}
 
 ----------------------------------------------------------------------------
 -- Operators with 'Buildable'
@@ -670,7 +686,7 @@ instance FromBuilder Builder where
   fromBuilder = id
   {-# INLINE fromBuilder #-}
 
-instance FromBuilder String where
+instance (a ~ Char) => FromBuilder [a] where
   fromBuilder = TL.unpack . toLazyText
   {-# INLINE fromBuilder #-}
 
@@ -682,6 +698,10 @@ instance FromBuilder TL.Text where
   fromBuilder = toLazyText
   {-# INLINE fromBuilder #-}
 
+instance (a ~ ()) => FromBuilder (IO a) where
+  fromBuilder = TL.putStr . toLazyText
+  {-# INLINE fromBuilder #-}
+
 ----------------------------------------------------------------------------
 -- TODOs
 ----------------------------------------------------------------------------
@@ -691,7 +711,6 @@ instance FromBuilder TL.Text where
 * something that would cut a string by adding ellipsis to the center
 * 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
 * something that would show time and date in a standard way
-* fmt and fmtLn? or format and formatLn?
 -}
 
 {- list/map:
@@ -740,4 +759,5 @@ instance FromBuilder TL.Text where
 * use 4 spaces instead of 2?
 * change tuples to correspond to jsonList
 * be consistent about newlines after tuples/maps/lists
+* find some way to use IO inside %<>% brackets
 -}

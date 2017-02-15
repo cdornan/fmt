@@ -11,7 +11,9 @@
     * `base64F`
     * conditionals (`whenF` and `unlessF`)
 
-* Removed `Fmt.IO` because orphan instances are controversial.
+* Merged `Fmt.IO` with `Fmt` because orphan instances are controversial.
+
+* Added `fmt` and `fmtLn`.
 
 * Made all operators associate to the right (`Builder` documentation says it's faster than the opposite).
 
