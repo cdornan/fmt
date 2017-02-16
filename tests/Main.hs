@@ -436,8 +436,8 @@ main = hspec $ do
         maybeF (Nothing :: Maybe Int) ==#> "<Nothing>"
         maybeF (Just 3 :: Maybe Int) ==#> "3"
       it "eitherF" $ do
-        eitherF (Left 1 :: Either Int Int) ==#> "<Left:> 1"
-        eitherF (Right 1 :: Either Int Int) ==#> "<Right:> 1"
+        eitherF (Left 1 :: Either Int Int) ==#> "<Left>: 1"
+        eitherF (Right 1 :: Either Int Int) ==#> "<Right>: 1"
 
     describe "padding" $ do
       it "prefixF" $ do

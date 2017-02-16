@@ -488,7 +488,7 @@ maybeF :: Buildable a => Maybe a -> Builder
 maybeF = maybe "<Nothing>" build
 
 eitherF :: (Buildable a, Buildable b) => Either a b -> Builder
-eitherF = either (\x -> "<Left:> " <> build x) (\x -> "<Right:> " <> build x)
+eitherF = either (\x -> "<Left>: " <> build x) (\x -> "<Right>: " <> build x)
 
 ----------------------------------------------------------------------------
 -- Hex
