@@ -213,11 +213,11 @@ infixr 1 >%%<<
 -- Formatters
 ----------------------------------------------------------------------------
 
-nameF :: (Buildable a, Buildable b) => a -> b -> Builder
-nameF k v = case TL.lines (toLazyText (build v)) of
-    []  -> build k <> ":\n"
-    [l] -> build k <> ": " <> fromLazyText l <> "\n"
-    ls  -> build k <> ":\n" <>
+nameF :: Builder -> Builder -> Builder
+nameF k v = case TL.lines (toLazyText v) of
+    []  -> k <> ":\n"
+    [l] -> k <> ": " <> fromLazyText l <> "\n"
+    ls  -> k <> ":\n" <>
            mconcat ["  " <> fromLazyText s <> "\n" | s <- ls]
 
 ----------------------------------------------------------------------------
@@ -644,8 +644,8 @@ unlessF True  _ = mempty
 -- Utilities
 ----------------------------------------------------------------------------
 
-indent :: (FromBuilder b) => Int -> Builder -> b
-indent n a = fromBuilder (go (toLazyText a))
+indent :: Int -> Builder -> Builder
+indent n a = go (toLazyText a)
   where
     spaces = fromText (T.replicate n (T.singleton ' '))
     -- We don't use 'lines' because it doesn't distinguish between trailing
@@ -662,8 +662,8 @@ indent n a = fromBuilder (go (toLazyText a))
                                go (TL.tail t')
 
 -- assumes that the prefix doesn't contain newlines
-indent' :: (FromBuilder b) => Int -> T.Text -> Builder -> b
-indent' n pref a = fromBuilder (go True (toLazyText a))
+indent' :: Int -> T.Text -> Builder -> Builder
+indent' n pref a = go True (toLazyText a)
   where
     spaces = fromText (T.replicate n (T.singleton ' '))
     go isFirst t
