@@ -22,8 +22,7 @@ source-repository head
 
 library
   exposed-modules:     Fmt
-  -- other-modules:       
-  -- other-extensions:    
+                       Fmt.Internal
   build-depends:       base >=4.6 && <5,
                        base16-bytestring,
                        base64-bytestring,
