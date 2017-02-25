@@ -293,14 +293,14 @@ Also, 'fmt' can do printing:
 >>> fmt "Hello world!\n"
 Hello world!
 -}
-fmt :: (Buildable x, FromBuilder b) => x -> b
-fmt = fromBuilder . build
+fmt :: FromBuilder b => Builder -> b
+fmt = fromBuilder
 {-# INLINE fmt #-}
 
 {- | Like 'fmt', but appends a newline.
 -}
-fmtLn :: (Buildable x, FromBuilder b) => x -> b
-fmtLn = fromBuilder . (<> "\n"). build
+fmtLn :: FromBuilder b => Builder -> b
+fmtLn = fromBuilder . (<> "\n")
 {-# INLINE fmtLn #-}
 
 ----------------------------------------------------------------------------
