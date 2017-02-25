@@ -1,5 +1,7 @@
 # 0.0.0.3
 
+* Wrote documentation.
+
 * Added some formatters:
 
     * `indent`
@@ -8,10 +10,12 @@
     * `hexF` which works on both numbers and bytestrings
     * `ordinalF` and `commaizeF`
     * padding and trimming formatters
-    * `base64F`
+    * `base64F` and `base64UrlF`
     * conditionals (`whenF` and `unlessF`)
 
 * Merged `Fmt.IO` with `Fmt` because orphan instances are controversial.
+
+* Exported internal classes and functions from `Fmt.Internal`.
 
 * Added `fmt` and `fmtLn`.
 
