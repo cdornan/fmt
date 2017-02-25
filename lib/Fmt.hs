@@ -30,18 +30,21 @@ module Fmt
   -- * Overloaded strings
   -- $overloadedstrings
 
+  -- * Examples
+  -- $examples
+
   -- * Basic formatting
   -- $brackets
+
+  -- ** Ordinary brackets
   (%<),
   (>%),
-  (>%%<),
-
-  -- ** Operators for 'Show'
-  -- $show-brackets
+  -- ** 'Show' brackets
   (%<<),
   (>>%),
+  -- ** Combinations
+  (>%%<),
   (>>%%<<),
-
   (>%%<<),
   (>>%%<),
 
@@ -147,6 +150,44 @@ You need @OverloadedStrings@ enabled to use this library. There are three ways t
     section of your @.cabal@ file.
 -}
 
+{- $examples
+
+Here's a bunch of examples because some people learn better by looking at
+examples.
+
+Insert some variables into a string:
+
+>>> let (a, b, n) = ("foo", "bar", 25)
+>>> ("Here are some words: "%<a>%", "%<b>%"\nAlso a number: "%<n>%"") :: String
+"Here are some words: foo, bar\nAlso a number: 25"
+
+Print it:
+
+>>> fmtLn ("Here are some words: "%<a>%", "%<b>%"\nAlso a number: "%<n>%"")
+Here are some words: foo, bar
+Also a number: 25
+
+Format a list in various ways:
+
+>>> let xs = ["John", "Bob"]
+
+>>> fmtLn ("Using show: "%<<xs>>%"\nUsing listF: "%<listF xs>%"")
+Using show: ["John","Bob"]
+Using listF: [John, Bob]
+
+>>> fmt ("YAML-like:\n"%<blockListF xs>%"")
+YAML-like:
+- John
+- Bob
+
+>>> fmt ("JSON-like: "%<jsonListF xs>%"")
+JSON-like: [
+  John
+, Bob
+]
+
+-}
+
 ----------------------------------------------------------------------------
 -- Operators with 'Buildable'
 ----------------------------------------------------------------------------
@@ -192,7 +233,8 @@ characters and dates, can be put between ('%<') and ('>%'):
 "Meet Alice! She's got 173 stars on Github."
 
 Since the only thing ('%<') and ('>%') do is concatenate strings and do
-conversion, you can use any functions you want inside them:
+conversion, you can use any functions you want inside them. In this case,
+'length':
 
 >>> fmtLn (""%<name>%"'s name has "%<length name>%" letters")
 Alice's name has 5 letters
@@ -215,6 +257,14 @@ you've got one variable following the other:
 >>> let (a, op, b, res) = (2, "*", 2, 4)
 >>> fmtLn (""%<a>%%<op>%%<b>%" = "%<res>%"")
 2*2 = 4
+
+Also, since in some codebases there are /lots/ of types which aren't
+'Buildable', there are operators ('%<<') and ('>>%'), which use 'show'
+instead of 'build':
+
+@
+(""%\<show foo\>%%\<show bar\>%"")    ===    (""%\<\<foo\>\>%%\<\<bar\>\>%"")
+@
 -}
 
 (%<) :: (FromBuilder b) => Builder -> Builder -> b
@@ -233,18 +283,6 @@ infixr 1 >%%<
 ----------------------------------------------------------------------------
 -- Operators with 'Show'
 ----------------------------------------------------------------------------
-
-{- $show-brackets
-
-Since in some codebases there are /lots/ of types which aren't 'Buildable',
-for convenience there are operators ('%<<') and ('>>%'), which use 'show'
-instead of 'build':
-
-@
-""%\<show foo\>%%\<show bar\>%""
-""%\<\<foo\>\>%%\<\<bar\>\>%""
-@
--}
 
 (%<<) :: (FromBuilder b) => Builder -> Builder -> b
 (%<<) str rest = str %< rest
