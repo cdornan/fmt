@@ -121,7 +121,6 @@ import Data.List
 import Data.Monoid
 import Lens.Micro
 -- Text
-import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 -- 'Buildable' and text-format
 import Data.Text.Buildable
@@ -1001,23 +1000,15 @@ This is a list:
     - 1
     - 2
     - 3
+
+The output will always end with a newline, even when the input doesn't.
 -}
 indent :: Int -> Builder -> Builder
-indent n a = go (toLazyText a)
+indent n a = case TL.lines (toLazyText a) of
+    [] -> fromLazyText (spaces <> "\n")
+    xs -> fromLazyText $ TL.unlines (map (spaces <>) xs)
   where
-    spaces = fromText (T.replicate n (T.singleton ' '))
-    -- We don't use 'lines' because it doesn't distinguish between trailing
-    -- newline being present/absent. We want the following behavior:
-    --     >>> indent 2 "hi"
-    --     "  hi"
-    --     >>> indent 2 "hi\n"
-    --     "  hi\n"
-    go t | TL.null t = mempty
-    go t = let (l, t') = TL.break ((==) '\n') t
-           in spaces <> if TL.null t'
-                          then fromLazyText l
-                          else fromLazyText l <> singleton '\n' <>
-                               go (TL.tail t')
+    spaces = TL.replicate (fromIntegral n) (TL.singleton ' ')
 
 ----------------------------------------------------------------------------
 -- TODOs
@@ -1068,7 +1059,6 @@ indent n a = go (toLazyText a)
 {- others
 
 * rename 'padCenterF'
-* change indentation to always add newlines
 * something to format a record nicely (with generics, probably)
 * something like https://hackage.haskell.org/package/groom
 * something for wrapping lists (not indenting, just hard-wrapping)
@@ -1077,7 +1067,7 @@ indent n a = go (toLazyText a)
 * should it be called 'listBlock' or 'blockList'?
 * add NL or _NL for newline? or (<\>) or (<>\)? and also (>%\)?
 * have to decide on whether it would be >%< or >%%< or maybe >|<
-* actually, what about |< and >|?
+* actually, what about |< and >|? also <% and %> are good
 * what effect does it have on compilation time? what effect do
   other formatting libraries have on compilation time?
 * use 4 spaces instead of 2?

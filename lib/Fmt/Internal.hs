@@ -179,14 +179,9 @@ intToDigit' i
 
 -- assumes that the prefix doesn't contain newlines
 indent' :: Int -> T.Text -> Builder -> Builder
-indent' n pref a = go True (toLazyText a)
+indent' n pref a = case TL.lines (toLazyText a) of
+  []     -> fromText pref <> "\n"
+  (x:xs) -> fromLazyText $
+            TL.unlines $ (TL.fromStrict pref <> x) : map (spaces <>) xs
   where
-    spaces = fromText (T.replicate n (T.singleton ' '))
-    go isFirst t
-      | TL.null t = if isFirst then fromText pref else ""
-      | otherwise = let (l, t') = TL.break ((==) '\n') t
-                    in (if isFirst then fromText pref else spaces) <>
-                        if TL.null t'
-                          then fromLazyText l
-                          else fromLazyText l <> singleton '\n' <>
-                               go False (TL.tail t')
+    spaces = TL.replicate (fromIntegral n) (TL.singleton ' ')
