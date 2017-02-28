@@ -1,3 +1,7 @@
+# 0.0.0.4
+
+* Added `format` from `text-format`, because in some cases it's nicer than brackets.
+
 # 0.0.0.3
 
 * Wrote documentation.

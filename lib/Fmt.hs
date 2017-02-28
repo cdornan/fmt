@@ -48,6 +48,11 @@ module Fmt
   (>%%<<),
   (>>%%<),
 
+  -- * Old-style formatting
+  format,
+  formatLn,
+  TF.Format,
+
   -- * Helper functions
   fmt,
   fmtLn,
@@ -121,6 +126,7 @@ import qualified Data.Text.Lazy as TL
 -- 'Buildable' and text-format
 import Data.Text.Buildable
 import qualified Data.Text.Format as TF
+import qualified Data.Text.Format.Params as TF
 -- Text 'Builder'
 import Data.Text.Lazy.Builder hiding (fromString)
 -- 'Foldable' and 'IsList' for list/map formatters
@@ -316,7 +322,19 @@ infixr 1 >>%%<
 infixr 1 >%%<<
 
 ----------------------------------------------------------------------------
--- Main functions
+-- Old-style formatting
+----------------------------------------------------------------------------
+
+format :: (FromBuilder b, TF.Params ps) => TF.Format -> ps -> b
+format f ps = fromBuilder (TF.build f ps)
+{-# INLINE format #-}
+
+formatLn :: (FromBuilder b, TF.Params ps) => TF.Format -> ps -> b
+formatLn f ps = fromBuilder (TF.build f ps <> "\n")
+{-# INLINE formatLn #-}
+
+----------------------------------------------------------------------------
+-- Helper functions
 ----------------------------------------------------------------------------
 
 {- | 'fmt' converts things to 'String', 'Text' or 'Builder'.
@@ -1032,7 +1050,6 @@ indent n a = go (toLazyText a)
 
 {- docs
 
-* add an examples section in the beginning
 * provide a formatting→fmt transition table
 * mention that fmt doesn't do the neat thing that formatting does with (<>)
   (or maybe it does? there's a monoid instance for functions after all,
