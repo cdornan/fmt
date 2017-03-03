@@ -1,7 +1,7 @@
 {- Acknowledgements
 ~~~~~~~~~~~~~~~~~~~
 
-* 'prefixF', 'suffixF', 'padCenterF', 'groupInt' are taken from
+* 'prefixF', 'suffixF', 'padBothF', 'groupInt' are taken from
       <https://hackage.haskell.org/package/formatting>
   Written by Github user @mwm
       <https://github.com/mwm>
@@ -87,7 +87,7 @@ module Fmt
   suffixF,
   padLeftF,
   padRightF,
-  padCenterF,
+  padBothF,
 
   -- ** Hex
   hexF,
@@ -830,22 +830,22 @@ padRightF :: Buildable a => Int -> Char -> a -> Builder
 padRightF = TF.right
 
 {- |
-@padCenterF n c@ pads the string with character @c@ from both sides until
+@padBothF n c@ pads the string with character @c@ from both sides until
 it becomes @n@ characters wide (and does nothing if the string is already
 that long, or longer):
 
->>> padCenterF 5 '=' "foo"
+>>> padBothF 5 '=' "foo"
 "=foo="
->>> padCenterF 5 '=' "foobar"
+>>> padBothF 5 '=' "foobar"
 "foobar"
 
 When padding can't be distributed equally, the left side is preferred:
 
->>> padCenter 8 '=' "foo"
+>>> padBoth 8 '=' "foo"
 "===foo=="
 -}
-padCenterF :: Buildable a => Int -> Char -> a -> Builder
-padCenterF i c =
+padBothF :: Buildable a => Int -> Char -> a -> Builder
+padBothF i c =
   fromLazyText . TL.center (fromIntegral i) c . toLazyText . build
 
 {- |
@@ -1057,7 +1057,6 @@ indent n a = case TL.lines (toLazyText a) of
 
 {- others
 
-* rename 'padCenterF'
 * something to format a record nicely (with generics, probably)
 * something like https://hackage.haskell.org/package/groom
 * something for wrapping lists (not indenting, just hard-wrapping)

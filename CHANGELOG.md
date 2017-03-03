@@ -2,6 +2,8 @@
 
 * Added `format` from `text-format`, because in some cases it's nicer than brackets.
 
+* Renamed `padCenterF` to `padBothF`.
+
 * Modified `indent` and `indent'` to always add newlines.
 
 # 0.0.0.3
