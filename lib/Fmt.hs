@@ -385,6 +385,8 @@ nameF k v = case TL.lines (toLazyText v) of
 
 >>> listF ["hello", "world"]
 "[hello, world]"
+
+For multiline output, use 'jsonListF'.
 -}
 listF :: (Foldable f, Buildable a) => f a -> Builder
 listF = listF' build
@@ -526,10 +528,12 @@ jsonListF' fbuild xs
 #endif
 
 {- | A simple JSON-like map formatter; works for Map, HashMap, etc, as well as
-ordinary lists of pairs. Doesn't handle multiline elements (for that you need 'blockMapF' or 'jsonMapF').
+ordinary lists of pairs.
 
 >>> mapF [("a", 1), ("b", 4)]
 "{a: 1, b: 4}"
+
+For multiline output, use 'jsonMapF'.
 -}
 mapF ::
 #if __GLASGOW_HASKELL__ >= 708
@@ -1032,15 +1036,11 @@ indent n a = case TL.lines (toLazyText a) of
   (and maybe not in the middle as well)
 * the problem is that the user might want to combine them so I guess
   we can't make a separate combinator for each
-* there don't seem to be any cases when 'listF' is better than 'jsonListF',
-  so we'd want to leave only one of those, but there are cases when 'mapF' is
-  better than 'jsonMapF' (i.e. when you want everything to be on one
-  line). What to do? Maybe rename 'jsonMapF' to 'mapF' and 'mapF' to ???
-  (can't think of a name)?
 -}
 
 {- docs
 
+* write explicitly that 'build' can be used and is useful sometimes
 * provide a formatting→fmt transition table
 * mention that fmt doesn't do the neat thing that formatting does with (<>)
   (or maybe it does? there's a monoid instance for functions after all,
@@ -1053,7 +1053,6 @@ indent n a = case TL.lines (toLazyText a) of
 * clarify philosophy (“take a free spot in design space; write the
   best possible library around it, not just a proof of concept”)
 * clarify what exactly is hard about writing `formatting` formatters
-* write that [(a,b)] works too and could be used
 -}
 
 {- others
