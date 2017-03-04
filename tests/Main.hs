@@ -474,18 +474,18 @@ main = hspec $ do
         padRightF   6  '!' ("hello" :: Text) ==#> "hello!"
         padRightF   7  '!' ("hello" :: Text) ==#> "hello!!"
         padRightF   7  '!' (""      :: Text) ==#> "!!!!!!!"
-      it "padCenterF" $ do
-        padCenterF (-1) '!' ("hello" :: Text) ==#> "hello"
-        padCenterF   0  '!' ("hello" :: Text) ==#> "hello"
-        padCenterF   1  '!' ("hello" :: Text) ==#> "hello"
-        padCenterF   5  '!' ("hello" :: Text) ==#> "hello"
-        padCenterF   6  '!' ("hello" :: Text) ==#> "!hello"
-        padCenterF   7  '!' ("hello" :: Text) ==#> "!hello!"
-        padCenterF   7  '!' ("hell"  :: Text) ==#> "!!hell!"
-        padCenterF   7  '!' ("hel"   :: Text) ==#> "!!hel!!"
-        padCenterF   8  '!' ("hell"  :: Text) ==#> "!!hell!!"
-        padCenterF   8  '!' ("hel"   :: Text) ==#> "!!!hel!!"
-        padCenterF   8  '!' (""      :: Text) ==#> "!!!!!!!!"
+      it "padBothF" $ do
+        padBothF (-1) '!' ("hello" :: Text) ==#> "hello"
+        padBothF   0  '!' ("hello" :: Text) ==#> "hello"
+        padBothF   1  '!' ("hello" :: Text) ==#> "hello"
+        padBothF   5  '!' ("hello" :: Text) ==#> "hello"
+        padBothF   6  '!' ("hello" :: Text) ==#> "!hello"
+        padBothF   7  '!' ("hello" :: Text) ==#> "!hello!"
+        padBothF   7  '!' ("hell"  :: Text) ==#> "!!hell!"
+        padBothF   7  '!' ("hel"   :: Text) ==#> "!!hel!!"
+        padBothF   8  '!' ("hell"  :: Text) ==#> "!!hell!!"
+        padBothF   8  '!' ("hel"   :: Text) ==#> "!!!hel!!"
+        padBothF   8  '!' (""      :: Text) ==#> "!!!!!!!!"
 
     describe "integer" $ do
       it "octF" $ do
