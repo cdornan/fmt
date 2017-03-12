@@ -9,17 +9,19 @@ description:
   .
   A comparison with other libraries:
   .
-  * @printf@ (from @Text.Printf@) takes a formatting string and uses
-    some type tricks to accept the rest of the arguments polyvariadically.
-    It's very concise, but there are some drawbacks – it can't produce @Text@
+  * @printf@ (from @Text.Printf@) takes a formatting string and uses some
+    type tricks to accept the rest of the arguments polyvariadically. It's
+    very concise, but there are some drawbacks – it can't produce @Text@
     (you'd have to @T.pack@ it every time) and it doesn't warn you at
     compile-time if you pass wrong arguments or not enough of them.
   .
   * <https://hackage.haskell.org/package/text-format text-format> takes a
-    formatting string with @{}@s in place, and accepts arguments via a tuple.
-    If you want to apply formatting to some of the arguments, you have to use
-    one of the provided formatters. Like @printf@, it can fail at runtime,
-    but at least the formatters are first-class (and you can add new ones).
+    formatting string with angle brackets denoting places where arguments
+    would be substituted (the arguments themselves are provided via a
+    tuple). If you want to apply formatting to some of the arguments, you
+    have to use one of the provided formatters. Like @printf@, it can fail at
+    runtime, but at least the formatters are first-class (and you can add new
+    ones).
   .
   * <https://hackage.haskell.org/package/formatting formatting> takes a
     formatting template consisting of pieces of strings interleaved with
@@ -32,10 +34,9 @@ description:
   * <https://hackage.haskell.org/package/fmt fmt> (i.e. this library)
     provides formatters that are ordinary functions, and a bunch of operators
     for concatenating formatted strings; those operators also do automatic
-    conversion. There are some convenience formatters which aren't present
-    in @formatting@ (like ones for formatting maps, lists, converting to
-    base64, etc). Some find the operator syntax annoying, while others like
-    it.
+    conversion. There are some convenience formatters which aren't present in
+    @formatting@ (like ones for formatting maps, lists, converting to base64,
+    etc). Some find the operator syntax annoying, while others like it.
 homepage:            http://github.com/aelve/fmt
 bug-reports:         http://github.com/aelve/fmt/issues
 license:             BSD3
