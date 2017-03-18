@@ -1080,7 +1080,10 @@ instance (GetFields a, GetFields b) => GetFields (a :*: b) where
 instance (GBuildable a, Selector c) => GetFields (M1 S c a) where
   getFields s@(M1 a) = [(selName s, gbuild a)]
 
-instance {-# OVERLAPPABLE #-} GBuildable a => GetFields (M1 s c a) where
+instance GBuildable a => GetFields (M1 D c a) where
+  getFields (M1 a) = [("", gbuild a)]
+
+instance GBuildable a => GetFields (M1 C c a) where
   getFields (M1 a) = [("", gbuild a)]
 
 instance GetFields U1 where
