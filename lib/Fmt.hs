@@ -18,6 +18,8 @@
       <https://github.com/ion1>
 -}
 
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -113,6 +115,9 @@ module Fmt
   -- ** Conditional formatting
   whenF,
   unlessF,
+
+  -- ** Generic formatting
+  genericF,
 )
 where
 
@@ -134,6 +139,8 @@ import Data.Foldable (toList)
 import GHC.Exts (IsList, Item)
 import qualified GHC.Exts as IsList (toList)
 #endif
+-- Generics
+import GHC.Generics
 
 #if __GLASGOW_HASKELL__ < 710
 import Data.Foldable (Foldable)
@@ -1015,6 +1022,71 @@ indent n a = case TL.lines (toLazyText a) of
     spaces = TL.replicate (fromIntegral n) (TL.singleton ' ')
 
 ----------------------------------------------------------------------------
+-- Generic formatting
+----------------------------------------------------------------------------
+
+genericF :: (Generic a, GBuildable (Rep a)) => a -> Builder
+genericF = gbuild . from
+
+class GBuildable f where
+  gbuild :: f a -> Builder
+
+instance GBuildable a => GBuildable (M1 D d a) where
+  gbuild (M1 x) = gbuild x
+
+instance (GetFields a, Constructor c) => GBuildable (M1 C c a) where
+  -- A note on fixity:
+  --   * Ordinarily e.g. "Foo" is prefix and e.g. ":|" is infix
+  --   * However, "Foo" can be infix when defined as "a `Foo` b"
+  --   * And ":|" can be prefix when defined as "(:|) a b"
+  gbuild c@(M1 x) = case conFixity c of
+    Infix _ _
+      | [a, b] <- fields -> format "({} {} {})" (a, infixName, b)
+      -- this case should never happen, but still
+      | otherwise        -> format "<{}: {}>"
+                              ( prefixName
+                              , mconcat (intersperse ", " fields) )
+    Prefix
+      | isTuple -> tupleLikeF fields
+      | conIsRecord c -> nameF (build prefixName) (blockMapF fieldsWithNames)
+      | null (getFields x) -> build prefixName
+      -- I believe that there will be only one field in this case
+      | null (conName c) -> mconcat (intersperse ", " fields)
+      | otherwise -> format "<{}: {}>"
+                       ( prefixName
+                       , mconcat (intersperse ", " fields) )
+    where
+      (prefixName, infixName)
+        | ":" `isPrefixOf` conName c = ("(" ++ conName c ++ ")", conName c)
+        | otherwise                  = (conName c, "`" ++ conName c ++ "`")
+      fields          = map snd (getFields x)
+      fieldsWithNames = getFields x
+      isTuple         = "(," `isPrefixOf` prefixName
+
+instance Buildable c => GBuildable (K1 i c) where
+  gbuild (K1 a) = build a
+
+instance (GBuildable a, GBuildable b) => GBuildable (a :+: b) where
+  gbuild (L1 x) = gbuild x
+  gbuild (R1 x) = gbuild x
+
+class GetFields f where
+  -- | Get fields, together with their names if available
+  getFields :: f a -> [(String, Builder)]
+
+instance (GetFields a, GetFields b) => GetFields (a :*: b) where
+  getFields (a :*: b) = getFields a ++ getFields b
+
+instance (GBuildable a, Selector c) => GetFields (M1 S c a) where
+  getFields s@(M1 a) = [(selName s, gbuild a)]
+
+instance {-# OVERLAPPABLE #-} GBuildable a => GetFields (M1 s c a) where
+  getFields (M1 a) = [("", gbuild a)]
+
+instance GetFields U1 where
+  getFields _ = []
+
+----------------------------------------------------------------------------
 -- TODOs
 ----------------------------------------------------------------------------
 
@@ -1057,7 +1129,6 @@ indent n a = case TL.lines (toLazyText a) of
 
 {- others
 
-* something to format a record nicely (with generics, probably)
 * something like https://hackage.haskell.org/package/groom
 * something for wrapping lists (not indenting, just hard-wrapping)
 * reexport (<>)? don't know whether to use Semigroup or Monoid, though

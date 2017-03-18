@@ -1,7 +1,5 @@
-{-# LANGUAGE
-OverloadedStrings,
-QuasiQuotes
-  #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 
 module Main where
@@ -525,6 +523,17 @@ main = hspec $ do
         hexF (BS.pack [15,250]) ==#> "0ffa"
       it "lazy ByteString" $ do
         hexF (BSL.pack [15,250]) ==#> "0ffa"
+
+    describe "'genericF'" $ do
+      it "Maybe" $ do
+        genericF (Nothing :: Maybe Int) ==#> "Nothing"
+        genericF (Just 25 :: Maybe Int) ==#> "<Just: 25>"
+      it "Either" $ do
+        genericF (Left 25 :: Either Int Bool) ==#> "<Left: 25>"
+        genericF (Right True :: Either Int Bool) ==#> "<Right: True>"
+      it "tuples" $ do
+        genericF (n, s) ==#> "(25, !)"
+        genericF (n, s, -n, s ++ s) ==#> "(25, !, -25, !!)"
 
 ----------------------------------------------------------------------------
 -- Utilities
