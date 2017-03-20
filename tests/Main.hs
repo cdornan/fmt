@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 
 module Main where
@@ -19,6 +20,8 @@ import qualified Data.Map as M
 import Data.Map (Map)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
+-- Generics
+import GHC.Generics
 -- Tests
 import Test.Hspec
 
@@ -646,6 +649,10 @@ test_tupleMultiline = describe "multiline" $ do
 -- Tests for 'genericF'
 ----------------------------------------------------------------------------
 
+data Foo a = Foo a deriving Generic
+data Bar a = Bar a a deriving Generic
+data Qux = Qux {q1 :: Int, q2 :: Bool, q3 :: Text} deriving Generic
+
 test_generic :: Spec
 test_generic = describe "'genericF'" $ do
   it "Maybe" $ do
@@ -657,6 +664,15 @@ test_generic = describe "'genericF'" $ do
   it "tuples" $ do
     genericF (n, s) ==#> "(25, !)"
     genericF (n, s, -n, s ++ s) ==#> "(25, !, -25, !!)"
+  it "custom types" $ do
+    genericF (Foo n) ==#> "<Foo: 25>"
+    genericF (Bar (n-1) (n+1)) ==#> "<Bar: 24, 26>"
+    genericF (Qux 1 True "hi") ==#> [text|
+      Qux:
+        q1: 1
+        q2: True
+        q3: hi
+      |]
 
 ----------------------------------------------------------------------------
 -- Utilities
