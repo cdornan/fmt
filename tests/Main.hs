@@ -651,7 +651,7 @@ test_tupleMultiline = describe "multiline" $ do
 
 data Foo a = Foo a deriving Generic
 data Bar a = Bar a a deriving Generic
-data Qux = Qux {q1 :: Int, q2 :: Bool, q3 :: Text} deriving Generic
+data Qux a = Qux {q1 :: Int, q2 :: a, q3 :: Text} deriving Generic
 
 data Op = (:|:) Int
         | (:||:) Int Int
@@ -688,6 +688,25 @@ test_generic = describe "'genericF'" $ do
       genericF ((:|||:) 1 2 3) ==#> "<(:|||:): 1, 2, 3>"
       genericF ((:-:) 1 2) ==#> "(1 :-: 2)"
       genericF (O 1 2) ==#> "(1 `O` 2)"
+    describe "types with non-Buildables inside" $ do
+      it "functions" $ do
+        genericF (Foo not) ==#> "<Foo: <function>>"
+      it "lists" $ do
+        genericF (Foo [n, n+1]) ==#> "<Foo: [25, 26]>"
+      it "maps" $ do
+        genericF (Foo (M.singleton n s)) ==#> "<Foo: {25: !}>"
+      it "tuples" $ do
+        genericF (Foo (n, s)) ==#> "<Foo: (25, !)>"
+        genericF (Foo (n, s, n+1)) ==#> "<Foo: (25, !, 26)>"
+      it "tuple with a string inside" $ do
+        -- strings have to be handled differently from lists
+        -- so we test this case separately
+        genericF (Foo (n, s)) ==#> "<Foo: (25, !)>"
+      it "Either" $ do
+        genericF (Foo (Left 25 :: Either Int Int)) ==#> "<Foo: <Left>: 25>"
+      it "Maybe with a non-buildable" $ do
+        genericF (Foo (Just [n])) ==#> "<Foo: [25]>"
+        genericF (Foo (Nothing :: Maybe ())) ==#> "<Foo: <Nothing>>"
 
 ----------------------------------------------------------------------------
 -- Utilities

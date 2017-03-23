@@ -25,6 +25,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE OverlappingInstances #-}
 {-# LANGUAGE CPP #-}
 
 module Fmt
@@ -125,6 +126,8 @@ where
 import Data.List
 import Data.Monoid
 import Lens.Micro
+-- Containers
+import Data.Map (Map)
 -- Text
 import qualified Data.Text.Lazy as TL
 -- 'Buildable' and text-format
@@ -1063,8 +1066,8 @@ instance (GetFields a, Constructor c) => GBuildable (M1 C c a) where
       fieldsWithNames = getFields x
       isTuple         = "(," `isPrefixOf` prefixName
 
-instance Buildable c => GBuildable (K1 i c) where
-  gbuild (K1 a) = build a
+instance Buildable' c => GBuildable (K1 i c) where
+  gbuild (K1 a) = build' a
 
 instance (GBuildable a, GBuildable b) => GBuildable (a :+: b) where
   gbuild (L1 x) = gbuild x
@@ -1088,6 +1091,53 @@ instance GBuildable a => GetFields (M1 C c a) where
 
 instance GetFields U1 where
   getFields _ = []
+
+----------------------------------------------------------------------------
+-- A more powerful Buildable used for genericF
+----------------------------------------------------------------------------
+
+-- | A more powerful 'Buildable' used for 'genericF'. Can build functions,
+-- tuples, lists, maps, etc., as well as combinations thereof.
+class Buildable' a where
+  build' :: a -> Builder
+
+instance Buildable' () where
+  build' _ = "()"
+
+instance (Buildable' a, Buildable' b)
+  => Buildable' (a, b) where
+  build' (a, b) = tupleLikeF [build' a, build' b]
+
+instance (Buildable' a, Buildable' b, Buildable' c)
+  => Buildable' (a, b, c) where
+  build' (a, b, c) = tupleLikeF [build' a, build' b, build' c]
+
+-- TODO: more tuple instances
+
+instance Buildable' [Char] where
+  build' = build
+
+instance Buildable' a => Buildable' [a] where
+  build' = listF' build'
+
+-- TODO: NonEmpty, etc
+
+instance (Ord a, Buildable' a, Buildable' b) => Buildable' (Map a b) where
+  build' = mapF' build' build'
+
+instance (Buildable' a) => Buildable' (Maybe a) where
+  build' Nothing  = maybeF (Nothing         :: Maybe Builder)
+  build' (Just a) = maybeF (Just (build' a) :: Maybe Builder)
+
+instance (Buildable' a, Buildable' b) => Buildable' (Either a b) where
+  build' (Left  a) = eitherF (Left  (build' a) :: Either Builder Builder)
+  build' (Right a) = eitherF (Right (build' a) :: Either Builder Builder)
+
+instance Buildable' (a -> b) where
+  build' _ = "<function>"
+
+instance Buildable a => Buildable' a where
+  build' = build
 
 ----------------------------------------------------------------------------
 -- TODOs

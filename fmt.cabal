@@ -61,6 +61,7 @@ library
                        base16-bytestring,
                        base64-bytestring,
                        bytestring,
+                       containers,
                        microlens >= 0.3,
                        text,
                        text-format >= 0.3
@@ -73,6 +74,7 @@ test-suite tests
   type:                exitcode-stdio-1.0
   build-depends:       base >=4.6 && <5
                      , bytestring
+                     , containers
                      , containers
                      , fmt
                      , hspec >= 2.2 && < 2.5
