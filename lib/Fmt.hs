@@ -25,8 +25,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE OverlappingInstances #-}
 {-# LANGUAGE CPP #-}
+
+#if __GLASGOW_HASKELL__ < 710
+{-# LANGUAGE OverlappingInstances #-}
+#  define _OVERLAPPING_
+#  define _OVERLAPPABLE_
+#  define _OVERLAPS_
+#else
+#  define _OVERLAPPING_ {-# OVERLAPPING #-}
+#  define _OVERLAPPABLE_ {-# OVERLAPPABLE #-}
+#  define _OVERLAPS_ {-# OVERLAPS #-}
+#endif
 
 module Fmt
 (
@@ -1114,7 +1124,7 @@ instance (Buildable' a, Buildable' b, Buildable' c)
 
 -- TODO: more tuple instances
 
-instance Buildable' [Char] where
+instance _OVERLAPPING_ Buildable' [Char] where
   build' = build
 
 instance Buildable' a => Buildable' [a] where
@@ -1136,7 +1146,7 @@ instance (Buildable' a, Buildable' b) => Buildable' (Either a b) where
 instance Buildable' (a -> b) where
   build' _ = "<function>"
 
-instance Buildable a => Buildable' a where
+instance _OVERLAPPABLE_ Buildable a => Buildable' a where
   build' = build
 
 ----------------------------------------------------------------------------
