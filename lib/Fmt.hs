@@ -138,6 +138,7 @@ import Data.Monoid
 import Lens.Micro
 -- Containers
 import Data.Map (Map)
+import qualified Data.Map as Map
 -- Text
 import qualified Data.Text.Lazy as TL
 -- 'Buildable' and text-format
@@ -1133,7 +1134,7 @@ instance Buildable' a => Buildable' [a] where
 -- TODO: NonEmpty, etc
 
 instance (Ord a, Buildable' a, Buildable' b) => Buildable' (Map a b) where
-  build' = mapF' build' build'
+  build' = mapF' build' build' . Map.toList
 
 instance (Buildable' a) => Buildable' (Maybe a) where
   build' Nothing  = maybeF (Nothing         :: Maybe Builder)
