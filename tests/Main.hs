@@ -653,6 +653,13 @@ data Foo a = Foo a deriving Generic
 data Bar a = Bar a a deriving Generic
 data Qux = Qux {q1 :: Int, q2 :: Bool, q3 :: Text} deriving Generic
 
+data Op = (:|:) Int
+        | (:||:) Int Int
+        | (:|||:) Int Int Int
+        | Int :-: Int
+        | Int `O` Int
+  deriving Generic
+
 test_generic :: Spec
 test_generic = describe "'genericF'" $ do
   it "Maybe" $ do
@@ -664,15 +671,23 @@ test_generic = describe "'genericF'" $ do
   it "tuples" $ do
     genericF (n, s) ==#> "(25, !)"
     genericF (n, s, -n, s ++ s) ==#> "(25, !, -25, !!)"
-  it "custom types" $ do
-    genericF (Foo n) ==#> "<Foo: 25>"
-    genericF (Bar (n-1) (n+1)) ==#> "<Bar: 24, 26>"
-    genericF (Qux 1 True "hi") ==#> [text|
-      Qux:
-        q1: 1
-        q2: True
-        q3: hi
-      |]
+  describe "custom types" $ do
+    it "ordinary constructors" $ do
+      genericF (Foo n) ==#> "<Foo: 25>"
+      genericF (Bar (n-1) (n+1)) ==#> "<Bar: 24, 26>"
+    it "records" $ do
+      genericF (Qux 1 True "hi") ==#> [text|
+        Qux:
+          q1: 1
+          q2: True
+          q3: hi
+        |]
+    it "operators and infix constructors" $ do
+      genericF ((:|:) 1) ==#> "<(:|:): 1>"
+      genericF ((:||:) 1 2) ==#> "<(:||:): 1, 2>"
+      genericF ((:|||:) 1 2 3) ==#> "<(:|||:): 1, 2, 3>"
+      genericF ((:-:) 1 2) ==#> "(1 :-: 2)"
+      genericF (O 1 2) ==#> "(1 `O` 2)"
 
 ----------------------------------------------------------------------------
 -- Utilities
