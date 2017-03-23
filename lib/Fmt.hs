@@ -1133,7 +1133,7 @@ instance Buildable' a => Buildable' [a] where
 
 -- TODO: NonEmpty, etc
 
-instance (Ord a, Buildable' a, Buildable' b) => Buildable' (Map a b) where
+instance (Buildable' a, Buildable' b) => Buildable' (Map a b) where
   build' = mapF' build' build' . Map.toList
 
 instance (Buildable' a) => Buildable' (Maybe a) where
