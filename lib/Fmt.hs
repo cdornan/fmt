@@ -160,6 +160,10 @@ import GHC.Generics
 import Data.Foldable (Foldable)
 #endif
 
+#if MIN_VERSION_base(4,9,0)
+import Data.List.NonEmpty (NonEmpty)
+#endif
+
 import Fmt.Internal
 
 
@@ -1164,7 +1168,10 @@ instance _OVERLAPPING_ Buildable' [Char] where
 instance Buildable' a => Buildable' [a] where
   build' = listF' build'
 
--- TODO: NonEmpty, etc
+#if MIN_VERSION_base(4,9,0)
+instance Buildable' a => Buildable' (NonEmpty a) where
+  build' = listF' build'
+#endif
 
 instance (Buildable' a, Buildable' b) => Buildable' (Map a b) where
   build' = mapF' build' build' . Map.toList
