@@ -139,6 +139,12 @@ import Lens.Micro
 -- Containers
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Set (Set)
+import Data.IntMap (IntMap)
+import qualified Data.IntMap as IntMap
+import Data.IntSet (IntSet)
+import qualified Data.IntSet as IntSet
+import Data.Sequence (Seq)
 -- Text
 import qualified Data.Text.Lazy as TL
 -- 'Buildable' and text-format
@@ -1173,8 +1179,20 @@ instance Buildable' a => Buildable' (NonEmpty a) where
   build' = listF' build'
 #endif
 
-instance (Buildable' a, Buildable' b) => Buildable' (Map a b) where
+instance Buildable' a => Buildable' (Seq a) where
+  build' = listF' build'
+
+instance (Buildable' k, Buildable' v) => Buildable' (Map k v) where
   build' = mapF' build' build' . Map.toList
+
+instance (Buildable' v) => Buildable' (Set v) where
+  build' = listF' build'
+
+instance (Buildable' v) => Buildable' (IntMap v) where
+  build' = mapF' build' build' . IntMap.toList
+
+instance Buildable' IntSet where
+  build' = listF' build' . IntSet.toList
 
 instance (Buildable' a) => Buildable' (Maybe a) where
   build' Nothing  = maybeF (Nothing         :: Maybe Builder)
