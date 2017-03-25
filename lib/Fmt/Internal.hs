@@ -19,6 +19,11 @@ module Fmt.Internal
   FormatAsHex(..),
   FormatAsBase64(..),
 
+  -- * Classes used for 'genericF'
+  GBuildable(..),
+  GetFields(..),
+  Buildable'(..),
+
   -- * Helpers
   groupInt,
   atBase,
@@ -136,6 +141,22 @@ instance FormatAsBase64 BS.ByteString where
 instance FormatAsBase64 BSL.ByteString where
   base64F    = fromLazyText . TL.decodeLatin1 . B64L.encode
   base64UrlF = fromLazyText . TL.decodeLatin1 . B64UL.encode
+
+----------------------------------------------------------------------------
+-- Classes used for 'genericF'
+----------------------------------------------------------------------------
+
+class GBuildable f where
+  gbuild :: f a -> Builder
+
+class GetFields f where
+  -- | Get fields, together with their names if available
+  getFields :: f a -> [(String, Builder)]
+
+-- | A more powerful 'Buildable' used for 'genericF'. Can build functions,
+-- tuples, lists, maps, etc., as well as combinations thereof.
+class Buildable' a where
+  build' :: a -> Builder
 
 ----------------------------------------------------------------------------
 -- Helpers

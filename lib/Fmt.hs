@@ -38,6 +38,8 @@
 #  define _OVERLAPS_ {-# OVERLAPS #-}
 #endif
 
+{-# OPTIONS_GHC -Wno-orphans #-}
+
 module Fmt
 (
   -- * Overloaded strings
@@ -1052,9 +1054,6 @@ indent n a = case TL.lines (toLazyText a) of
 genericF :: (Generic a, GBuildable (Rep a)) => a -> Builder
 genericF = gbuild . from
 
-class GBuildable f where
-  gbuild :: f a -> Builder
-
 instance GBuildable a => GBuildable (M1 D d a) where
   gbuild (M1 x) = gbuild x
 
@@ -1094,10 +1093,6 @@ instance (GBuildable a, GBuildable b) => GBuildable (a :+: b) where
   gbuild (L1 x) = gbuild x
   gbuild (R1 x) = gbuild x
 
-class GetFields f where
-  -- | Get fields, together with their names if available
-  getFields :: f a -> [(String, Builder)]
-
 instance (GetFields a, GetFields b) => GetFields (a :*: b) where
   getFields (a :*: b) = getFields a ++ getFields b
 
@@ -1116,11 +1111,6 @@ instance GetFields U1 where
 ----------------------------------------------------------------------------
 -- A more powerful Buildable used for genericF
 ----------------------------------------------------------------------------
-
--- | A more powerful 'Buildable' used for 'genericF'. Can build functions,
--- tuples, lists, maps, etc., as well as combinations thereof.
-class Buildable' a where
-  build' :: a -> Builder
 
 instance Buildable' () where
   build' _ = "()"
@@ -1251,7 +1241,6 @@ instance _OVERLAPPABLE_ Buildable a => Buildable' a where
 
 {- others
 
-* something like https://hackage.haskell.org/package/groom
 * something for wrapping lists (not indenting, just hard-wrapping)
 * reexport (<>)? don't know whether to use Semigroup or Monoid, though
 * colors?
