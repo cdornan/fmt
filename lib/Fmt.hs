@@ -48,6 +48,9 @@ module Fmt
   -- * Examples
   -- $examples
 
+  -- * Migration guide from @formatting@
+  -- $migration
+
   -- * Basic formatting
   -- $brackets
 
@@ -223,6 +226,43 @@ JSON-like: [
   John
 , Bob
 ]
+
+-}
+
+{- $migration
+
+Where you were using @build@, @int@, @text@, etc, you don't have to use anything:
+
+@
+__formatting__    sformat ("Foo: "%build%", bar: "%int) foo bar
+       __fmt__    "Foo: "%\<foo\>%", bar: "%\<bar\>%""
+@
+
+Instead of @shown@, either just use 'show' or double brackets:
+
+@
+__formatting__    sformat ("This uses Show: "%shown%") foo
+    __fmt #1__    "This uses Show: "%\<show foo\>%""
+    __fmt #2__    "This uses Show: "%\<\<foo\>\>%""
+@
+
+Many formatters from @formatting@ have the same names here, but with added
+“F”: 'hexF', 'exptF', etc. Some have been renamed, though:
+
+@
+__Cutting:__
+  fitLeft  -\> 'prefixF'
+  fitRight -\> 'suffixF'
+
+__Padding:__
+  left   -\> 'padLeftF'
+  right  -\> 'padRightF'
+  center -\> 'padBothF'
+
+__Stuff with numbers:__
+  ords   -\> 'ordinalF'
+  commas -\> 'commaizeF'
+@
 
 -}
 
