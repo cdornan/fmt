@@ -55,12 +55,15 @@ module Fmt
   -- $brackets
 
   -- ** Ordinary brackets
+  -- $god1
   (<%),
   (%>),
   -- ** 'Show' brackets
+  -- $god2
   (<<%),
   (%>>),
   -- ** Combinations
+  -- $god3
   (%><%),
   (%>><<%),
   (%><<%),
@@ -231,14 +234,29 @@ JSON-like: [
 
 {- $migration
 
-Where you were using @build@, @int@, @text@, etc, you don't have to use anything:
+Instead of using @%@, surround variables with @<%@ and @%>@. You don't have
+to use @sformat@ or anything else, and also where you were using @build@,
+@int@, @text@, etc in @formatting@, you don't have to use anything in @fmt@:
 
 @
 __formatting__    sformat ("Foo: "%build%", bar: "%int) foo bar
        __fmt__    "Foo: "\<%foo%\>", bar: "\<%bar%\>""
 @
 
-Instead of @shown@, either just use 'show' or double brackets:
+The resulting formatted string is polymorphic and can be used as 'String',
+'Text', 'Builder' or even 'IO' (i.e. the string will be printed to the
+screen). However, when printing it is recommended to use 'fmt' or 'fmtLn' for
+clarity.
+
+@fmt@ provides lots of formatters (which are simply functions that produce
+'Builder'):
+
+@
+__formatting__    sformat ("Got another byte ("%hex%")") x
+       __fmt__    "Got another byte ("\<%hexF x%\>")"
+@
+
+Instead of the @shown@ formatter, either just use 'show' or double brackets:
 
 @
 __formatting__    sformat ("This uses Show: "%shown%") foo
@@ -246,8 +264,8 @@ __formatting__    sformat ("This uses Show: "%shown%") foo
     __fmt #2__    "This uses Show: "\<\<%foo%\>\>""
 @
 
-Many formatters from @formatting@ have the same names here, but with added
-“F”: 'hexF', 'exptF', etc. Some have been renamed, though:
+Many formatters from @formatting@ have the same names in @fmt@, but with
+added “F”: 'hexF', 'exptF', etc. Some have been renamed, though:
 
 @
 __Cutting:__
@@ -264,6 +282,17 @@ __Stuff with numbers:__
   commas -\> 'commaizeF'
 @
 
+Also, some formatters from @formatting@ haven't been added to @fmt@
+yet. Specifically:
+
+* @plural@ and @asInt@ (but instead of @asInt@ you can use 'fromEnum')
+* @prefixBin@, @prefixOrd@, @prefixHex@, and @bytes@
+* formatters that use @Scientific@ (@sci@ and @scifmt@)
+* formatters that deal with time (anything from @Formatting.Time@)
+
+They will be added later. (On the other hand, @fmt@ provides some useful
+formatters not available in @formatting@, such as 'listF', 'mapF', 'tupleF'
+and so on.)
 -}
 
 ----------------------------------------------------------------------------
@@ -345,22 +374,24 @@ instead of 'build':
 @
 -}
 
+-- $god1
+-- Operators for the operators god!
+
 (<%) :: (FromBuilder b) => Builder -> Builder -> b
 (<%) str rest = fromBuilder (str <> rest)
 
 (%>) :: (Buildable a, FromBuilder b) => a -> Builder -> b
 (%>) a rest = fromBuilder (build a <> rest)
 
-(%><%) :: (Buildable a, FromBuilder b) => a -> Builder -> b
-(%><%) a rest = fromBuilder (build a <> rest)
-
 infixr 1 <%
 infixr 1 %>
-infixr 1 %><%
 
 ----------------------------------------------------------------------------
 -- Operators with 'Show'
 ----------------------------------------------------------------------------
+
+-- $god2
+-- More operators for the operators god!
 
 (<<%) :: (FromBuilder b) => Builder -> Builder -> b
 (<<%) str rest = str <% rest
@@ -370,17 +401,29 @@ infixr 1 %><%
 (%>>) a rest = show a %> rest
 {-# INLINE (%>>) #-}
 
-(%>><<%) :: (Show a, FromBuilder b) => a -> Builder -> b
-(%>><<%) a rest = show a %> rest
-{-# INLINE (%>><<%) #-}
-
 infixr 1 <<%
 infixr 1 %>>
-infixr 1 %>><<%
 
 ----------------------------------------------------------------------------
 -- Combinations
 ----------------------------------------------------------------------------
+
+{- $god3
+
+Z̸͠A̵̕͟͠L̡̀́͠G̶̛O͝ ̴͏̀ I͞S̸̸̢͠  ̢̛͘͢C̷͟͡Ó̧̨̧͞M̡͘͟͞I̷͜N̷̕G̷̀̕
+
+(Though you can just use @""@ between @%\> \<%@ instead of using these
+operators, and Show-brackets don't have to be used at all because there's
+'show' available.)
+-}
+
+(%><%) :: (Buildable a, FromBuilder b) => a -> Builder -> b
+(%><%) a rest = fromBuilder (build a <> rest)
+{-# INLINE (%><%) #-}
+
+(%>><<%) :: (Show a, FromBuilder b) => a -> Builder -> b
+(%>><<%) a rest = show a %> rest
+{-# INLINE (%>><<%) #-}
 
 (%>><%) :: (Buildable a, FromBuilder b) => a -> Builder -> b
 (%>><%) a rest = a %><% rest
@@ -390,6 +433,8 @@ infixr 1 %>><<%
 (%><<%) a rest = a %>><<% rest
 {-# INLINE (%><<%) #-}
 
+infixr 1 %><%
+infixr 1 %>><<%
 infixr 1 %>><%
 infixr 1 %><<%
 
