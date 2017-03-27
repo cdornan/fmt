@@ -1,6 +1,7 @@
 # next
 
 * Added `genericF` for formatting arbitrary data.
+* Changed `%<` and `>%` to `<%` and `%>` because they turn out to be easier to type.
 
 # 0.0.0.4
 
