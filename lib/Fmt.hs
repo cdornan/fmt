@@ -1136,6 +1136,40 @@ indent n a = case TL.lines (toLazyText a) of
 -- Generic formatting
 ----------------------------------------------------------------------------
 
+{- | Format an arbitrary value without requiring a 'Buildable' instance:
+
+@
+data Foo = Foo { x :: Bool, y :: [Int] }
+  deriving Generic
+@
+
+>>> fmt (genericF (Foo True [1,2,3]))
+Foo:
+  x: True
+  y: [1, 2, 3]
+
+It works for non-record constructors too:
+
+@
+data Bar = Bar Bool [Int]
+  deriving Generic
+@
+
+>>> fmtLn (genericF (Bar True [1,2,3]))
+<Bar: True, [1, 2, 3]>
+
+Any fields inside the type must either be 'Buildable' or one of the following
+types:
+
+* a function
+* a tuple (up to 8-tuples)
+* list, 'NonEmpty', 'Seq'
+* 'Map', 'IntMap', 'Set', 'IntSet'
+* 'Maybe', 'Either'
+
+The exact format of 'genericF' might change in future versions, so don't rely
+on it. It's merely a convenience function.
+-}
 genericF :: (Generic a, GBuildable (Rep a)) => a -> Builder
 genericF = gbuild . from
 
