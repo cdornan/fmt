@@ -377,9 +377,11 @@ instead of 'build':
 -- $god1
 -- Operators for the operators god!
 
+-- | Concatenate, then convert
 (<%) :: (FromBuilder b) => Builder -> Builder -> b
 (<%) str rest = fromBuilder (str <> rest)
 
+-- | 'build' and concatenate, then convert
 (%>) :: (Buildable a, FromBuilder b) => a -> Builder -> b
 (%>) a rest = fromBuilder (build a <> rest)
 
@@ -393,10 +395,12 @@ infixr 1 %>
 -- $god2
 -- More operators for the operators god!
 
+-- | Concatenate, then convert
 (<<%) :: (FromBuilder b) => Builder -> Builder -> b
 (<<%) str rest = str <% rest
 {-# INLINE (<<%) #-}
 
+-- | 'show' and concatenate, then convert
 (%>>) :: (Show a, FromBuilder b) => a -> Builder -> b
 (%>>) a rest = show a %> rest
 {-# INLINE (%>>) #-}
@@ -442,10 +446,32 @@ infixr 1 %><<%
 -- Old-style formatting
 ----------------------------------------------------------------------------
 
+{- | An old-style formatting function taken from @text-format@ (see
+"Data.Text.Format"). Unlike 'Data.Text.Format.format' from
+"Data.Text.Format", it can produce 'String' and strict 'Text' as well (and
+print to console too).
+
+To provide substitution arguments, use a tuple:
+
+>>> format "{} + {} = {}" (2, 2, 4)
+"2 + 2 = 4"
+
+You can use arbitrary formatters:
+
+>>> format "0x{} + 0x{} = 0x{}" (hexF 130, hexF 270, hexF (130+270))
+"2 + 2 = 4"
+
+To provide just one argument, use a list instead of a tuple:
+
+>>> format "Hello {}!" ["world"]
+"Hello world!"
+-}
 format :: (FromBuilder b, TF.Params ps) => TF.Format -> ps -> b
 format f ps = fromBuilder (TF.build f ps)
 {-# INLINE format #-}
 
+{- | Like 'format', but adds a newline.
+-}
 formatLn :: (FromBuilder b, TF.Params ps) => TF.Format -> ps -> b
 formatLn f ps = fromBuilder (TF.build f ps <> "\n")
 {-# INLINE formatLn #-}
@@ -554,7 +580,7 @@ However, benchmarks have shown that the former way is actually faster.
 It automatically handles multiline list elements:
 
 @
->>> fmt $ blockListF ["hello\nworld", "foo\nbar\nquix"]
+>>> __fmt $ blockListF ["hello\\nworld", "foo\\nbar\\nquix"]__
 - hello
   world
 
@@ -778,7 +804,7 @@ Format a tuple (of up to 8 elements):
 If any of the elements takes several lines, an alternate format is used:
 
 @
->>> fmt $ tupleF ("test","foo\nbar","more test")
+>>> __fmt $ tupleF ("test","foo\\nbar","more test")__
 ( test
 ,
   foo
@@ -866,8 +892,8 @@ tupleLikeF xs
 -- ADT formatters
 ----------------------------------------------------------------------------
 
-{- |
-Like 'build' for 'Maybe', but displays 'Nothing' as @<Nothing>@ instead of an empty string.
+{- | Like 'build' for 'Maybe', but displays 'Nothing' as @\<Nothing\>@ instead
+of an empty string.
 
 'build':
 
@@ -1058,13 +1084,13 @@ Format a floating-point number with given amount of precision.
 For small numbers, it uses scientific notation for everything smaller than
 1e-6:
 
-> listF' (precF 3) [1e-5,1e-6,1e-7]
+>>> listF' (precF 3) [1e-5,1e-6,1e-7]
 "[0.0000100, 0.00000100, 1.00e-7]"
 
 For large numbers, it uses scientific notation for everything larger than
 1eN, where N is the precision:
 
-> listF' (precF 4) [1e3,5e3,1e4]
+>>> listF' (precF 4) [1e3,5e3,1e4]
 "[1000, 5000, 1.000e4]"
 -}
 precF :: Real a => Int -> a -> Builder
@@ -1087,14 +1113,14 @@ fixedF = TF.fixed
 Display something only if the condition is 'True' (empty string otherwise).
 
 @
->>> "Hello!" <> whenF showDetails (", details: "<%foobar%>"")
+>>> __"Hello!" <> whenF showDetails (", details: "\<%foobar%\>"")__
 @
 
 Note that it can only take a 'Builder' (because otherwise it would be
 unusable with ('<%')-formatted strings which can resolve to any 'FromBuilder'). Thus, use 'fmt' if you need just one value:
 
 @
->>> "Maybe here's a number: "<%whenF cond (fmt n)%>""
+>>> __"Maybe here's a number: "\<%whenF cond (fmt n)%\>""__
 @
 -}
 whenF :: Bool -> Builder -> Builder

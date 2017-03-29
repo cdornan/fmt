@@ -64,6 +64,7 @@ import qualified Data.ByteString.Base64.URL.Lazy as B64UL
 ----------------------------------------------------------------------------
 
 class FromBuilder a where
+  -- | Convert a 'Builder' to something else.
   fromBuilder :: Builder -> a
 
 instance FromBuilder Builder where
@@ -96,6 +97,8 @@ Format a number or bytestring as hex:
 
 >>> hexF 3635
 "e33"
+>>> hexF ("\0\50\63\80" :: BS.ByteString)
+"00323f50"
   -}
   hexF :: a -> Builder
 
@@ -198,7 +201,10 @@ intToDigit' i
   | i >= 10 && i < 36 = chr (ord 'a' + i - 10)
   | otherwise = error ("intToDigit': Invalid int " ++ show i)
 
--- assumes that the prefix doesn't contain newlines
+{- | Add a prefix to the first line, and indent all lines but the first one.
+
+The output will always end with a newline, even when the input doesn't.
+-}
 indent' :: Int -> T.Text -> Builder -> Builder
 indent' n pref a = case TL.lines (toLazyText a) of
   []     -> fromText pref <> "\n"
