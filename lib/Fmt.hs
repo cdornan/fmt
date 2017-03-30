@@ -794,27 +794,6 @@ jsonMapF' fbuild_k fbuild_v xs
 -- Tuple formatters
 ----------------------------------------------------------------------------
 
-class TupleF a where
-  {- |
-Format a tuple (of up to 8 elements):
-
->>> tupleF (1,2,"hi")
-"(1, 2, hi)"
-
-If any of the elements takes several lines, an alternate format is used:
-
-@
->>> __fmt $ tupleF ("test","foo\\nbar","more test")__
-( test
-,
-  foo
-  bar
-,
-  more test )
-@
-  -}
-  tupleF :: a -> Builder
-
 instance (Buildable a1, Buildable a2)
   => TupleF (a1, a2) where
   tupleF (a1, a2) = tupleLikeF
