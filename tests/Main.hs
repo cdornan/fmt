@@ -67,32 +67,32 @@ main = hspec $ do
 test_operators :: Spec
 test_operators = do
   it "simple examples" $ do
-    ("a"<%n%>"b") ==%> "a25b"
-    ("a"<%n%>"b"<%s%>"") ==%> "a25b!"
-    (""<%n%><%s%>"") ==%> "25!"
-    (""<%negate n%><%s%>"") ==%> "-25!"
-    (""<%Just n%><%s%>"") ==%> "25!"
+    ("a"#|n|#"b") ==%> "a25b"
+    ("a"#|n|#"b"#|s|#"") ==%> "a25b!"
+    (""#|n|##|s|#"") ==%> "25!"
+    (""#|negate n|##|s|#"") ==%> "-25!"
+    (""#|Just n|##|s|#"") ==%> "25!"
 
   describe "examples with Show/mixed" $ do
     it "copy of Buildable examples" $ do
-      ("a"<<%n%>>"b") ==%> "a25b"
-      ("a"<<%n%>><<%n%>>"b") ==%> "a2525b"
+      ("a"#||n||#"b") ==%> "a25b"
+      ("a"#||n||##||n||#"b") ==%> "a2525b"
       -- These are mixed, i.e. both Buildable and Show versions are used
-      ("a"<<%n%>>"b"<%s%>"") ==%> "a25b!"
-      (""<<%n%>><%s%>"") ==%> "25!"
-      (""<<%negate n%>><%s%>"") ==%> "-25!"
+      ("a"#||n||#"b"#|s|#"") ==%> "a25b!"
+      (""#||n||##|s|#"") ==%> "25!"
+      (""#||negate n||##|s|#"") ==%> "-25!"
     it "examples that don't work with Buildable" $ do
-      (""<<%Just n%>>"") ==%> "Just 25"
-      (""<<%(n,n)%>>"") ==%> "(25,25)"
+      (""#||Just n||#"") ==%> "Just 25"
+      (""#||(n,n)||#"") ==%> "(25,25)"
 
   it "plays nice with other operators" $ do
     -- If precedence is bad these won't compile
-    (""<%n-1%><%n+1%>"") ==%> "2426"
-    (id $ ""<%n-1%><%n+1%>"") ==%> "2426"
+    (""#|n-1|##|n+1|#"") ==%> "2426"
+    (id $ ""#|n-1|##|n+1|#"") ==%> "2426"
 
   it "works with <>" $ do
-    ("number: "<%n%>"\n"<>
-     "string: "<%s%>"") ==%> "number: 25\nstring: !"
+    ("number: "#|n|#"\n"<>
+     "string: "#|s|#"") ==%> "number: 25\nstring: !"
 
 ----------------------------------------------------------------------------
 -- Testing that different output types work
@@ -101,13 +101,13 @@ test_operators = do
 test_outputTypes :: Spec
 test_outputTypes = describe "output as" $ do
   it "String" $
-    ("a"<%n%>"b" :: String) `shouldBe` "a25b"
+    ("a"#|n|#"b" :: String) `shouldBe` "a25b"
   it "Text" $
-    ("a"<%n%>"b" :: Text) `shouldBe` "a25b"
+    ("a"#|n|#"b" :: Text) `shouldBe` "a25b"
   it "Lazy Text" $
-    ("a"<%n%>"b" :: TL.Text) `shouldBe` "a25b"
+    ("a"#|n|#"b" :: TL.Text) `shouldBe` "a25b"
   it "Builder" $
-    ("a"<%n%>"b" :: Builder) `shouldBe` "a25b"
+    ("a"#|n|#"b" :: Builder) `shouldBe` "a25b"
 
 ----------------------------------------------------------------------------
 -- Tests for various simple formatters
@@ -126,8 +126,8 @@ test_indent = describe "'indent'" $ do
   it "formatting a block" $ do
     ("Some numbers:\n"<>
      indent 2 (
-       "odd: "<%n%>"\n"<>
-       "even: "<%n+1%>"")) ==#> "Some numbers:\n  odd: 25\n  even: 26\n"
+       "odd: "#|n|#"\n"<>
+       "even: "#|n+1|#"")) ==#> "Some numbers:\n  odd: 25\n  even: 26\n"
 
 test_baseConversion :: Spec
 test_baseConversion = describe "conversion to bases" $ do

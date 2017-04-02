@@ -25,7 +25,7 @@ Builder`, and a bunch of operators for concatenating formatted strings:
 
 ```haskell
 > let b = 93
-> "Got another byte ("0x<%hexF b%>")"
+> "Got another byte ("0x#|hexF b|#")"
 "Got another byte (0x5d)"
 ```
 
@@ -139,32 +139,32 @@ instance FromBuilder TL.Text where fromBuilder = toLazyText
 Now it wouldn't compile outside of GHCi because in the absence of
 `-XExtendedDefaultRules` the compiler wouldn't know whether `" million
 bicycles in "` is supposed to be a `Text` or `String` or `Builder` or what;
-however, we can help it by replacing `%` with a pair of synonyms – `<%` and
-`%>` – and required `%>` to always have `Builder` as its right argument.
-Then, if the user writes `"a"<%x%>"b"`, the compiler would know that `"b"`
+however, we can help it by replacing `%` with a pair of synonyms – `#|` and
+`|#` – and required `|#` to always have `Builder` as its right argument.
+Then, if the user writes `"a"#|x|#"b"`, the compiler would know that `"b"`
 has to be a `Builder`.
 
 ``` haskell
-> "There are "<%n%>" million bicycles in "<%city%>"." :: String
+> "There are "#|n|#" million bicycles in "#|city|#"." :: String
 "There are 9 million bicycles in Beijing."
 ```
 
-What if we want to have two variables in a row? `<%a<%b%>` doesn't look
-good. Okay, let's add another operator for such cases, `%><%`:
+What if we want to have two variables in a row? `#|a#|b|#` doesn't look
+good. Okay, let's add another operator for such cases, `|##|`:
 
 ``` haskell
-> "Some nines: "<%n%><%n%><%n%>"."
+> "Some nines: "#|n|##|n|##|n|#"."
 "Some nines: 999."
 ```
 
 Looks a bit like magic, but I'm going to let it slide.
 
-Can we use other operators in `<%...%>` “brackets”? We can if we give `<%`
-and `%>` low precedence, e.g. `1` (not `0` because it should be usable with
+Can we use other operators in `#|...|#` “brackets”? We can if we give `#|`
+and `|#` low precedence, e.g. `1` (not `0` because it should be usable with
 `$`):
 
 ``` haskell
-> "Not nines: "<%n-2%><%n-1%><%n%>"."
+> "Not nines: "#|n-2|##|n-1|##|n|#"."
 "Not nines: 789."
 ```
 
@@ -178,22 +178,22 @@ users write `show` whenever they want to do it, but it'd be better to add a
 pair of operators for `Show`-able types:
 
 ``` haskell
-> "A tuple: "<<%(n,n-1)%>>"."
+> "A tuple: "#||(n,n-1)||#"."
 "A tuple: (8,9)."
 ```
 
 It means that I also have to add a small zoo of extra operators for
-consistency – `%>><<%`, `%><<%`, `%>><%` – but I hope that nobody would
+consistency – `||##||`, `|##||`, `||##|` – but I hope that nobody would
 actually notice them in code.
 
 One last thing is that if there's a variable in the beginning or at the end
 of string, you have to do one of these (not particularly elegant) things:
 
 ``` haskell
-> "Number "<%n
+> "Number "#|n
 "Number 9"
 
-> "Number "<%n%>""
+> "Number "#|n|#""
 "Number 9"
 ```
 

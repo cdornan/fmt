@@ -56,18 +56,18 @@ module Fmt
 
   -- ** Ordinary brackets
   -- $god1
-  (<%),
-  (%>),
+  (#|),
+  (|#),
   -- ** 'Show' brackets
   -- $god2
-  (<<%),
-  (%>>),
+  (#||),
+  (||#),
   -- ** Combinations
   -- $god3
-  (%><%),
-  (%>><<%),
-  (%><<%),
-  (%>><%),
+  (|##|),
+  (||##||),
+  (|##||),
+  (||##|),
 
   -- * Old-style formatting
   format,
@@ -202,12 +202,12 @@ examples.
 Insert some variables into a string:
 
 >>> let (a, b, n) = ("foo", "bar", 25)
->>> ("Here are some words: "<%a%>", "<%b%>"\nAlso a number: "<%n%>"") :: String
+>>> ("Here are some words: "#|a|#", "#|b|#"\nAlso a number: "#|n|#"") :: String
 "Here are some words: foo, bar\nAlso a number: 25"
 
 Print it:
 
->>> fmtLn ("Here are some words: "<%a%>", "<%b%>"\nAlso a number: "<%n%>"")
+>>> fmtLn ("Here are some words: "#|a|#", "#|b|#"\nAlso a number: "#|n|#"")
 Here are some words: foo, bar
 Also a number: 25
 
@@ -215,16 +215,16 @@ Format a list in various ways:
 
 >>> let xs = ["John", "Bob"]
 
->>> fmtLn ("Using show: "<<%xs%>>"\nUsing listF: "<%listF xs%>"")
+>>> fmtLn ("Using show: "#||xs||#"\nUsing listF: "#|listF xs|#"")
 Using show: ["John","Bob"]
 Using listF: [John, Bob]
 
->>> fmt ("YAML-like:\n"<%blockListF xs%>"")
+>>> fmt ("YAML-like:\n"#|blockListF xs|#"")
 YAML-like:
 - John
 - Bob
 
->>> fmt ("JSON-like: "<%jsonListF xs%>"")
+>>> fmt ("JSON-like: "#|jsonListF xs|#"")
 JSON-like: [
   John
 , Bob
@@ -234,13 +234,13 @@ JSON-like: [
 
 {- $migration
 
-Instead of using @%@, surround variables with @<%@ and @%>@. You don't have
+Instead of using @%@, surround variables with '#|' and '|#'. You don't have
 to use @sformat@ or anything else, and also where you were using @build@,
 @int@, @text@, etc in @formatting@, you don't have to use anything in @fmt@:
 
 @
-__formatting__    sformat ("Foo: "%build%", bar: "%int) foo bar
-       __fmt__    "Foo: "\<%foo%\>", bar: "\<%bar%\>""
+formatting    __sformat ("Foo: "%build%", bar: "%int) foo bar__
+       fmt    __"Foo: "\#|foo|\#", bar: "\#|bar|\#""__
 @
 
 The resulting formatted string is polymorphic and can be used as 'String',
@@ -252,16 +252,16 @@ clarity.
 'Builder'):
 
 @
-__formatting__    sformat ("Got another byte ("%hex%")") x
-       __fmt__    "Got another byte ("\<%hexF x%\>")"
+formatting    __sformat ("Got another byte ("%hex%")") x__
+       fmt    __"Got another byte ("\#|hexF x|\#")"__
 @
 
 Instead of the @shown@ formatter, either just use 'show' or double brackets:
 
 @
-__formatting__    sformat ("This uses Show: "%shown%") foo
-    __fmt #1__    "This uses Show: "\<%show foo%\>""
-    __fmt #2__    "This uses Show: "\<\<%foo%\>\>""
+formatting    __sformat ("This uses Show: "%shown%") foo__
+    fmt #1    __"This uses Show: "\#|show foo|\#""__
+    fmt #2    __"This uses Show: "\#||foo||\#""__
 @
 
 Many formatters from @formatting@ have the same names in @fmt@, but with
@@ -301,22 +301,22 @@ and so on.)
 
 {- $brackets
 
-To format strings, put variables between ('<%') and ('%>'):
+To format strings, put variables between ('#|') and ('|#'):
 
 >>> let name = "Alice"
->>> "Meet "<%name%>"!" :: String
+>>> "Meet "#|name|#"!" :: String
 "Meet Alice!"
 
 Of course, 'Text' is supported as well:
 
->>> "Meet "<%name%>"!" :: Text
+>>> "Meet "#|name|#"!" :: Text
 "Meet Alice!"
 
 You don't actually need any type signatures; however, if you're toying with
 this library in GHCi, it's recommended to either add a type signature or use
 'fmtLn':
 
->>> fmtLn ("Meet "<%name%>"!")
+>>> fmtLn ("Meet "#|name|#"!")
 Meet Alice!
 
 Otherwise the type of the formatted string would be resolved to @IO ()@ and
@@ -326,51 +326,51 @@ GHCi. On the other hand, it's useful for quick-and-dirty scripts:
 @
 main = do
   [fin, fout] \<- words \<$\> getArgs
-  __"Reading data from "\<%fin%\>"\\n"__
+  __"Reading data from "\#|fin|\#"\\n"__
   xs \<- readFile fin
-  __"Writing processed data to "\<%fout%\>"\\n"__
+  __"Writing processed data to "\#|fout|\#"\\n"__
   writeFile fout (show (process xs))
 @
 
 Anyway, let's proceed. Anything 'Buildable', including numbers, booleans,
-characters and dates, can be put between ('<%') and ('%>'):
+characters and dates, can be put between ('#|') and ('|#'):
 
 >>> let starCount = "173"
->>> fmtLn ("Meet "<%name%>"! She's got "<%starCount%>" stars on Github.")
+>>> fmtLn ("Meet "#|name|#"! She's got "#|starCount|#" stars on Github.")
 "Meet Alice! She's got 173 stars on Github."
 
-Since the only thing ('<%') and ('%>') do is concatenate strings and do
+Since the only thing ('#|') and ('|#') do is concatenate strings and do
 conversion, you can use any functions you want inside them. In this case,
 'length':
 
->>> fmtLn (""<%name%>"'s name has "<%length name%>" letters")
+>>> fmtLn (""#|name|#"'s name has "#|length name|#" letters")
 Alice's name has 5 letters
 
 If something isn't 'Buildable', just use 'show' on it:
 
 >>> let pos = (3, 5)
->>> fmtLn ("Character's position: "<%show pos%>"")
+>>> fmtLn ("Character's position: "#|show pos|#"")
 Character's position: (3,5)
 
 Or one of many formatters provided by this library – for instance, for tuples
 of various sizes there's 'tupleF':
 
->>> fmtLn ("Character's position: "<%tupleF pos%>"")
+>>> fmtLn ("Character's position: "#|tupleF pos|#"")
 Character's position: (3, 5)
 
-Finally, for convenience there's the ('%><%') operator, which can be used if
+Finally, for convenience there's the ('|##|') operator, which can be used if
 you've got one variable following the other:
 
 >>> let (a, op, b, res) = (2, "*", 2, 4)
->>> fmtLn (""<%a%><%op%><%b%>" = "<%res%>"")
+>>> fmtLn (""#|a|##|op|##|b|#" = "#|res|#"")
 2*2 = 4
 
 Also, since in some codebases there are /lots/ of types which aren't
-'Buildable', there are operators ('<<%') and ('%>>'), which use 'show'
+'Buildable', there are operators ('#||') and ('||#'), which use 'show'
 instead of 'build':
 
 @
-(""\<%show foo%\>\<%show bar%\>"")    ===    (""\<\<%foo%\>\>\<\<%bar%\>\>"")
+__(""\#|show foo|\#\#|show bar|\#"")__  ===  __(""\#||foo||\#\#||bar||\#"")__
 @
 -}
 
@@ -378,15 +378,15 @@ instead of 'build':
 -- Operators for the operators god!
 
 -- | Concatenate, then convert
-(<%) :: (FromBuilder b) => Builder -> Builder -> b
-(<%) str rest = fromBuilder (str <> rest)
+(#|) :: (FromBuilder b) => Builder -> Builder -> b
+(#|) str rest = fromBuilder (str <> rest)
 
 -- | 'build' and concatenate, then convert
-(%>) :: (Buildable a, FromBuilder b) => a -> Builder -> b
-(%>) a rest = fromBuilder (build a <> rest)
+(|#) :: (Buildable a, FromBuilder b) => a -> Builder -> b
+(|#) a rest = fromBuilder (build a <> rest)
 
-infixr 1 <%
-infixr 1 %>
+infixr 1 #|
+infixr 1 |#
 
 ----------------------------------------------------------------------------
 -- Operators with 'Show'
@@ -396,17 +396,17 @@ infixr 1 %>
 -- More operators for the operators god!
 
 -- | Concatenate, then convert
-(<<%) :: (FromBuilder b) => Builder -> Builder -> b
-(<<%) str rest = str <% rest
-{-# INLINE (<<%) #-}
+(#||) :: (FromBuilder b) => Builder -> Builder -> b
+(#||) str rest = str #| rest
+{-# INLINE (#||) #-}
 
 -- | 'show' and concatenate, then convert
-(%>>) :: (Show a, FromBuilder b) => a -> Builder -> b
-(%>>) a rest = show a %> rest
-{-# INLINE (%>>) #-}
+(||#) :: (Show a, FromBuilder b) => a -> Builder -> b
+(||#) a rest = show a |# rest
+{-# INLINE (||#) #-}
 
-infixr 1 <<%
-infixr 1 %>>
+infixr 1 #||
+infixr 1 ||#
 
 ----------------------------------------------------------------------------
 -- Combinations
@@ -416,31 +416,31 @@ infixr 1 %>>
 
 Z̸͠A̵̕͟͠L̡̀́͠G̶̛O͝ ̴͏̀ I͞S̸̸̢͠  ̢̛͘͢C̷͟͡Ó̧̨̧͞M̡͘͟͞I̷͜N̷̕G̷̀̕
 
-(Though you can just use @""@ between @%\> \<%@ instead of using these
+(Though you can just use @""@ between @\#| |\#@ instead of using these
 operators, and Show-brackets don't have to be used at all because there's
 'show' available.)
 -}
 
-(%><%) :: (Buildable a, FromBuilder b) => a -> Builder -> b
-(%><%) a rest = fromBuilder (build a <> rest)
-{-# INLINE (%><%) #-}
+(|##|) :: (Buildable a, FromBuilder b) => a -> Builder -> b
+(|##|) a rest = fromBuilder (build a <> rest)
+{-# INLINE (|##|) #-}
 
-(%>><<%) :: (Show a, FromBuilder b) => a -> Builder -> b
-(%>><<%) a rest = show a %> rest
-{-# INLINE (%>><<%) #-}
+(||##||) :: (Show a, FromBuilder b) => a -> Builder -> b
+(||##||) a rest = show a |# rest
+{-# INLINE (||##||) #-}
 
-(%>><%) :: (Buildable a, FromBuilder b) => a -> Builder -> b
-(%>><%) a rest = a %><% rest
-{-# INLINE (%>><%) #-}
+(||##|) :: (Buildable a, FromBuilder b) => a -> Builder -> b
+(||##|) a rest = a |##| rest
+{-# INLINE (||##|) #-}
 
-(%><<%) :: (Show a, FromBuilder b) => a -> Builder -> b
-(%><<%) a rest = a %>><<% rest
-{-# INLINE (%><<%) #-}
+(|##||) :: (Show a, FromBuilder b) => a -> Builder -> b
+(|##||) a rest = a ||##|| rest
+{-# INLINE (|##||) #-}
 
-infixr 1 %><%
-infixr 1 %>><<%
-infixr 1 %>><%
-infixr 1 %><<%
+infixr 1 |##|
+infixr 1 ||##||
+infixr 1 ||##|
+infixr 1 |##||
 
 ----------------------------------------------------------------------------
 -- Old-style formatting
@@ -482,8 +482,8 @@ formatLn f ps = fromBuilder (TF.build f ps <> "\n")
 
 {- | 'fmt' converts things to 'String', 'Text' or 'Builder'.
 
-Most of the time you won't need it, as strings produced with ('<%') and
-('%>') can already be used as 'String', 'Text', etc. However, combinators
+Most of the time you won't need it, as strings produced with ('#|') and
+('|#') can already be used as 'String', 'Text', etc. However, combinators
 like 'listF' can only produce 'Builder' (for better type inference), and you
 need to use 'fmt' on them.
 
@@ -1092,14 +1092,14 @@ fixedF = TF.fixed
 Display something only if the condition is 'True' (empty string otherwise).
 
 @
->>> __"Hello!" <> whenF showDetails (", details: "\<%foobar%\>"")__
+>>> __"Hello!" <> whenF showDetails (", details: "\#|foobar|\#"")__
 @
 
 Note that it can only take a 'Builder' (because otherwise it would be
-unusable with ('<%')-formatted strings which can resolve to any 'FromBuilder'). Thus, use 'fmt' if you need just one value:
+unusable with ('#|')-formatted strings which can resolve to any 'FromBuilder'). Thus, use 'fmt' if you need just one value:
 
 @
->>> __"Maybe here's a number: "\<%whenF cond (fmt n)%\>""__
+>>> __"Maybe here's a number: "\#|whenF cond (fmt n)|\#""__
 @
 -}
 whenF :: Bool -> Builder -> Builder
@@ -1353,7 +1353,7 @@ instance _OVERLAPPABLE_ Buildable a => Buildable' a where
 * mention that fmt doesn't do the neat thing that formatting does with (<>)
   (or maybe it does? there's a monoid instance for functions after all,
   though I might also have to write a IsString instance for (a -> Builder))
-* write that if <% %> are hated or if it's inconvenient in some cases,
+* write that if #| |# are hated or if it's inconvenient in some cases,
   you can just use provided formatters and <> (add Fmt.DIY for that?)
   (e.g. "pub:" <> base16F foo)
 * write that it can be used in parallel with formatting?
@@ -1369,13 +1369,11 @@ instance _OVERLAPPABLE_ Buildable a => Buildable' a where
 * reexport (<>)? don't know whether to use Semigroup or Monoid, though
 * colors?
 * should it be called 'listBlock' or 'blockList'?
-* add NL or _NL for newline? or (<\>) or (<>\)? and also (%>\)?
-* have to decide on whether it would be %|% or %><% or whatever
-* actually, what about |< and >|?
+* add NL or _NL for newline? or (<\>) or (<>\)? and also (|#\)?
 * what effect does it have on compilation time? what effect do
   other formatting libraries have on compilation time?
 * use 4 spaces instead of 2?
 * change tuples to correspond to jsonList
 * be consistent about newlines after tuples/maps/lists
-* find some way to use IO inside <%%> brackets
+* find some way to use IO inside #||# brackets
 -}
