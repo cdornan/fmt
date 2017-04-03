@@ -75,7 +75,6 @@ test-suite tests
   build-depends:       base >=4.6 && <5
                      , bytestring
                      , containers
-                     , containers
                      , fmt
                      , hspec >= 2.2 && < 2.5
                      , neat-interpolation
@@ -83,6 +82,26 @@ test-suite tests
                      , vector
   ghc-options:         -Wall -fno-warn-unused-do-bind
   hs-source-dirs:      tests
+  default-language:    Haskell2010
+  if impl(ghc < 7.10)
+    buildable: False
+
+benchmark benches
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      bench
+  main-is:             Main.hs
+  build-depends:       base >=4.6 && <5
+                     , bytestring
+                     , containers
+                     , criterion
+                     , deepseq
+                     , fmt
+                     , formatting
+                     , interpolate
+                     , text
+                     , text-format
+                     , vector
+  ghc-options:         -Wall
   default-language:    Haskell2010
   if impl(ghc < 7.10)
     buildable: False
