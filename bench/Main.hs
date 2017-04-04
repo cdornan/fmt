@@ -17,11 +17,12 @@ import           Fmt                     (( #| ), (|#))
 import           Formatting              (int, sformat, (%))
 import           Text.Printf             (printf)
 
-import           Criterion               (Benchmarkable, bench, bgroup, nf)
+import           Criterion               (Benchmark, Benchmarkable, bench, bgroup, nf)
 import           Criterion.Main          (defaultMain)
 
-simpleBench :: ((Int, Int) -> Text) -> Benchmarkable
-simpleBench fmt = nf fmt (1,2)
+----------------------------------------------------------------------------
+-- Format utility functions
+----------------------------------------------------------------------------
 
 format' :: TF.Params ps => TF.Format -> ps -> Text
 format' f = LT.toStrict . TF.format f
@@ -29,22 +30,38 @@ format' f = LT.toStrict . TF.format f
 tshow :: Show a => a -> Text
 tshow x = T.pack (show x)
 
+----------------------------------------------------------------------------
+-- Benchmarks utility functions
+----------------------------------------------------------------------------
+
+simpleBench :: ((Int, Int) -> Text) -> Benchmarkable
+simpleBench fmt = nf fmt (1,2)
+
+bTextGroup :: a -> [(String, a -> Text)] -> Benchmark
+bTextGroup benchObj = bgroup "text" . map (\(tag, fmt) -> bench tag (nf fmt benchObj))
+
+-- Function for convenience instead of using manual @(,)@.
+taggedB :: String -> (a -> b) -> (String, a -> b)
+taggedB = (,)
+
+----------------------------------------------------------------------------
+-- Benchmakrs themselves
+----------------------------------------------------------------------------
+{-
+bTextGroup
+[ ("fmt", \(a,b) -> "")
+]
+-}
 main :: IO ()
 main = defaultMain
   [ bgroup "simple"
-    [ bgroup "text"
-      [ bench "fmt" $ simpleBench
-            (\(a,b) -> "hello "#|a|#" world "#|b|#"")
-      , bench "formatting" $ simpleBench
-            (\(a,b) -> sformat ("hello "%int%" world "%int) a b)
-      , bench "show" $ simpleBench
-            (\(a,b) -> "hello " <> tshow a <> " world " <> tshow b)
-      , bench "text-format" $ simpleBench
-            (format' "hello {} world {}")
-      , bench "printf" $ simpleBench
-            (\(a,b) -> T.pack $ printf "hello %d world %d" a b)
-      , bench "interpolate" $ simpleBench
-            (\(a,b) -> T.pack [i|hello #{a} world #{b}|])
+    [ bTextGroup (1 :: Int, 2 :: Int)
+      [ taggedB "fmt"         $ \(a,b) -> "hello "#|a|#" world "#|b|#""
+      , taggedB "formattting" $ \(a,b) -> sformat ("hello "%int%" world "%int) a b
+      , taggedB "text-format" $ format' "hello {} world {}"
+      , taggedB "interpolate" $ \(a,b) -> T.pack [i|hello #{a} world #{b}|]
+      , taggedB "show"        $ \(a,b) -> "hello " <> tshow a <> " world " <> tshow b
+      , taggedB "printf"      $ \(a,b) -> T.pack $ printf "hello %d world %d" a b
       ]
     ]
   ]
