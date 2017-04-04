@@ -25,7 +25,7 @@ Builder`, and a bunch of operators for concatenating formatted strings:
 
 ```haskell
 > let b = 93
-> "Got another byte ("0x#|hexF b|#")"
+> "Got another byte (0x"#|hexF b|#")"
 "Got another byte (0x5d)"
 ```
 
