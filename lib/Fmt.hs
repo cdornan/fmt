@@ -38,7 +38,7 @@
 #  define _OVERLAPS_ {-# OVERLAPS #-}
 #endif
 
-{-# OPTIONS_GHC -Wno-orphans #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Fmt
 (
