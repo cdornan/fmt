@@ -1326,54 +1326,29 @@ instance _OVERLAPPABLE_ Buildable a => Buildable' a where
 -- TODOs
 ----------------------------------------------------------------------------
 
-{- add these
-~~~~~~~~~~~~~~~~~~~~
-* something that would cut a string by adding ellipsis to the center
-* 'time' that would use hackage.haskell.org/package/time/docs/Data-Time-Format.html#t:FormatTime
-* something that would show time and date in a standard way
-* something to format a floating-point number without any scientific notation
--}
-
 {- list/map
 ~~~~~~~~~~~~~~~~~~~~
 * maybe add something like blockMapF_ and blockListF_ that would add
   a blank line automatically? or `---` and `:::` or something?
 * should also add something to _not_ add a blank line between list
   entries (e.g. when they are 'name'd and can be clearly differentiated)
-* should also add something that would truncate lists in the middle
-  (and maybe not in the middle as well)
-* the problem is that the user might want to combine them so I guess
-  we can't make a separate combinator for each
 -}
 
 {- docs
 ~~~~~~~~~~~~~~~~~~~~
 * write explicitly that 'build' can be used and is useful sometimes
-* provide a formatting→fmt transition table
 * mention that fmt doesn't do the neat thing that formatting does with (<>)
   (or maybe it does? there's a monoid instance for functions after all,
   though I might also have to write a IsString instance for (a -> Builder))
 * write that if #| |# are hated or if it's inconvenient in some cases,
   you can just use provided formatters and <> (add Fmt.DIY for that?)
   (e.g. "pub:" <> base16F foo)
-* write that it can be used in parallel with formatting?
-* mention printf in cabal description so that it would be findable
-* clarify philosophy (“take a free spot in design space; write the
-  best possible library around it, not just a proof of concept”)
+* write that it can be used in parallel with formatting? can it, actually?
 * clarify what exactly is hard about writing `formatting` formatters
 -}
 
 {- others
 ~~~~~~~~~~~~~~~~~~~~
-* something for wrapping lists (not indenting, just hard-wrapping)
-* reexport (<>)? don't know whether to use Semigroup or Monoid, though
-* colors?
-* should it be called 'listBlock' or 'blockList'?
-* add NL or _NL for newline? or (<\>) or (<>\)? and also (|#\)?
 * what effect does it have on compilation time? what effect do
   other formatting libraries have on compilation time?
-* use 4 spaces instead of 2?
-* change tuples to correspond to jsonList
-* be consistent about newlines after tuples/maps/lists
-* find some way to use IO inside #||# brackets
 -}
