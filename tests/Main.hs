@@ -169,8 +169,8 @@ test_ADTs = describe "ADTs" $ do
     maybeF (Nothing :: Maybe Int) ==#> "<Nothing>"
     maybeF (Just 3 :: Maybe Int) ==#> "3"
   it "eitherF" $ do
-    eitherF (Left 1 :: Either Int Int) ==#> "<Left>: 1"
-    eitherF (Right 1 :: Either Int Int) ==#> "<Right>: 1"
+    eitherF (Left 1 :: Either Int Int) ==#> "<Left: 1>"
+    eitherF (Right 1 :: Either Int Int) ==#> "<Right: 1>"
 
 test_conditionals :: Spec
 test_conditionals = describe "conditionals" $ do
@@ -703,7 +703,7 @@ test_generic = describe "'genericF'" $ do
         -- so we test this case separately
         genericF (Foo (n, s)) ==#> "<Foo: (25, !)>"
       it "Either" $ do
-        genericF (Foo (Left 25 :: Either Int Int)) ==#> "<Foo: <Left>: 25>"
+        genericF (Foo (Left 25 :: Either Int Int)) ==#> "<Foo: <Left: 25>>"
       it "Maybe with a non-buildable" $ do
         genericF (Foo (Just [n])) ==#> "<Foo: [25]>"
         genericF (Foo (Nothing :: Maybe ())) ==#> "<Foo: <Nothing>>"

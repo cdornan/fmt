@@ -6,6 +6,8 @@
 
 * Added a migration guide from `formatting`.
 
+* Changed output of `eitherF`.
+
 * Added bechmarks.
 
 # 0.0.0.4

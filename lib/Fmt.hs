@@ -895,10 +895,11 @@ maybeF = maybe "<Nothing>" build
 Format an 'Either':
 
 >>> eitherF (Right 1)
-"<Right>: 1"
+"<Right: 1>"
 -}
 eitherF :: (Buildable a, Buildable b) => Either a b -> Builder
-eitherF = either (\x -> "<Left>: " <> build x) (\x -> "<Right>: " <> build x)
+eitherF = either (\x -> "<Left: " <> build x <> ">")
+                 (\x -> "<Right: " <> build x <> ">")
 
 ----------------------------------------------------------------------------
 -- Other formatters
