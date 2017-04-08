@@ -1,5 +1,5 @@
 name:                fmt
-version:             0.0.0.4
+version:             0.1.0.0
 synopsis:            A new formatting library
 description:
   A new formatting library that tries to be simple to understand while still
