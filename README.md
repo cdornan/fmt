@@ -18,7 +18,7 @@ formatters that other formatting libraries don't have.*
 [haskell-src-exts]: https://hackage.haskell.org/package/haskell-src-exts
 [interpolate]: https://hackage.haskell.org/package/interpolate
 
-## About `fmt`
+## About this library
 
 The idea is very simple. Let's implement some formatters that are just
 ordinary functions of type `a -> Builder`:
@@ -37,16 +37,32 @@ And a bunch of operators (`#|`, `|#`) for concatenating strings:
 ```
 
 And if we want to be able to produce `String`, `Text`, `Builder`, etc with
-them, let's make those operators do automatic conversion (so that you won't
-need to use `sformat` or something to convert the formatted string to the
-type you need).
+them, let's make those operators polymorphic in result type:
+
+```haskell
+> "Got another byte (0x"#|hexF b|#")" :: String
+"Got another byte (0x5d)"
+
+> "Got another byte (0x"#|hexF b|#")" :: Text
+"Got another byte (0x5d)"
+```
 
 Finally, to make the library more useful, let's provide formatters that other
 libraries often miss – for instance, something for indentation, something for
-formatting lists and maps, and perhaps even something to format arbitrary
-types with generics.
+formatting lists and maps, and something to format arbitrary types with
+generics:
 
-Okay, that's about it.
+```haskell
+> data Point = Point {x, y :: Int} deriving Generic
+
+> fmt $ genericF (Point 1 2)
+Point:
+  x: 1
+  y: 2
+```
+
+If you want to see more examples, look at
+the [docs](http://hackage.haskell.org/package/fmt/docs/Fmt.html).
 
 ## About other formatting libraries
 
