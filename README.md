@@ -154,8 +154,20 @@ is usually twice as fast as `formatting`, and on par with `text-format`. I used 
 
 ## Things to do
 
-While the library is already very much usable, there are some questions left
-unanswered:
+### Easy things to implement
+
+1.  Time formatters. `formatting` has many of them and we have none.
+
+2.  Something that would cut a string by adding ellipsis to the center:
+    `Foo bar ba...qux blah`.
+
+3.  Something to format a floating-point number without any scientific
+    notation (`floatF` starts using scientific notation after 1e21).
+
+4.  Write `RULES` to make it faster for `String` (and perhaps for `Text` as
+    well).
+
+### Questions to answer
 
 1.  Should the operators remain `#|` and `|#`, or are there some better names?
 
@@ -207,14 +219,3 @@ unanswered:
 12. Two spaces for list indentation, or four?
 
 13. Should `genericF`'s syntax for constructors be changed?
-
-Also there are some things that should definitely be implemented, but haven't
-been yet:
-
-1.  Time formatters. `formatting` has many of them and we have none.
-
-2.  Something that would cut a string by adding ellipsis to the center:
-    `Foo bar ba...qux blah`.
-
-3.  Something to format a floating-point number without any scientific
-    notation (`floatF` starts using scientific notation after 1e21).
