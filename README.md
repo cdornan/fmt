@@ -107,6 +107,51 @@ formatting done with [interpolate][]:
 [i|There are #{n} million bicycles in #{city}.|]
 ```
 
+## Benchmarks
+
+The benchmark code can be
+found [here](https://github.com/aelve/fmt/blob/master/bench/Main.hs). `fmt`
+is usually twice as fast as `formatting`, and on par with `text-format`. I used this example for benchmarks:
+
+```haskell
+"There are "#|n|#" million bicycles in "#|city|#"."
+```
+
+<table>
+  <thead><tr>
+    <th>Library</th>
+    <th>Text</th>
+    <th>String</th
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td>fmt</td>
+      <td>382 ns</td>
+      <td>1073 ns</td>
+    </tr>
+    <tr>
+      <td>formatting</td>
+      <td>630 ns</td>
+      <td>1413 ns</td>
+    </tr>
+    <tr>
+      <td>text-format</td>
+      <td>295 ns</td>
+      <td>1068 ns</td>
+    </tr>
+    <tr>
+      <td><code>printf</code></td>
+      <td>2000 ns</td>
+      <td>1591 ns</td>
+    </tr>
+    <tr>
+      <td><code>show</code> and <code>&lt;&gt;</code></td>
+      <td>914 ns</td>
+      <td>500 ns</td>
+    </tr>
+  </tbody>
+</table>
+
 ## Things to do
 
 While the library is already very much usable, there are some questions left
