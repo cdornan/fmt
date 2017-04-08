@@ -9,6 +9,8 @@ formatters that other formatting libraries don't have.*
 
 [fmt]: https://hackage.haskell.org/package/fmt
 
+[`printf`]: http://hackage.haskell.org/package/base/docs/Text-Printf.html#v:printf
+
 [formatting]: https://hackage.haskell.org/package/formatting
 [text-format]: https://hackage.haskell.org/package/text-format
 
@@ -66,14 +68,15 @@ the [docs](http://hackage.haskell.org/package/fmt/docs/Fmt.html).
 
 ## About other formatting libraries
 
-Other commonly used libraries are [text-format][], [formatting][] and
-`printf` (which isn't a library but comes from `Text.Printf` in base).
+Other commonly used libraries are [text-format][], [formatting][]
+and [`printf`][] (which isn't a library but comes from `Text.Printf` in
+base).
 
-  * `printf` takes a formatting string and uses some type tricks to accept
-    the rest of the arguments polyvariadically. It's very concise, but there
-    are some drawbacks – it can't produce `Text` (you'd have to `T.pack` it
-    every time) and it doesn't warn you at compile-time if you pass wrong
-    arguments or not enough of them.
+  * [`printf`][] takes a formatting string and uses some type tricks to
+    accept the rest of the arguments polyvariadically. It's very concise, but
+    there are some drawbacks – it can't produce `Text` (you'd have to
+    `T.pack` it every time) and it doesn't warn you at compile-time if you
+    pass wrong arguments or not enough of them.
 
   * [text-format][] takes a formatting string with angle brackets denoting
     places where arguments would be substituted (the arguments themselves are
