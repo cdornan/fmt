@@ -178,6 +178,7 @@ import Data.Foldable (Foldable)
 import Data.List.NonEmpty (NonEmpty)
 #endif
 
+import Fmt.Instances ()
 import Fmt.Internal
 
 

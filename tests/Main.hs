@@ -8,6 +8,8 @@ module Main where
 
 -- Monoid
 import Data.Monoid ((<>))
+-- Time-Units
+import Data.Time.Units
 -- Text
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -180,6 +182,37 @@ test_conditionals = describe "conditionals" $ do
   it "unlessF" $ do
     unlessF True "hi" ==#> ""
     unlessF False "hi" ==#> "hi"
+
+----------------------------------------------------------------------------
+-- Tests for orphan instances of other libraries
+----------------------------------------------------------------------------
+
+test_timeUnits :: Spec
+test_timeUnits = describe "time-units" $ do
+    it "Attosecond" $
+        (""#|(0 :: Attosecond)|#"") ==#> "0as"
+    it "Femtosecond" $
+        (""#|(1 :: Femtosecond)|#"") ==#> "1fs"
+    it "Picosecond" $
+        (""#|(2 :: Picosecond)|#"") ==#> "2ps"
+    it "Nanosecond" $
+        (""#|(3 :: Nanosecond)|#"") ==#> "3ns"
+    it "Microsecond" $
+        (""#|(4 :: Microsecond)|#"") ==#> "4µs"  -- TODO: not use mu here to not break terminals?
+    it "Millisecond" $
+        (""#|(5 :: Millisecond)|#"") ==#> "5ms"
+    it "Second" $
+        (""#|(6 :: Second)|#"") ==#> "6s"
+    it "Minute" $
+        (""#|(7 :: Minute)|#"") ==#> "7m"
+    it "Hour" $
+        (""#|(8 :: Hour)|#"") ==#> "8h"
+    it "Day" $
+        (""#|(9 :: Day)|#"") ==#> "9d"
+    it "Week" $
+        (""#|(10 :: Week)|#"") ==#> "10w"
+    it "Fortnight" $
+        (""#|(11 :: Fortnight)|#"") ==#> "11fn"
 
 ----------------------------------------------------------------------------
 -- Tests for padding

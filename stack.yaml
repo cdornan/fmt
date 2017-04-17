@@ -3,6 +3,8 @@ resolver: lts-8.6
 packages:
 - '.'
 
-extra-deps: []
+extra-deps:
+- time-units-1.0.0
+
 flags: {}
 extra-package-dbs: []
