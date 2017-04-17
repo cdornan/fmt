@@ -1,3 +1,7 @@
+# next
+
+* Changed `format` and `formatLn` to be polyvariadic.
+
 # 0.1.0.0
 
 * Added `genericF` for formatting arbitrary data.

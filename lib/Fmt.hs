@@ -158,7 +158,6 @@ import qualified Data.Text.Lazy as TL
 -- 'Buildable' and text-format
 import Data.Text.Buildable
 import qualified Data.Text.Format as TF
-import qualified Data.Text.Format.Params as TF
 -- Text 'Builder'
 import Data.Text.Lazy.Builder hiding (fromString)
 -- 'Foldable' and 'IsList' for list/map formatters
@@ -449,31 +448,24 @@ infixr 1 |##||
 {- | An old-style formatting function taken from @text-format@ (see
 "Data.Text.Format"). Unlike 'Data.Text.Format.format' from
 "Data.Text.Format", it can produce 'String' and strict 'Text' as well (and
-print to console too).
+print to console too). Also it's polyvariadic:
 
-To provide substitution arguments, use a tuple:
-
->>> format "{} + {} = {}" (2, 2, 4)
+>>> format "{} + {} = {}" 2 2 4
 "2 + 2 = 4"
 
 You can use arbitrary formatters:
 
->>> format "0x{} + 0x{} = 0x{}" (hexF 130, hexF 270, hexF (130+270))
+>>> format "0x{} + 0x{} = 0x{}" (hexF 130) (hexF 270) (hexF (130+270))
 "2 + 2 = 4"
-
-To provide just one argument, use a list instead of a tuple:
-
->>> format "Hello {}!" ["world"]
-"Hello world!"
 -}
-format :: (FromBuilder b, TF.Params ps) => TF.Format -> ps -> b
-format f ps = fromBuilder (TF.build f ps)
+format :: FormatType r => TF.Format -> r
+format f = format' f []
 {-# INLINE format #-}
 
 {- | Like 'format', but adds a newline.
 -}
-formatLn :: (FromBuilder b, TF.Params ps) => TF.Format -> ps -> b
-formatLn f ps = fromBuilder (TF.build f ps <> "\n")
+formatLn :: FormatType r => TF.Format -> r
+formatLn f = format' (f <> "\n") []
 {-# INLINE formatLn #-}
 
 ----------------------------------------------------------------------------
@@ -1189,11 +1181,11 @@ instance (GetFields a, Constructor c) => GBuildable (M1 C c a) where
   --   * And ":|" can be prefix when defined as "(:|) a b"
   gbuild c@(M1 x) = case conFixity c of
     Infix _ _
-      | [a, b] <- fields -> format "({} {} {})" (a, infixName, b)
+      | [a, b] <- fields -> format "({} {} {})" a infixName b
       -- this case should never happen, but still
       | otherwise        -> format "<{}: {}>"
-                              ( prefixName
-                              , mconcat (intersperse ", " fields) )
+                              prefixName
+                              (mconcat (intersperse ", " fields))
     Prefix
       | isTuple -> tupleLikeF fields
       | conIsRecord c -> nameF (build prefixName) (blockMapF fieldsWithNames)
@@ -1201,8 +1193,8 @@ instance (GetFields a, Constructor c) => GBuildable (M1 C c a) where
       -- I believe that there will be only one field in this case
       | null (conName c) -> mconcat (intersperse ", " fields)
       | otherwise -> format "<{}: {}>"
-                       ( prefixName
-                       , mconcat (intersperse ", " fields) )
+                       prefixName
+                       (mconcat (intersperse ", " fields))
     where
       (prefixName, infixName)
         | ":" `isPrefixOf` conName c = ("(" ++ conName c ++ ")", conName c)

@@ -4,9 +4,16 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE CPP #-}
 
--- for FormatAsHex
+-- for FormatAsHex and FormatType
 #if __GLASGOW_HASKELL__ < 710
 {-# LANGUAGE OverlappingInstances #-}
+#  define _OVERLAPPING_
+#  define _OVERLAPPABLE_
+#  define _OVERLAPS_
+#else
+#  define _OVERLAPPING_ {-# OVERLAPPING #-}
+#  define _OVERLAPPABLE_ {-# OVERLAPPABLE #-}
+#  define _OVERLAPS_ {-# OVERLAPS #-}
 #endif
 
 {- | A module providing access to internals (in case you really need them). Can
@@ -25,6 +32,9 @@ module Fmt.Internal
   GetFields(..),
   Buildable'(..),
 
+  -- * Polyvariadic 'format'
+  FormatType(..),
+  
   -- * Helpers
   groupInt,
   atBase,
@@ -109,13 +119,8 @@ instance FormatAsHex BS.ByteString where
 instance FormatAsHex BSL.ByteString where
   hexF = fromLazyText . TL.decodeLatin1 . B16L.encode
 
-#if __GLASGOW_HASKELL__ >= 710
-instance {-# OVERLAPPABLE #-} Integral a => FormatAsHex a where
+instance _OVERLAPPABLE_ Integral a => FormatAsHex a where
   hexF = TF.hex
-#else
-instance Integral a => FormatAsHex a where
-  hexF = TF.hex
-#endif
 
 ----------------------------------------------------------------------------
 -- Base64
@@ -128,7 +133,7 @@ Convert a bytestring to base64:
 >>> base64F ("\0\50\63\80" :: BS.ByteString)
 "ADI/UA=="
   -}
-  base64F    :: a -> Builder
+  base64F :: a -> Builder
   {- |
 Convert a bytestring to base64url (a variant of base64 which omits @\/@ and
 thus can be used in URLs):
@@ -186,6 +191,20 @@ class GetFields f where
 -- tuples, lists, maps, etc., as well as combinations thereof.
 class Buildable' a where
   build' :: a -> Builder
+
+----------------------------------------------------------------------------
+-- Classes used for polyvariadic 'format'
+----------------------------------------------------------------------------
+
+-- | Something like 'Text.Printf.PrintfType' in "Text.Printf".
+class FormatType r where
+  format' :: TF.Format -> [Builder] -> r
+
+instance (Buildable a, FormatType r) => FormatType (a -> r) where
+  format' f xs = \x -> format' f (build x : xs)
+
+instance _OVERLAPPABLE_ FromBuilder r => FormatType r where
+  format' f xs = fromBuilder $ TF.build f (reverse xs)
 
 ----------------------------------------------------------------------------
 -- Helpers
