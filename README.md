@@ -178,47 +178,37 @@ is usually twice as fast as `formatting`, and on par with `text-format`. This ex
     tried but it doesn't seem to be possible if you want the library to keep
     working with enabled `-XOverloadedStrings`.)
    
-3.  Should `<>` be reexported? It's useful occasionally, e.g. if you want to
-    split your formatting like this:
-
-    ```haskell
-    x = "Foo "#|foo|#" and bar, " <>
-        "qux: "#|tupleF (bar, qux)|#"."
-    ```
-
-    If we export it, should it come from `Semigroup` or `Monoid`?
-
-4.  Should support for terminal coloring be added? If so, how should it be
+3.  Should support for terminal coloring be added? If so, how should it be
     designed?
 
-5.  Is there any way to allow `IO` inside `#| |#` brackets? (With the result
+4.  Is there any way to allow `IO` inside `#| |#` brackets? (With the result
     being an `IO` action that prints the string.)
 
-6.  How should `listF`, `mapF`, etc format lists/maps? Also, should we be
+5.  How should `listF`, `mapF`, etc format lists/maps? Also, should we be
     more clever about multiline detection, or less clever (e.g. by providing
     something that will always use several lines and also something that will
     never use several lines)?  Currently `listF` doesnk't try to be clever at
     all, but perhaps it should.
 
-7.  Can we somehow make formatters overloaded instead of always outputting
+6.  Can we somehow make formatters overloaded instead of always outputting
     `Builder`? Currently, if you want `listF xs` to be a `Text`, you have to
     write either `fmt (listF xs)` or `""#|listF xs|#""`, which doesn't seem
     nice. However, making formatters overloaded breaks type inference.
 
-8.  It'd be nice to have something for wrapping lists (to fit into 80 chars
+7.  It'd be nice to have something for wrapping lists (to fit into 80 chars
     or something), and also something for truncating lists (e.g. you might
     want long lists to be displayed as `[foo, bar, baz, ... (187 elements
     omitted)]`). This is hard because a) the design space is big, and b)
     there are too many combinations (`listTrimmedF`, `blockListTrimmedF`,
     `listTrimmedF'`, etc).
 
-9.  By the way, is the `|##|` operator abhorrent and should be removed? What
+8.  By the way, is the `|##|` operator abhorrent and should be removed? What
     about `#||` and `||#`?
 
-10. How should tuples be formatted? I'm uneasy about the current syntax.
+9.  How should tuples be formatted? I'm uneasy about the current syntax.
 
-11. Should formatters be changed to never add a trailing newline?
+10. Should formatters be changed to never add a trailing newline?
 
-12. Two spaces for list indentation, or four?
+11. Two spaces for list indentation, or four?
 
-13. Should `genericF`'s syntax for constructors be changed?
+12. Should `genericF`'s syntax for constructors be changed?
