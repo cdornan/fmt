@@ -456,7 +456,7 @@ print to console too). Also it's polyvariadic:
 You can use arbitrary formatters:
 
 >>> format "0x{} + 0x{} = 0x{}" (hexF 130) (hexF 270) (hexF (130+270))
-"2 + 2 = 4"
+"0x82 + 0x10e = 0x190"
 -}
 format :: FormatType r => TF.Format -> r
 format f = format' f []
