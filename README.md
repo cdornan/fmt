@@ -114,7 +114,7 @@ formatting done with [interpolate][]:
 
 The benchmark code can be
 found [here](https://github.com/aelve/fmt/blob/master/bench/Main.hs). `fmt`
-is usually twice as fast as `formatting`, and on par with `text-format`. I used this example for benchmarks:
+is usually twice as fast as `formatting`, and on par with `text-format`. This example was used for benchmarks:
 
 ```haskell
 "There are "#|n|#" million bicycles in "#|city|#"."
@@ -129,28 +129,28 @@ is usually twice as fast as `formatting`, and on par with `text-format`. I used 
   <tbody>
     <tr>
       <td>fmt</td>
-      <td>382 ns</td>
-      <td>1073 ns</td>
+      <td>0.4 mcs</td>
+      <td>1.1 mcs</td>
     </tr>
     <tr>
       <td>formatting</td>
-      <td>630 ns</td>
-      <td>1413 ns</td>
+      <td>0.6 mcs</td>
+      <td>1.4 mcs</td>
     </tr>
     <tr>
       <td>text-format</td>
-      <td>295 ns</td>
-      <td>1068 ns</td>
+      <td>0.3 mcs</td>
+      <td>1.1 mcs</td>
     </tr>
     <tr>
       <td><code>printf</code></td>
-      <td>2000 ns</td>
-      <td>1591 ns</td>
+      <td>2.0 mcs</td>
+      <td>1.6 mcs</td>
     </tr>
     <tr>
       <td><code>show</code> and <code>&lt;&gt;</code></td>
-      <td>914 ns</td>
-      <td>500 ns</td>
+      <td>0.9 mcs</td>
+      <td>0.5 mcs</td>
     </tr>
   </tbody>
 </table>
