@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                 #-}
 {-# LANGUAGE ExplicitForAll      #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -60,15 +61,19 @@ module Fmt.Time
        ) where
 
 
-import           Data.List              (find)
-import           Data.Monoid            ((<>))
-import           Data.Text              (Text)
-import qualified Data.Text              as T
-import           Data.Text.Buildable    (build)
-import           Data.Text.Lazy.Builder (Builder)
+import           Data.List               (find)
+import           Data.Monoid             ((<>))
+import           Data.Text               (Text)
+import qualified Data.Text               as T
+import           Data.Text.Buildable     (build)
+import           Data.Text.Lazy.Builder  (Builder)
 import           Data.Time
 
-import           Fmt                    (fixedF, ordinalF, ( #| ), (|#))
+#if !MIN_VERSION_time(1,5,0)
+import           Data.Time.Locale.Compat
+#endif
+
+import           Fmt                     (fixedF, ordinalF, ( #| ), (|#))
 
 -- * Custom.
 
