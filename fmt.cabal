@@ -41,7 +41,8 @@ homepage:            http://github.com/aelve/fmt
 bug-reports:         http://github.com/aelve/fmt/issues
 license:             BSD3
 license-file:        LICENSE
-author:              Artyom
+author:              Artyom Kazak <yom@artyom.me>,
+                     Dmitry Kovanikov <kovanikov@gmail.com>
 maintainer:          yom@artyom.me
 -- copyright:
 category:            Text
