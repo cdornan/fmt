@@ -404,7 +404,8 @@ dayOfWeekF = timeF "%u"
 dayNameShortF :: FormatTime a => a -> Builder
 dayNameShortF = timeF "%a"
 
--- | Day of week, long form ('fst' from 'wDays' @locale@), @Sunday@ - @Saturday@.
+-- | Day of week, long form ('fst' from 'wDays' @locale@), @Sunday@ -
+-- @Saturday@.
 --
 -- >>> dayNameF t
 -- "Sunday"
@@ -438,18 +439,17 @@ weekOfYearMonF = timeF "%W"
 -- Time spans, diffs, 'NominalDiffTime', 'DiffTime', etc.
 ----------------------------------------------------------------------------
 
--- | Display a time span as one time relative to another. Input is
--- assumed to be seconds. Typical inputs are 'NominalDiffTime' and
--- 'DiffTime'.
+-- | Display a time span as one time relative to another. Input is assumed to
+-- be seconds. Typical inputs are 'NominalDiffTime' and 'DiffTime'.
 --
 -- >>> diffF False 100
 -- "a minute"
 -- >>> diffF True 100
 -- "in a minute"
 diffF :: forall n . RealFrac n
-     => Bool     -- ^ Display 'in/ago'?
-     -> n        -- ^ Example: '3 seconds ago', 'in three days'.)
-     -> Builder
+      => Bool     -- ^ Display 'in/ago'?
+      -> n        -- ^ Example: '3 seconds ago', 'in three days'.)
+      -> Builder
 diffF fix = diffed
   where
     diffed :: RealFrac n => n -> Builder
@@ -502,9 +502,9 @@ diffF fix = diffed
 -- >>> yearsF 3 1494767807
 -- "47.399"
 yearsF :: RealFrac n
-      => Int -- ^ Decimal places.
-      -> n
-      -> Builder
+       => Int -- ^ Decimal places.
+       -> n
+       -> Builder
 yearsF n = fixedF n . abs . count
   where count x = x / 365 / 24 / 60 / 60
 
@@ -524,9 +524,9 @@ daysF n = fixedF n . abs . count
 -- >>> hoursF 3 3600
 -- "1.000"
 hoursF :: RealFrac n
-      => Int -- ^ Decimal places.
-      -> n
-      -> Builder
+       => Int -- ^ Decimal places.
+       -> n
+       -> Builder
 hoursF n = fixedF n . abs . count
   where count x = x / 60 / 60
 
@@ -535,9 +535,9 @@ hoursF n = fixedF n . abs . count
 -- >>> minutesF 3 150
 -- "2.500"
 minutesF :: RealFrac n
-      => Int -- ^ Decimal places.
-      -> n
-      -> Builder
+         => Int -- ^ Decimal places.
+         -> n
+         -> Builder
 minutesF n = fixedF n . abs . count
   where count x = x / 60
 
@@ -546,7 +546,7 @@ minutesF n = fixedF n . abs . count
 -- >>> secondsF 3 100
 -- "100.000"
 secondsF :: RealFrac n
-      => Int -- ^ Decimal places.
-      -> n
-      -> Builder
+         => Int -- ^ Decimal places.
+         -> n
+         -> Builder
 secondsF n = fixedF n . abs
