@@ -20,7 +20,7 @@ from the @<https://hackage.haskell.org/package/formatting formatting>@ package.
 Most of the time you'll want to use one of these formatters:
 
 @
->>> __'dateTimeF' t                  -- full time and date__
+>>> __'dateTimeF' t                  -- full date and time__
 "Sun May 14 16:16:47 MSK 2017"
 
 >>> __'hmF' t                        -- hours and minutes__
@@ -37,6 +37,13 @@ Most of the time you'll want to use one of these formatters:
 
 >>> __'diffF' True t                 -- point in time (convenient for humans)__
 "3 seconds ago"
+@
+
+Note that two formatters from @Formatting.Time@ have been renamed:
+
+@
+pico     -> 'picosecondF'
+decimals -> 'subsecondF'
 @
 
 -}
@@ -63,8 +70,8 @@ module Fmt.Time
   hour12SF,
   minuteF,
   secondF,
-  picoF,
-  decimalsF,
+  picosecondF,
+  subsecondF,
 
   -- * For 'UTCTime' and 'ZonedTime'
   epochF,
@@ -254,22 +261,20 @@ minuteF = timeF "%M"
 secondF :: FormatTime a => a -> Builder
 secondF = timeF "%S"
 
--- | Picosecond, including trailing zeros, @000000000000@ -
--- @999999999999@.
+-- | Picosecond, including trailing zeros, @000000000000@ - @999999999999@.
 --
--- >>> picoF t
+-- >>> picosecondF t
 -- "621350000000"
-picoF :: FormatTime a => a -> Builder
-picoF = timeF "%q"
+picosecondF :: FormatTime a => a -> Builder
+picosecondF = timeF "%q"
 
--- | Decimal point and up to 12 second decimals, without trailing
--- zeros. For a whole number of seconds, this produces the empty
--- string.
+-- | Decimal point of the second. Up to 12 digits, without trailing zeros.
+-- For a whole number of seconds, this produces an empty string.
 --
--- >>> decimalsF t
+-- >>> subsecondF t
 -- ".62135"
-decimalsF :: FormatTime a => a -> Builder
-decimalsF = timeF "%Q"
+subsecondF :: FormatTime a => a -> Builder
+subsecondF = timeF "%Q"
 
 ----------------------------------------------------------------------------
 -- For 'UTCTime' and 'ZonedTime'
