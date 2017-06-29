@@ -1,64 +1,84 @@
+{- Acknowledgements
+~~~~~~~~~~~~~~~~~~~
+
+This module has been largely copied off
+    <https://hackage.haskell.org/package/formatting/docs/Formatting-Time.html>
+Written by Chris Done
+    <https://github.com/chrisdone>
+-}
+
 {-# LANGUAGE CPP                 #-}
 {-# LANGUAGE ExplicitForAll      #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
--- | Formatters for @time@ package in @formatting@ style.
--- Implemented using 'Formatting.Time' module as a template.
+
+-- | Formatters for various time types.
+--
+-- This module copies the structure of
+-- @<https://hackage.haskell.org/package/formatting/docs/Formatting-Time.html Formatting.Time>@
+-- from the @<https://hackage.haskell.org/package/formatting formatting>@ package.
 
 module Fmt.Time
-       ( tzF
-       , tzNameF
-       , dateTimeF
+(
+  -- * For 'TimeZone' (and 'ZonedTime' and 'UTCTime')
+  tzF,
+  tzNameF,
+  dateTimeF,
 
-       , hmF
-       , hmsF
-       , hmsLF
-       , hmsPLF
-       , dayHalfF
-       , dayHalfUF
-       , hour24F
-       , hour12F
-       , hour24SF
-       , hour12SF
-       , minuteF
-       , secondF
-       , picoF
-       , decimalsF
+  -- * For 'TimeOfDay' (and 'LocalTime' and 'ZonedTime' and 'UTCTime')
+  hmF,
+  hmsF,
+  hmsLF,
+  hmsPLF,
+  dayHalfF,
+  dayHalfUF,
+  hour24F,
+  hour12F,
+  hour24SF,
+  hour12SF,
+  minuteF,
+  secondF,
+  picoF,
+  decimalsF,
 
-       , epochF
+  -- * For 'UTCTime' and 'ZonedTime'
+  epochF,
 
-       , dateSlashF
-       , dateDashF
-       , dateSlashLF
-       , yearF
-       , yyF
-       , centuryF
-       , monthNameF
-       , monthNameShortF
-       , monthF
-       , dayOfMonthF
-       , dayOfMonthOrdF
-       , dayOfMonthSF
-       , dayF
-       , weekYearF
-       , weekYYF
-       , weekCenturyF
-       , weekF
-       , dayOfWeekF
-       , dayNameShortF
-       , dayNameF
-       , weekFromZeroF
-       , dayOfWeekFromZeroF
-       , weekOfYearMonF
+  -- * For 'Day' (and 'LocalTime' and 'ZonedTime' and 'UTCTime')
+  dateSlashF,
+  dateDashF,
+  dateSlashLF,
+  yearF,
+  yyF,
+  centuryF,
+  monthNameF,
+  monthNameShortF,
+  monthF,
+  dayOfMonthF,
+  dayOfMonthOrdF,
+  dayOfMonthSF,
+  dayF,
+  weekYearF,
+  weekYYF,
+  weekCenturyF,
+  weekF,
+  dayOfWeekF,
+  dayNameShortF,
+  dayNameF,
+  weekFromZeroF,
+  dayOfWeekFromZeroF,
+  weekOfYearMonF,
 
-       , diffF
-       , yearsF
-       , daysF
-       , hoursF
-       , minutesF
-       , secondsF
-       ) where
+  -- * Time spans, diffs, 'NominalDiffTime', 'DiffTime', etc.
+  diffF,
+  yearsF,
+  daysF,
+  hoursF,
+  minutesF,
+  secondsF,
+)
+where
 
 
 import           Data.List               (find)
@@ -75,13 +95,18 @@ import           Data.Time.Locale.Compat
 
 import           Fmt                     (fixedF, ordinalF, ( #| ), (|#))
 
--- * Custom.
+
+----------------------------------------------------------------------------
+-- Custom
+----------------------------------------------------------------------------
 
 -- | Formatter call if you want to call arbitrary formatter.
 timeF :: FormatTime a => Text -> a -> Builder
 timeF f = build . T.pack . formatTime defaultTimeLocale (T.unpack f)
 
--- * For 'TimeZone' (and 'ZonedTime' and 'UTCTime'):
+----------------------------------------------------------------------------
+-- For 'TimeZone' (and 'ZonedTime' and 'UTCTime')
+----------------------------------------------------------------------------
 
 -- | Timezone offset on the format @-HHMM@.
 --
@@ -107,7 +132,9 @@ tzNameF = timeF "%Z"
 dateTimeF :: FormatTime a => a -> Builder
 dateTimeF = timeF "%c"
 
--- * For 'TimeOfDay' (and 'LocalTime' and 'ZonedTime' and 'UTCTime'):
+----------------------------------------------------------------------------
+-- For 'TimeOfDay' (and 'LocalTime' and 'ZonedTime' and 'UTCTime')
+----------------------------------------------------------------------------
 
 -- | Same as @%H:%M@.
 --
@@ -219,19 +246,23 @@ picoF = timeF "%q"
 decimalsF :: FormatTime a => a -> Builder
 decimalsF = timeF "%Q"
 
--- * For 'UTCTime' and 'ZonedTime'
---
--- Number of whole seconds since the Unix epoch. For times before
--- the Unix epoch, this is a negative number. Note that in @%s.%q@ and @%s%Q@
--- the decimals are positive, not negative. For example, 0.9 seconds
--- before the Unix epoch is formatted as @-1.1@ with @%s%Q@.
+----------------------------------------------------------------------------
+-- For 'UTCTime' and 'ZonedTime'
+----------------------------------------------------------------------------
+
+-- | Number of whole seconds since the Unix epoch. For times before the Unix
+-- epoch, this is a negative number. Note that in @%s.%q@ and @%s%Q@ the
+-- decimals are positive, not negative. For example, 0.9 seconds before the
+-- Unix epoch is formatted as @-1.1@ with @%s%Q@.
 --
 -- >>> epochF t
 -- "1494767807"
 epochF :: FormatTime a => a -> Builder
 epochF = timeF "%s"
 
--- * For 'Day' (and 'LocalTime' and 'ZonedTime' and 'UTCTime'):
+----------------------------------------------------------------------------
+-- For 'Day' (and 'LocalTime' and 'ZonedTime' and 'UTCTime')
+----------------------------------------------------------------------------
 
 -- | Same as @%m\/%d\/%y@.
 --
@@ -399,7 +430,9 @@ dayOfWeekFromZeroF = timeF "%w"
 weekOfYearMonF :: FormatTime a => a -> Builder
 weekOfYearMonF = timeF "%W"
 
--- * Time spans, diffs, 'NominalDiffTime', 'DiffTime', etc.
+----------------------------------------------------------------------------
+-- Time spans, diffs, 'NominalDiffTime', 'DiffTime', etc.
+----------------------------------------------------------------------------
 
 -- | Display a time span as one time relative to another. Input is
 -- assumed to be seconds. Typical inputs are 'NominalDiffTime' and
