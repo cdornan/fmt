@@ -124,7 +124,7 @@ import           Data.Time
 import           Data.Time.Locale.Compat
 #endif
 
-import           Fmt                     (fixedF, ordinalF, ( #| ), (|#))
+import           Fmt.Internal            (fixedF, ordinalF)
 
 
 ----------------------------------------------------------------------------
@@ -490,7 +490,7 @@ diffF fix = diffed
     toInt ts base = abs (round (ts / base))
 
     intF :: Builder -> Int -> Builder
-    intF t n = ""#|n|#t
+    intF t n = build n <> t
 
     ranges :: RealFrac n => [(n, Int -> Builder, n)]
     ranges =

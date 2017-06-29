@@ -18,6 +18,9 @@
 
 {- | A module providing access to internals (in case you really need them). Can
 change at any time, though probably won't.
+
+It also provides some functions that are used in 'Fmt.Time' (so that
+'Fmt.Time' wouldn't need to import 'Fmt').
 -}
 module Fmt.Internal
 (
@@ -41,6 +44,10 @@ module Fmt.Internal
   showSigned',
   intToDigit',
   indent',
+
+  -- * Functions used in 'Fmt.Time'
+  fixedF,
+  ordinalF,
 )
 where
 
@@ -257,3 +264,35 @@ indent' n pref a = case TL.lines (toLazyText a) of
             TL.unlines $ (TL.fromStrict pref <> x) : map (spaces <>) xs
   where
     spaces = TL.replicate (fromIntegral n) (TL.singleton ' ')
+
+----------------------------------------------------------------------------
+-- Functions used in Fmt.Time
+----------------------------------------------------------------------------
+
+{- |
+Format a floating-point number without scientific notation:
+
+>>> listF' (fixedF 5) [pi,0.1,10]
+"[3.14159, 0.10000, 10.00000]"
+-}
+fixedF :: Real a => Int -> a -> Builder
+fixedF = TF.fixed
+
+{- |
+Add an ordinal suffix to a number:
+
+>>> ordinalF 15
+"15th"
+>>> ordinalF 22
+"22nd"
+-}
+ordinalF :: (Buildable a, Integral a) => a -> Builder
+ordinalF n
+  | tens > 3 && tens < 21 = build n <> "th"
+  | otherwise = build n <> case n `mod` 10 of
+                             1 -> "st"
+                             2 -> "nd"
+                             3 -> "rd"
+                             _ -> "th"
+  where
+    tens = n `mod` 100

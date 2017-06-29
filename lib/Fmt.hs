@@ -85,6 +85,9 @@ module Fmt
   indent, indent',
   nameF,
 
+  -- ** Time
+  module Fmt.Time,
+
   -- ** Lists
   listF, listF',
   blockListF, blockListF',
@@ -178,6 +181,7 @@ import Data.List.NonEmpty (NonEmpty)
 #endif
 
 import Fmt.Internal
+import Fmt.Time
 
 
 {- $overloadedstrings
@@ -965,25 +969,6 @@ padBothF i c =
   fromLazyText . TL.center (fromIntegral i) c . toLazyText . build
 
 {- |
-Add an ordinal suffix to a number:
-
->>> ordinalF 15
-"15th"
->>> ordinalF 22
-"22nd"
--}
-ordinalF :: (Buildable a, Integral a) => a -> Builder
-ordinalF n
-  | tens > 3 && tens < 21 = build n <> "th"
-  | otherwise = build n <> case n `mod` 10 of
-                             1 -> "st"
-                             2 -> "nd"
-                             3 -> "rd"
-                             _ -> "th"
-  where
-    tens = n `mod` 100
-
-{- |
 Break digits in a number:
 
 >>> commaizeF 15830000
@@ -1067,15 +1052,6 @@ For large numbers, it uses scientific notation for everything larger than
 -}
 precF :: Real a => Int -> a -> Builder
 precF = TF.prec
-
-{- |
-Format a floating-point number without scientific notation:
-
->>> listF' (fixedF 5) [pi,0.1,10]
-"[3.14159, 0.10000, 10.00000]"
--}
-fixedF :: Real a => Int -> a -> Builder
-fixedF = TF.fixed
 
 ----------------------------------------------------------------------------
 -- Conditional formatters
