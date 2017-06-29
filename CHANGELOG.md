@@ -1,3 +1,7 @@
+# 0.3.0.0
+
+* Added time formatters (see `Fmt.Time`).
+
 # 0.2.0.0
 
 * Changed `format` and `formatLn` to be polyvariadic.
