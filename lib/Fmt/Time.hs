@@ -21,6 +21,9 @@ Written by Chris Done
 
 module Fmt.Time
 (
+  -- * Custom
+  timeF,
+
   -- * For 'TimeZone' (and 'ZonedTime' and 'UTCTime')
   tzF,
   tzNameF,
@@ -100,7 +103,8 @@ import           Fmt                     (fixedF, ordinalF, ( #| ), (|#))
 -- Custom
 ----------------------------------------------------------------------------
 
--- | Formatter call if you want to call arbitrary formatter.
+-- | Format time with an arbitrary formatting string. Other formatters in
+-- this module are implemented using 'timeF'.
 timeF :: FormatTime a => Text -> a -> Builder
 timeF f = build . T.pack . formatTime defaultTimeLocale (T.unpack f)
 
