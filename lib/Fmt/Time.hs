@@ -13,12 +13,33 @@ Written by Chris Done
 {-# LANGUAGE ScopedTypeVariables #-}
 
 
--- | Formatters for various time types.
---
--- This module copies the structure of
--- @<https://hackage.haskell.org/package/formatting/docs/Formatting-Time.html Formatting.Time>@
--- from the @<https://hackage.haskell.org/package/formatting formatting>@ package.
+{- | Formatters for various time types. This module copies the structure of
+@<https://hackage.haskell.org/package/formatting/docs/Formatting-Time.html Formatting.Time>@
+from the @<https://hackage.haskell.org/package/formatting formatting>@ package.
 
+Most of the time you'll want to use one of these formatters:
+
+@
+>>> __'dateTimeF' t                  -- full time and date__
+"Sun May 14 16:16:47 MSK 2017"
+
+>>> __'hmF' t                        -- hours and minutes__
+"16:16"
+
+>>> __'hmsF' t                       -- hours, minutes and seconds__
+"16:16:47"
+
+>>> __'dateDashF' t                  -- date in ISO 8601 format__
+"2017-05-14"
+
+>>> __'diffF' False t                -- time period (convenient for humans)__
+"3 seconds"
+
+>>> __'diffF' True t                 -- point in time (convenient for humans)__
+"3 seconds ago"
+@
+
+-}
 module Fmt.Time
 (
   -- * Custom
@@ -319,8 +340,7 @@ centuryF = timeF "%C"
 monthNameF :: FormatTime a => a -> Builder
 monthNameF = timeF "%B"
 
--- | @ %H] month name, short form ('snd' from 'months' @locale@),
--- @Jan@ - @Dec@.
+-- | Month name, short form ('snd' from 'months' @locale@), @Jan@ - @Dec@.
 --
 -- >>> monthNameShortF longMonthT
 -- "Jan"
@@ -447,8 +467,8 @@ weekOfYearMonF = timeF "%W"
 -- >>> diffF True 100
 -- "in a minute"
 diffF :: forall n . RealFrac n
-      => Bool     -- ^ Display 'in/ago'?
-      -> n        -- ^ Example: '3 seconds ago', 'in three days'.)
+      => Bool     -- ^ Whether to display the @in/ago@ prefix or not
+      -> n        -- ^ Example: @3 seconds ago@, @in 2 days@
       -> Builder
 diffF fix = diffed
   where
