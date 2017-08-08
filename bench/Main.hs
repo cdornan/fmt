@@ -13,7 +13,7 @@ import qualified Data.Text               as T
 import qualified Data.Text.Format        as TF
 import           Data.Text.Format.Params as TF
 import qualified Data.Text.Lazy          as LT
-import           Fmt                     (( #| ), (|#))
+import           Fmt                     ((+|), (|+))
 import           Formatting              (Format, formatToString, int, sformat, stext,
                                           string, (%))
 import           Text.Printf             (printf)
@@ -68,7 +68,7 @@ main = defaultMain
   [ bgroup "simple"
     [ bTextGroup (1 :: Int, 2 :: Int)
       [ taggedB "fmt" $
-          \(a,b) -> "hello "#|a|#" world "#|b|#""
+          \(a,b) -> "hello "+|a|+" world "+|b|+""
       , taggedB "formatting" $
           \(a,b) -> sformat ("hello "%int%" world "%int) a b
       , taggedB "text-format" $
@@ -82,7 +82,7 @@ main = defaultMain
       ]
     , bStringGroup (1 :: Int, 2 :: Int)
       [ taggedB "fmt" $
-          \(a,b) -> "hello "#|a|#" world "#|b|#""
+          \(a,b) -> "hello "+|a|+" world "+|b|+""
       , taggedB "formatting" $
           \(a,b) -> fs ("hello "%int%" world "%int) a b
       , taggedB "text-format" $
@@ -99,7 +99,7 @@ main = defaultMain
   , bgroup "readme"
     [ bTextGroup (9 :: Int, "Beijing" :: Text)
       [ taggedB "fmt" $
-          \(n,city) -> "There are "#|n|#" million bicycles in "#|city|#"."
+          \(n,city) -> "There are "+|n|+" million bicycles in "+|city|+"."
       , taggedB "formatting" $
           \(n,city) -> sformat ("There are "%int%" million bicycles in "%stext%".") n city
       , taggedB "text-format" $
@@ -113,7 +113,7 @@ main = defaultMain
       ]
     , bStringGroup (9 :: Int, "Beijing" :: String)
       [ taggedB "fmt" $
-          \(n,city) -> "There are "#|n|#" million bicycles in "#|city|#"."
+          \(n,city) -> "There are "+|n|+" million bicycles in "+|city|+"."
       , taggedB "formatting" $
           \(n,city) -> fs ("There are "%int%" million bicycles in "%string%".") n city
       , taggedB "text-format" $
