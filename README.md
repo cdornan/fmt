@@ -30,11 +30,11 @@ ordinary functions of type `a -> Builder`:
 "5d"
 ```
 
-And a bunch of operators (`#|`, `|#`) for concatenating strings:
+And a bunch of operators (`+|`, `|+`) for concatenating strings:
 
 ```haskell
 > let b = 93
-> "Got another byte (0x"#|hexF b|#")"
+> "Got another byte (0x"+|hexF b|+")"
 "Got another byte (0x5d)"
 ```
 
@@ -42,10 +42,10 @@ And if we want to be able to produce `String`, `Text`, `Builder`, etc with
 them, let's make those operators polymorphic in result type:
 
 ```haskell
-> "Got another byte (0x"#|hexF b|#")" :: String
+> "Got another byte (0x"+|hexF b|+")" :: String
 "Got another byte (0x5d)"
 
-> "Got another byte (0x"#|hexF b|#")" :: Text
+> "Got another byte (0x"+|hexF b|+")" :: Text
 "Got another byte (0x5d)"
 ```
 
@@ -117,7 +117,7 @@ found [here](https://github.com/aelve/fmt/blob/master/bench/Main.hs). `fmt`
 is usually twice as fast as `formatting`, and on par with `text-format`. This example was used for benchmarks:
 
 ```haskell
-"There are "#|n|#" million bicycles in "#|city|#"."
+"There are "+|n|+" million bicycles in "+|city|+"."
 ```
 
 <table>
@@ -159,29 +159,25 @@ is usually twice as fast as `formatting`, and on par with `text-format`. This ex
 
 ### Easy things to implement
 
-1.  Time formatters. `formatting` has many of them and we have none.
-
-2.  Something that would cut a string by adding ellipsis to the center:
+1.  Something that would cut a string by adding ellipsis to the center:
     `Foo bar ba...qux blah`.
 
-3.  Something to format a floating-point number without any scientific
+2.  Something to format a floating-point number without any scientific
     notation (`floatF` starts using scientific notation after 1e21).
 
-4.  Write `RULES` to make it faster for `String` (and perhaps for `Text` as
+3.  Write `RULES` to make it faster for `String` (and perhaps for `Text` as
     well).
 
 ### Questions to answer
 
-1.  Should the operators remain `#|` and `|#`, or are there some better names?
-
-2.  Is there any way to replace `#|` and `|#` with just one operator? (I
+1.  Is there any way to replace `+|` and `|+` with just one operator? (I
     tried but it doesn't seem to be possible if you want the library to keep
     working with enabled `-XOverloadedStrings`.)
    
 3.  Should support for terminal coloring be added? If so, how should it be
     designed?
 
-4.  Is there any way to allow `IO` inside `#| |#` brackets? (With the result
+4.  Is there any way to allow `IO` inside `+| |+` brackets? (With the result
     being an `IO` action that prints the string.)
 
 5.  How should `listF`, `mapF`, etc format lists/maps? Also, should we be
@@ -192,7 +188,7 @@ is usually twice as fast as `formatting`, and on par with `text-format`. This ex
 
 6.  Can we somehow make formatters overloaded instead of always outputting
     `Builder`? Currently, if you want `listF xs` to be a `Text`, you have to
-    write either `fmt (listF xs)` or `""#|listF xs|#""`, which doesn't seem
+    write either `fmt (listF xs)` or `""+|listF xs|+""`, which doesn't seem
     nice. However, making formatters overloaded breaks type inference.
 
 7.  It'd be nice to have something for wrapping lists (to fit into 80 chars
@@ -202,8 +198,8 @@ is usually twice as fast as `formatting`, and on par with `text-format`. This ex
     there are too many combinations (`listTrimmedF`, `blockListTrimmedF`,
     `listTrimmedF'`, etc).
 
-8.  By the way, is the `|##|` operator abhorrent and should be removed? What
-    about `#||` and `||#`?
+8.  By the way, is the `|++|` operator abhorrent and should be removed? What
+    about `+||` and `||+`?
 
 9.  How should tuples be formatted? I'm uneasy about the current syntax.
 

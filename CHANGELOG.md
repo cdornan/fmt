@@ -1,3 +1,7 @@
+# 0.4.0.0
+
+* Renamed `#|` and `|#` to `+|` and `|+` because HLint can't handle `#|` and everyone uses HLint apparently.
+
 # 0.3.0.0
 
 * Added time formatters (see `Fmt.Time`).
