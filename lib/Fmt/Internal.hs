@@ -16,8 +16,8 @@
 #  define _OVERLAPS_ {-# OVERLAPS #-}
 #endif
 
-{- | A module providing access to internals (in case you really need them). Can
-change at any time, though probably won't.
+{- | A module providing access to internals (in case you really need them).
+Can change at any time, though probably won't.
 
 It also provides some functions that are used in 'Fmt.Time' (so that
 'Fmt.Time' wouldn't need to import 'Fmt').

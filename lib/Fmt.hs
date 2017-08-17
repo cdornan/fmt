@@ -187,7 +187,8 @@ import Fmt.Time
 
 {- $overloadedstrings
 
-You need @OverloadedStrings@ enabled to use this library. There are three ways to do it:
+You need @OverloadedStrings@ enabled to use this library. There are three
+ways to do it:
 
   * __In GHCi:__ do @:set -XOverloadedStrings@.
 
@@ -249,8 +250,8 @@ formatting    __sformat ("Foo: "%build%", bar: "%int) foo bar__
 
 The resulting formatted string is polymorphic and can be used as 'String',
 'Text', 'Builder' or even 'IO' (i.e. the string will be printed to the
-screen). However, when printing it is recommended to use 'fmt' or 'fmtLn' for
-clarity.
+screen). However, when printing it is recommended to use 'fmt' or 'fmtLn'
+for clarity.
 
 @fmt@ provides lots of formatters (which are simply functions that produce
 'Builder'):
@@ -323,8 +324,8 @@ this library in GHCi, it's recommended to either add a type signature or use
 Meet Alice!
 
 Otherwise the type of the formatted string would be resolved to @IO ()@ and
-printed without a newline, which is not very convenient when you're in
-GHCi. On the other hand, it's useful for quick-and-dirty scripts:
+printed without a newline, which is not very convenient when you're in GHCi.
+On the other hand, it's useful for quick-and-dirty scripts:
 
 @
 main = do
@@ -554,8 +555,8 @@ listF' fbuild xs = mconcat $
 
 The documentation for 'Builder' says that it's preferrable to associate
 'Builder' appends to the right (i.e. @a <> (b <> c)@). The maximum possible
-association-to-the-right is achieved when we avoid appending builders
-until the last second (i.e. in the latter scenario):
+association-to-the-right is achieved when we avoid appending builders until
+the last second (i.e. in the latter scenario):
 
     -- (a1 <> x) <> (a2 <> x) <> ...
     mconcat [a <> x | a <- as]
@@ -1292,14 +1293,6 @@ instance _OVERLAPPABLE_ Buildable a => Buildable' a where
 ----------------------------------------------------------------------------
 -- TODOs
 ----------------------------------------------------------------------------
-
-{- list/map
-~~~~~~~~~~~~~~~~~~~~
-* maybe add something like blockMapF_ and blockListF_ that would add
-  a blank line automatically? or `---` and `:::` or something?
-* should also add something to _not_ add a blank line between list
-  entries (e.g. when they are 'name'd and can be clearly differentiated)
--}
 
 {- docs
 ~~~~~~~~~~~~~~~~~~~~

@@ -1,12 +1,15 @@
 # 0.5.0.0
 
-* From this version on, `blockListF` never puts blank lines between items. If you want blank lines between items, I'm afraid that you'll have to add them manually (by e.g. adding a blank line to each item).
+* From this version on, `blockListF` never puts blank lines between items.
+  If you want blank lines between items, I'm afraid that you'll have to add
+  them manually (by e.g. adding a blank line to each item).
 
 * Now `blockListF'` can be used to create lists with custom bullets.
 
 # 0.4.0.0
 
-* Renamed `#|` and `|#` to `+|` and `|+` because HLint can't handle `#|` and everyone uses HLint apparently.
+* Renamed `#|` and `|#` to `+|` and `|+` because HLint can't handle `#|` and
+  everyone uses HLint apparently.
 
 # 0.3.0.0
 
@@ -20,7 +23,8 @@
 
 * Added `genericF` for formatting arbitrary data.
 
-* Changed `%<` and `>%` to `#|` and `|#` because they turn out to be easier to type.
+* Changed `%<` and `>%` to `#|` and `|#` because they turn out to be easier
+  to type.
 
 * Added a migration guide from `formatting`.
 
@@ -30,7 +34,8 @@
 
 # 0.0.0.4
 
-* Added `format` from `text-format`, because in some cases it's nicer than brackets.
+* Added `format` from `text-format`, because in some cases it's nicer than
+  brackets.
 
 * Renamed `padCenterF` to `padBothF`.
 
@@ -57,23 +62,28 @@
 
 * Added `fmt` and `fmtLn`.
 
-* Made all operators associate to the right (`Builder` documentation says it's faster than the opposite).
+* Made all operators associate to the right (`Builder` documentation says
+  it's faster than the opposite).
 
 * Reexported `Buildable` and `Builder`.
 
 # 0.0.0.2
 
-* Added `>%%<` so that it'd be possible to write `%<a>%%<b>%` instead of weird `%<a%<b>%`.
+* Added `>%%<` so that it'd be possible to write `%<a>%%<b>%` instead of
+  weird `%<a%<b>%`.
 
-* Added `%<< ... >>%`, which work work `Show` instead of `Buildable`. If you don't care about speed and just want to output something, use them.
+* Added `%<< ... >>%`, which work work `Show` instead of `Buildable`. If you
+  don't care about speed and just want to output something, use them.
 
-* Added an `IO ()` instance in `Fmt.IO`. If you import that module, raw formatted strings would print themselves.
+* Added an `IO ()` instance in `Fmt.IO`. If you import that module, raw
+  formatted strings would print themselves.
 
 * Added tests.
 
 * Changed fixities of operators so that `%<n+1>%` would work.
 
-* Changed license to BSD3 since all our dependencies are BSD3 and we can't use MIT.
+* Changed license to BSD3 since all our dependencies are BSD3 and we can't
+  use MIT.
 
 # 0.0.0.1
 
