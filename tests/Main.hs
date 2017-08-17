@@ -308,11 +308,9 @@ test_blockListF = describe "'blockListF'" $ do
         blockListF (["a\n x"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#> [text|
           - a
              x
-
           -  b
             xx
             y y_
-
           - c
           __
           |]
@@ -321,22 +319,18 @@ test_blockListF = describe "'blockListF'" $ do
         blockListF (["a\nx","b"] :: [Text]) ==#> [text|
           - a
             x
-
           - b
           |]
         blockListF (["a\nx","b\n"] :: [Text]) ==#> [text|
           - a
             x
-
           - b
           |]
         blockListF (["a"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#> [text|
           - a
-
           -  b
             xx
             y y_
-
           - c
           __
           |]

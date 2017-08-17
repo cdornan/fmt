@@ -1,3 +1,9 @@
+# 0.5.0.0
+
+* From this version on, `blockListF` never puts blank lines between items. If you want blank lines between items, I'm afraid that you'll have to add them manually (by e.g. adding a blank line to each item).
+
+* Now `blockListF'` can be used to create lists with custom bullets.
+
 # 0.4.0.0
 
 * Renamed `#|` and `|#` to `+|` and `|+` because HLint can't handle `#|` and everyone uses HLint apparently.

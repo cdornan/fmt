@@ -157,6 +157,7 @@ import Data.IntSet (IntSet)
 import qualified Data.IntSet as IntSet
 import Data.Sequence (Seq)
 -- Text
+import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 -- 'Buildable' and text-format
 import Data.Text.Buildable
@@ -291,7 +292,6 @@ yet. Specifically:
 * @plural@ and @asInt@ (but instead of @asInt@ you can use 'fromEnum')
 * @prefixBin@, @prefixOrd@, @prefixHex@, and @bytes@
 * formatters that use @Scientific@ (@sci@ and @scifmt@)
-* formatters that deal with time (anything from @Formatting.Time@)
 
 They will be added later. (On the other hand, @fmt@ provides some useful
 formatters not available in @formatting@, such as 'listF', 'mapF', 'tupleF'
@@ -573,41 +573,41 @@ However, benchmarks have shown that the former way is actually faster.
 - 2
 - 3
 
-It automatically handles multiline list elements:
+Multi-line elements are indented correctly:
 
 @
 >>> __fmt $ blockListF ["hello\\nworld", "foo\\nbar\\nquix"]__
 - hello
   world
-
 - foo
   bar
   quix
 @
 -}
 blockListF :: forall f a. (Foldable f, Buildable a) => f a -> Builder
-blockListF = blockListF' build
+blockListF = blockListF' "-" build
 {-# INLINE blockListF #-}
 
 {- | A version of 'blockListF' that lets you supply your own building function
-for list elements.
+for list elements (instead of 'build') and choose the bullet character
+(instead of @"-"@).
 -}
-blockListF' :: forall f a. (Foldable f) => (a -> Builder) -> f a -> Builder
-blockListF' fbuild xs
-  | null items      = "[]\n"
-  | True `elem` mls = mconcat (intersperse "\n" items)
-  | otherwise       = mconcat items
+blockListF'
+  :: forall f a. Foldable f
+  => T.Text                     -- ^ Bullet
+  -> (a -> Builder)             -- ^ Builder for elements
+  -> f a                        -- ^ Structure with elements
+  -> Builder
+blockListF' bullet fbuild xs = if null xs then "[]\n" else mconcat items
   where
-    (mls, items) = unzip $ map buildItem (toList xs)
-    -- Returns 'True' if the item is multiline
-    buildItem :: a -> (Bool, Builder)
+    items = map buildItem (toList xs)
+    spaces = mconcat $ replicate (T.length bullet + 1) (singleton ' ')
     buildItem x = case TL.lines (toLazyText (fbuild x)) of
-      []     -> (False, "-\n")
-      (l:ls) -> (not (null ls),
-                 "- " <> fromLazyText l <> "\n" <>
-                     mconcat ["  " <> fromLazyText s <> "\n" | s <- ls])
+      []     -> bullet |+ "\n"
+      (l:ls) -> bullet |+ " " +| l |+ "\n" <>
+                mconcat [spaces <> fromLazyText s <> "\n" | s <- ls]
 
-{-# SPECIALIZE blockListF' :: (a -> Builder) -> [a] -> Builder #-}
+{-# SPECIALIZE blockListF' :: T.Text -> (a -> Builder) -> [a] -> Builder #-}
 
 {- | A JSON-style formatter for lists.
 
@@ -628,8 +628,6 @@ Like 'blockListF', it handles multiline elements well:
   bar
   quix
 ]
-
-(Note that, unlike 'blockListF', it doesn't add blank lines in such cases.)
 -}
 jsonListF :: forall f a. (Foldable f, Buildable a) => f a -> Builder
 jsonListF = jsonListF' build
