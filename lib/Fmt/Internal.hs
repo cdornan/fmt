@@ -43,7 +43,7 @@ module Fmt.Internal
   atBase,
   showSigned',
   intToDigit',
-  indent',
+  indentF',
 
   -- * Functions used in 'Fmt.Time'
   fixedF,
@@ -257,8 +257,8 @@ intToDigit' i
 
 The output will always end with a newline, even when the input doesn't.
 -}
-indent' :: Int -> T.Text -> Builder -> Builder
-indent' n pref a = case TL.lines (toLazyText a) of
+indentF' :: Int -> T.Text -> Builder -> Builder
+indentF' n pref a = case TL.lines (toLazyText a) of
   []     -> fromText pref <> "\n"
   (x:xs) -> fromLazyText $
             TL.unlines $ (TL.fromStrict pref <> x) : map (spaces <>) xs

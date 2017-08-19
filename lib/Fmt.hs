@@ -87,7 +87,7 @@ module Fmt
   module Fmt.Time,
 
   -- ** Text
-  indent, indent',
+  indentF, indentF',
   nameF,
   unwordsF,
   unlinesF,
@@ -510,7 +510,7 @@ fmtLn = fromBuilder . (<> "\n")
 {- |
 Indent a block of text.
 
->>> fmt $ "This is a list:\n" <> indent 4 (blockListF [1,2,3])
+>>> fmt $ "This is a list:\n" <> indentF 4 (blockListF [1,2,3])
 This is a list:
     - 1
     - 2
@@ -518,8 +518,8 @@ This is a list:
 
 The output will always end with a newline, even when the input doesn't.
 -}
-indent :: Int -> Builder -> Builder
-indent n a = case TL.lines (toLazyText a) of
+indentF :: Int -> Builder -> Builder
+indentF n a = case TL.lines (toLazyText a) of
     [] -> fromLazyText (spaces <> "\n")
     xs -> fromLazyText $ TL.unlines (map (spaces <>) xs)
   where

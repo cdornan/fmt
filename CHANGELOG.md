@@ -8,6 +8,8 @@
 
 * Added `unwordsF` and `unlinesF`.
 
+* Added the `F` suffix to `indent` and `indent'`.
+
 # 0.4.0.0
 
 * Renamed `#|` and `|#` to `+|` and `|+` because HLint can't handle `#|` and

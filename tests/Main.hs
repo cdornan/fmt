@@ -114,18 +114,18 @@ test_outputTypes = describe "output as" $ do
 ----------------------------------------------------------------------------
 
 test_indent :: Spec
-test_indent = describe "'indent'" $ do
+test_indent = describe "'indentF'" $ do
   it "simple examples" $ do
-    indent 0 "hi" ==#> "hi\n"
-    indent 0 "\nhi\n\n" ==#> "\nhi\n\n"
-    indent 2 "hi" ==#> "  hi\n"
-    indent 2 "hi\n" ==#> "  hi\n"
-    indent 2 "" ==#> "  \n"
-    indent 2 "hi\nbye" ==#> "  hi\n  bye\n"
-    indent 2 "hi\nbye\n" ==#> "  hi\n  bye\n"
+    indentF 0 "hi" ==#> "hi\n"
+    indentF 0 "\nhi\n\n" ==#> "\nhi\n\n"
+    indentF 2 "hi" ==#> "  hi\n"
+    indentF 2 "hi\n" ==#> "  hi\n"
+    indentF 2 "" ==#> "  \n"
+    indentF 2 "hi\nbye" ==#> "  hi\n  bye\n"
+    indentF 2 "hi\nbye\n" ==#> "  hi\n  bye\n"
   it "formatting a block" $ do
     ("Some numbers:\n"<>
-     indent 2 (
+     indentF 2 (
        "odd: "+|n|+"\n"<>
        "even: "+|n+1|+"")) ==#> "Some numbers:\n  odd: 25\n  even: 26\n"
 
