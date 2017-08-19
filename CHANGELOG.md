@@ -6,6 +6,8 @@
 
 * Now `blockListF'` can be used to create lists with custom bullets.
 
+* Added `unwordsF` and `unlinesF`.
+
 # 0.4.0.0
 
 * Renamed `#|` and `|#` to `+|` and `|+` because HLint can't handle `#|` and

@@ -82,11 +82,15 @@ module Fmt
   Buildable(..),
 
   -- * Formatters
-  indent, indent',
-  nameF,
 
   -- ** Time
   module Fmt.Time,
+
+  -- ** Text
+  indent, indent',
+  nameF,
+  unwordsF,
+  unlinesF,
 
   -- ** Lists
   listF, listF',
@@ -500,8 +504,26 @@ fmtLn = fromBuilder . (<> "\n")
 {-# INLINE fmtLn #-}
 
 ----------------------------------------------------------------------------
--- Formatters
+-- Text formatters
 ----------------------------------------------------------------------------
+
+{- |
+Indent a block of text.
+
+>>> fmt $ "This is a list:\n" <> indent 4 (blockListF [1,2,3])
+This is a list:
+    - 1
+    - 2
+    - 3
+
+The output will always end with a newline, even when the input doesn't.
+-}
+indent :: Int -> Builder -> Builder
+indent n a = case TL.lines (toLazyText a) of
+    [] -> fromLazyText (spaces <> "\n")
+    xs -> fromLazyText $ TL.unlines (map (spaces <>) xs)
+  where
+    spaces = TL.replicate (fromIntegral n) (TL.singleton ' ')
 
 {- | Attach a name to anything:
 
@@ -517,6 +539,35 @@ nameF k v = case TL.lines (toLazyText v) of
     [l] -> k <> ": " <> fromLazyText l <> "\n"
     ls  -> k <> ":\n" <>
            mconcat ["  " <> fromLazyText s <> "\n" | s <- ls]
+
+{- | Put words between elements.
+
+>>> fmt $ unwordsF ["hello", "world"]
+hello world
+
+Of course, it works on anything 'Buildable':
+
+>>> fmt $ unwordsF [1, 2]
+1 2
+-}
+unwordsF :: (Foldable f, Buildable a) => f a -> Builder
+unwordsF = mconcat . intersperse " " . map build . toList
+
+{-# SPECIALIZE unwordsF :: Buildable a => [a] -> Builder #-}
+
+{- | Arrange elements on separate lines.
+
+>>> fmt $ unlines ["hello", "world"]
+hello
+world
+-}
+unlinesF :: (Foldable f, Buildable a) => f a -> Builder
+unlinesF = mconcat . map (nl . build) . toList
+  where
+    nl x | "\n" `TL.isSuffixOf` toLazyText x = x
+         | otherwise = x <> "\n"
+
+{-# SPECIALIZE unlinesF :: Buildable a => [a] -> Builder #-}
 
 ----------------------------------------------------------------------------
 -- List formatters
@@ -1082,28 +1133,6 @@ unlessF :: Bool -> Builder -> Builder
 unlessF False x = x
 unlessF True  _ = mempty
 {-# INLINE unlessF #-}
-
-----------------------------------------------------------------------------
--- Utilities
-----------------------------------------------------------------------------
-
-{- |
-Indent already formatted text.
-
->>> fmt $ "This is a list:\n" <> indent 4 (blockListF [1,2,3])
-This is a list:
-    - 1
-    - 2
-    - 3
-
-The output will always end with a newline, even when the input doesn't.
--}
-indent :: Int -> Builder -> Builder
-indent n a = case TL.lines (toLazyText a) of
-    [] -> fromLazyText (spaces <> "\n")
-    xs -> fromLazyText $ TL.unlines (map (spaces <>) xs)
-  where
-    spaces = TL.replicate (fromIntegral n) (TL.singleton ' ')
 
 ----------------------------------------------------------------------------
 -- Generic formatting
