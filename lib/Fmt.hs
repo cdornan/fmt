@@ -650,7 +650,7 @@ blockListF'
   -> (a -> Builder)             -- ^ Builder for elements
   -> f a                        -- ^ Structure with elements
   -> Builder
-blockListF' bullet fbuild xs = if null xs then "[]\n" else mconcat items
+blockListF' bullet fbuild xs = if null items then "[]\n" else mconcat items
   where
     items = map buildItem (toList xs)
     spaces = mconcat $ replicate (T.length bullet + 1) (singleton ' ')
