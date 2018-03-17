@@ -149,8 +149,13 @@ where
 
 -- Generic useful things
 import Data.List
-import Data.Monoid
 import Lens.Micro
+#if __GLASGOW_HASKELL__ < 804
+import Data.Monoid ((<>))
+#endif
+#if __GLASGOW_HASKELL__ < 710
+import Data.Monoid (mconcat, mempty)
+#endif
 -- Containers
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -160,6 +165,9 @@ import qualified Data.IntMap as IntMap
 import Data.IntSet (IntSet)
 import qualified Data.IntSet as IntSet
 import Data.Sequence (Seq)
+#if MIN_VERSION_base(4,9,0)
+import Data.List.NonEmpty (NonEmpty)
+#endif
 -- Text
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
@@ -174,16 +182,11 @@ import Data.Foldable (toList)
 import GHC.Exts (IsList, Item)
 import qualified GHC.Exts as IsList (toList)
 #endif
--- Generics
-import GHC.Generics
-
 #if __GLASGOW_HASKELL__ < 710
 import Data.Foldable (Foldable)
 #endif
-
-#if MIN_VERSION_base(4,9,0)
-import Data.List.NonEmpty (NonEmpty)
-#endif
+-- Generics
+import GHC.Generics
 
 import Fmt.Internal
 import Fmt.Time

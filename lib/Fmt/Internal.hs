@@ -52,9 +52,11 @@ module Fmt.Internal
 where
 
 -- Generic useful things
-import Data.Monoid
 import Numeric
 import Data.Char
+#if __GLASGOW_HASKELL__ < 804
+import Data.Monoid ((<>))
+#endif
 -- Text
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
@@ -76,6 +78,7 @@ import qualified Data.ByteString.Base64          as B64
 import qualified Data.ByteString.Base64.Lazy     as B64L
 import qualified Data.ByteString.Base64.URL      as B64U
 import qualified Data.ByteString.Base64.URL.Lazy as B64UL
+
 
 ----------------------------------------------------------------------------
 -- FromBuilder
