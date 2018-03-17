@@ -46,7 +46,7 @@ author:              Artyom Kazak <yom@artyom.me>,
 maintainer:          yom@artyom.me
 -- copyright:
 category:            Text
-tested-with:         GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.1, GHC == 8.2.1
+tested-with:         GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.1
 build-type:          Simple
 extra-source-files:  CHANGELOG.md
 cabal-version:       >=1.10
@@ -82,7 +82,7 @@ test-suite tests
                      , bytestring
                      , containers
                      , fmt
-                     , hspec >= 2.2 && < 2.5
+                     , hspec >= 2.2 && < 2.6
                      , neat-interpolation
                      , text
                      , vector
