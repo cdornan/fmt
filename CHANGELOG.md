@@ -1,3 +1,8 @@
+# 0.6.0
+
+* Switched to `Buildable` from `formatting` (since `text-format` is
+  unmaintained).
+
 # 0.5.0.0
 
 * From this version on, `blockListF` never puts blank lines between items.

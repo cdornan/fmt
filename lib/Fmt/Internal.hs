@@ -63,9 +63,9 @@ import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.IO as TL
 import qualified Data.Text.Lazy.Encoding as TL
--- 'Buildable' and text-format
-import Data.Text.Buildable
-import qualified Data.Text.Format as TF
+-- 'Buildable' and raw 'Builder' formatters
+import Formatting.Buildable as F
+import qualified Formatting.Internal.Raw as F
 -- Text 'Builder'
 import Data.Text.Lazy.Builder hiding (fromString)
 -- Bytestring
@@ -130,7 +130,7 @@ instance FormatAsHex BSL.ByteString where
   hexF = fromLazyText . TL.decodeLatin1 . B16L.encode
 
 instance _OVERLAPPABLE_ Integral a => FormatAsHex a where
-  hexF = TF.hex
+  hexF = F.hex
 
 ----------------------------------------------------------------------------
 -- Base64
@@ -208,13 +208,13 @@ class Buildable' a where
 
 -- | Something like 'Text.Printf.PrintfType' in "Text.Printf".
 class FormatType r where
-  format' :: TF.Format -> [Builder] -> r
+  format' :: F.Format -> [Builder] -> r
 
 instance (Buildable a, FormatType r) => FormatType (a -> r) where
   format' f xs = \x -> format' f (build x : xs)
 
 instance _OVERLAPPABLE_ FromBuilder r => FormatType r where
-  format' f xs = fromBuilder $ TF.build f (reverse xs)
+  format' f xs = fromBuilder $ F.build f (reverse xs)
 
 ----------------------------------------------------------------------------
 -- Helpers
@@ -279,7 +279,7 @@ Format a floating-point number without scientific notation:
 "[3.14159, 0.10000, 10.00000]"
 -}
 fixedF :: Real a => Int -> a -> Builder
-fixedF = TF.fixed
+fixedF = F.fixed
 
 {- |
 Add an ordinal suffix to a number:
