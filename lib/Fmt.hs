@@ -172,8 +172,8 @@ import Data.List.NonEmpty (NonEmpty)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 -- 'Buildable' and text-format
-import Data.Text.Buildable
-import qualified Data.Text.Format as TF
+import Formatting.Buildable
+import qualified Fmt.Internal.Format as TF
 -- Text 'Builder'
 import Data.Text.Lazy.Builder hiding (fromString)
 -- 'Foldable' and 'IsList' for list/map formatters

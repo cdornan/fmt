@@ -64,8 +64,8 @@ import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.IO as TL
 import qualified Data.Text.Lazy.Encoding as TL
 -- 'Buildable' and raw 'Builder' formatters
-import Formatting.Buildable as F
-import qualified Formatting.Internal.Raw as F
+import Formatting.Buildable (Buildable(..))
+import qualified Fmt.Internal.Format as F
 -- Text 'Builder'
 import Data.Text.Lazy.Builder hiding (fromString)
 -- Bytestring
@@ -78,7 +78,6 @@ import qualified Data.ByteString.Base64          as B64
 import qualified Data.ByteString.Base64.Lazy     as B64L
 import qualified Data.ByteString.Base64.URL      as B64U
 import qualified Data.ByteString.Base64.URL.Lazy as B64UL
-
 
 ----------------------------------------------------------------------------
 -- FromBuilder

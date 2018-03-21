@@ -116,7 +116,7 @@ import           Data.List               (find)
 import           Data.Monoid             ((<>))
 import           Data.Text               (Text)
 import qualified Data.Text               as T
-import           Data.Text.Buildable     (build)
+import           Formatting.Buildable    (build)
 import           Data.Text.Lazy.Builder  (Builder)
 import           Data.Time
 

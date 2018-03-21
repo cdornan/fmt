@@ -10,8 +10,7 @@ import           Data.Monoid             ((<>))
 import           Data.String.Interpolate (i)
 import           Data.Text               (Text)
 import qualified Data.Text               as T
-import qualified Data.Text.Format        as TF
-import           Data.Text.Format.Params as TF
+import qualified Fmt.Internal.Format     as TF
 import qualified Data.Text.Lazy          as LT
 import           Fmt                     ((+|), (|+))
 import           Formatting              (Format, formatToString, int, sformat, stext,
