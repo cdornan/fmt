@@ -1,14 +1,33 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
 
--- | The 'Format' type, copied from "Data.Text.Format".
+-- for FormatType
+#if __GLASGOW_HASKELL__ < 710
+{-# LANGUAGE OverlappingInstances #-}
+#  define _OVERLAPPING_
+#  define _OVERLAPPABLE_
+#  define _OVERLAPS_
+#else
+#  define _OVERLAPPING_ {-# OVERLAPPING #-}
+#  define _OVERLAPPABLE_ {-# OVERLAPPABLE #-}
+#  define _OVERLAPS_ {-# OVERLAPS #-}
+#endif
+
+
+-- | Old-style formatting a la @text-format@.
 module Fmt.Internal.Format
-( 
+(
   Format(..),
   renderFormat,
+  FormatType(..),
+  format,
+  formatLn,
 )
 where
+
 
 import Data.String (IsString(..))
 import Data.Text (Text, splitOn)
@@ -16,6 +35,12 @@ import Data.Text.Lazy.Builder hiding (fromString)
 #if !(MIN_VERSION_base(4,11,0))
 import Data.Semigroup
 #endif
+import Formatting.Buildable (Buildable(..))
+import Fmt.Internal.Core (FromBuilder(..))
+
+
+-- $setup
+-- >>> import Fmt
 
 -- | A format string. This is intentionally incompatible with other
 -- string types, to make it difficult to construct a format string by
@@ -73,3 +98,36 @@ zipParams fragments params = go fragments params
 
 crack :: Format -> [Builder]
 crack = map fromText . splitOn "{}" . fromFormat
+
+-- | Something like 'Text.Printf.PrintfType' in "Text.Printf".
+class FormatType r where
+  format' :: Format -> [Builder] -> r
+
+instance (Buildable a, FormatType r) => FormatType (a -> r) where
+  format' f xs = \x -> format' f (build x : xs)
+
+instance _OVERLAPPABLE_ FromBuilder r => FormatType r where
+  format' f xs = fromBuilder $ renderFormat f (reverse xs)
+
+{- | An old-style formatting function taken from @text-format@ (see
+"Data.Text.Format"). Unlike 'Data.Text.Format.format' from
+"Data.Text.Format", it can produce 'String' and strict 'Text' as well (and
+print to console too). Also it's polyvariadic:
+
+>>> format "{} + {} = {}" 2 2 4
+2 + 2 = 4
+
+You can use arbitrary formatters:
+
+>>> format "0x{} + 0x{} = 0x{}" (hexF 130) (hexF 270) (hexF (130+270))
+0x82 + 0x10e = 0x190
+-}
+format :: FormatType r => Format -> r
+format f = format' f []
+{-# INLINE format #-}
+
+{- | Like 'format', but adds a newline.
+-}
+formatLn :: FormatType r => Format -> r
+formatLn f = format' (f <> "\n") []
+{-# INLINE formatLn #-}

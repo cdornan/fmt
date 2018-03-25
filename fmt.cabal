@@ -59,6 +59,7 @@ library
   exposed-modules:     Fmt
                        Fmt.Time
                        Fmt.Internal
+                       Fmt.Internal.Core
                        Fmt.Internal.Format
                        Fmt.Internal.Tuple
                        Fmt.Internal.Numeric

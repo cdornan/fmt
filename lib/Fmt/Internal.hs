@@ -1,10 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE CPP #-}
 
--- for FormatAsHex and FormatType
+-- for FormatAsHex
 #if __GLASGOW_HASKELL__ < 710
 {-# LANGUAGE OverlappingInstances #-}
 #  define _OVERLAPPING_
@@ -25,7 +24,6 @@ It also provides some functions that are used in 'Fmt.Time' (so that
 module Fmt.Internal
 (
   -- * Classes
-  FromBuilder(..),
   FormatAsHex(..),
   FormatAsBase64(..),
 
@@ -34,13 +32,11 @@ module Fmt.Internal
   GetFields(..),
   Buildable'(..),
 
-  -- * Polyvariadic 'format'
-  FormatType(..),
-  
   -- * Helpers
   indentF',
 
   -- * Reexports
+  module Fmt.Internal.Core,
   module Fmt.Internal.Format,
   module Fmt.Internal.Tuple,
   module Fmt.Internal.Numeric,
@@ -55,13 +51,11 @@ import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy as TL
-import qualified Data.Text.Lazy.IO as TL
 import qualified Data.Text.Lazy.Encoding as TL
 -- 'Buildable' and raw 'Builder' formatters
-import Formatting.Buildable (Buildable(..))
 import qualified Formatting.Internal.Raw as F
 -- Text 'Builder'
-import Data.Text.Lazy.Builder hiding (fromString)
+import           Data.Text.Lazy.Builder hiding (fromString)
 -- Bytestring
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
@@ -73,40 +67,13 @@ import qualified Data.ByteString.Base64.Lazy     as B64L
 import qualified Data.ByteString.Base64.URL      as B64U
 import qualified Data.ByteString.Base64.URL.Lazy as B64UL
 
+import Fmt.Internal.Core
 import Fmt.Internal.Format
 import Fmt.Internal.Tuple
 import Fmt.Internal.Numeric
 
 -- $setup
 -- >>> import Fmt
-
-----------------------------------------------------------------------------
--- FromBuilder
-----------------------------------------------------------------------------
-
-class FromBuilder a where
-  -- | Convert a 'Builder' to something else.
-  fromBuilder :: Builder -> a
-
-instance FromBuilder Builder where
-  fromBuilder = id
-  {-# INLINE fromBuilder #-}
-
-instance (a ~ Char) => FromBuilder [a] where
-  fromBuilder = TL.unpack . toLazyText
-  {-# INLINE fromBuilder #-}
-
-instance FromBuilder T.Text where
-  fromBuilder = TL.toStrict . toLazyText
-  {-# INLINE fromBuilder #-}
-
-instance FromBuilder TL.Text where
-  fromBuilder = toLazyText
-  {-# INLINE fromBuilder #-}
-
-instance (a ~ ()) => FromBuilder (IO a) where
-  fromBuilder = TL.putStr . toLazyText
-  {-# INLINE fromBuilder #-}
 
 ----------------------------------------------------------------------------
 -- Hex
@@ -178,23 +145,8 @@ class Buildable' a where
   build' :: a -> Builder
 
 ----------------------------------------------------------------------------
--- Classes used for polyvariadic 'format'
-----------------------------------------------------------------------------
-
--- | Something like 'Text.Printf.PrintfType' in "Text.Printf".
-class FormatType r where
-  format' :: Format -> [Builder] -> r
-
-instance (Buildable a, FormatType r) => FormatType (a -> r) where
-  format' f xs = \x -> format' f (build x : xs)
-
-instance _OVERLAPPABLE_ FromBuilder r => FormatType r where
-  format' f xs = fromBuilder $ renderFormat f (reverse xs)
-
-----------------------------------------------------------------------------
 -- Helpers
 ----------------------------------------------------------------------------
-
 
 {- | Add a prefix to the first line, and indent all lines but the first one.
 

@@ -309,7 +309,7 @@ and so on.)
 -}
 
 ----------------------------------------------------------------------------
--- Operators with 'Buildable'
+-- Documentation for operators
 ----------------------------------------------------------------------------
 
 {- $brackets
@@ -388,40 +388,8 @@ prop> (""+|show foo|++|show bar|+"") == (""+||foo||++||bar||+"")
 -- $god1
 -- Operators for the operators god!
 
--- | Concatenate, then convert.
-(+|) :: (FromBuilder b) => Builder -> Builder -> b
-(+|) str rest = fromBuilder (str <> rest)
-
--- | 'build' and concatenate, then convert.
-(|+) :: (Buildable a, FromBuilder b) => a -> Builder -> b
-(|+) a rest = fromBuilder (build a <> rest)
-
-infixr 1 +|
-infixr 1 |+
-
-----------------------------------------------------------------------------
--- Operators with 'Show'
-----------------------------------------------------------------------------
-
 -- $god2
 -- More operators for the operators god!
-
--- | Concatenate, then convert
-(+||) :: (FromBuilder b) => Builder -> Builder -> b
-(+||) str rest = str +| rest
-{-# INLINE (+||) #-}
-
--- | 'show' and concatenate, then convert
-(||+) :: (Show a, FromBuilder b) => a -> Builder -> b
-(||+) a rest = show a |+ rest
-{-# INLINE (||+) #-}
-
-infixr 1 +||
-infixr 1 ||+
-
-----------------------------------------------------------------------------
--- Combinations
-----------------------------------------------------------------------------
 
 {- $god3
 
@@ -431,80 +399,6 @@ Z̸͠A̵̕͟͠L̡̀́͠G̶̛O͝ ̴͏̀ I͞S̸̸̢͠  ̢̛͘͢C̷͟͡Ó̧̨͞�
 operators, and 'Show'-brackets don't have to be used at all because there's
 'show' available.)
 -}
-
-(|++|) :: (Buildable a, FromBuilder b) => a -> Builder -> b
-(|++|) a rest = fromBuilder (build a <> rest)
-{-# INLINE (|++|) #-}
-
-(||++||) :: (Show a, FromBuilder b) => a -> Builder -> b
-(||++||) a rest = show a |+ rest
-{-# INLINE (||++||) #-}
-
-(||++|) :: (Buildable a, FromBuilder b) => a -> Builder -> b
-(||++|) a rest = a |++| rest
-{-# INLINE (||++|) #-}
-
-(|++||) :: (Show a, FromBuilder b) => a -> Builder -> b
-(|++||) a rest = a ||++|| rest
-{-# INLINE (|++||) #-}
-
-infixr 1 |++|
-infixr 1 ||++||
-infixr 1 ||++|
-infixr 1 |++||
-
-----------------------------------------------------------------------------
--- Old-style formatting
-----------------------------------------------------------------------------
-
-{- | An old-style formatting function taken from @text-format@ (see
-"Data.Text.Format"). Unlike 'Data.Text.Format.format' from
-"Data.Text.Format", it can produce 'String' and strict 'Text' as well (and
-print to console too). Also it's polyvariadic:
-
->>> format "{} + {} = {}" 2 2 4
-2 + 2 = 4
-
-You can use arbitrary formatters:
-
->>> format "0x{} + 0x{} = 0x{}" (hexF 130) (hexF 270) (hexF (130+270))
-0x82 + 0x10e = 0x190
--}
-format :: FormatType r => Format -> r
-format f = format' f []
-{-# INLINE format #-}
-
-{- | Like 'format', but adds a newline.
--}
-formatLn :: FormatType r => Format -> r
-formatLn f = format' (f <> "\n") []
-{-# INLINE formatLn #-}
-
-----------------------------------------------------------------------------
--- Helper functions
-----------------------------------------------------------------------------
-
-{- | 'fmt' converts things to 'String', 'Text' or 'Builder'.
-
-Most of the time you won't need it, as strings produced with ('+|') and
-('|+') can already be used as 'String', 'Text', etc. However, combinators
-like 'listF' can only produce 'Builder' (for better type inference), and you
-need to use 'fmt' on them.
-
-Also, 'fmt' can do printing:
-
->>> fmt "Hello world!\n"
-Hello world!
--}
-fmt :: FromBuilder b => Builder -> b
-fmt = fromBuilder
-{-# INLINE fmt #-}
-
-{- | Like 'fmt', but appends a newline.
--}
-fmtLn :: FromBuilder b => Builder -> b
-fmtLn = fromBuilder . (<> "\n")
-{-# INLINE fmtLn #-}
 
 ----------------------------------------------------------------------------
 -- Text formatters

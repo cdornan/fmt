@@ -524,21 +524,21 @@ test_tupleSimple = it "tupleF" $ do
 test_tupleOneLine :: Spec
 test_tupleOneLine = describe "one-line" $ do
   it "()" $ do
-    tupleF [] ==#> "()"
+    tupleF ([] :: [Builder]) ==#> "()"
   it "('')" $ do
-    tupleF [""] ==#> "()"
+    tupleF ([""] :: [Builder]) ==#> "()"
   it "(a)" $ do
-    tupleF ["a"] ==#> "(a)"
+    tupleF (["a"] :: [Builder]) ==#> "(a)"
   it "(a,b)" $ do
-    tupleF ["a", "b"] ==#> "(a, b)"
+    tupleF (["a", "b"] :: [Builder]) ==#> "(a, b)"
   it "(a,'')" $ do
-    tupleF ["a", ""] ==#> "(a, )"
+    tupleF (["a", ""] :: [Builder]) ==#> "(a, )"
   it "('',b)" $ do
-    tupleF ["", "b"] ==#> "(, b)"
+    tupleF (["", "b"] :: [Builder]) ==#> "(, b)"
   it "('','')" $ do
-    tupleF ["", ""] ==#> "(, )"
+    tupleF (["", ""] :: [Builder]) ==#> "(, )"
   it "(a,b,c)" $ do
-    tupleF ["a", "ba", "caba"] ==#> "(a, ba, caba)"
+    tupleF (["a", "ba", "caba"] :: [Builder]) ==#> "(a, ba, caba)"
 
 test_tupleMultiline :: Spec
 test_tupleMultiline = describe "multiline" $ do
@@ -546,45 +546,45 @@ test_tupleMultiline = describe "multiline" $ do
   someEmpty
   it "weird case" $ do
     -- not sure whether I should fix it or not
-    tupleF ["a\n"] ==#> "(a\n)"
+    tupleF ["a\n" :: Builder] ==#> "(a\n)"
 
   where
     allNonEmpty = describe "all non-empty" $ do
       it "1 element (2 lines)" $ do
-          tupleF ["a\nx"] ==#> [text|
+          tupleF ["a\nx" :: Builder] ==#> [text|
             ( a
               x )
             |]
-          tupleF ["a\n x"] ==#> [text|
+          tupleF ["a\n x" :: Builder] ==#> [text|
             ( a
                x )
             |]
-          tupleF [" a\nx\n"] ==#> [text|
+          tupleF [" a\nx\n" :: Builder] ==#> [text|
             (  a
               x )
             |]
       it "1 element (3 lines)" $ do
-          tupleF ["a\nb\nc"] ==#> [text|
+          tupleF ["a\nb\nc" :: Builder] ==#> [text|
             ( a
               b
               c )
             |]
       it "2 elements (1 line + 2 lines)" $ do
-          tupleF ["a", "b\nc"] ==#> [text|
+          tupleF ["a", "b\nc" :: Builder] ==#> [text|
             ( a
             ,
               b
               c )
             |]
       it "2 elements (2 lines + 1 line)" $ do
-          tupleF ["a\nb", "c"] ==#> [text|
+          tupleF ["a\nb", "c" :: Builder] ==#> [text|
             ( a
               b
             ,
               c )
             |]
       it "3 elements (each has 2 lines)" $ do
-          tupleF ["a\nb", "c\nd", "e\nf"] ==#> [text|
+          tupleF ["a\nb", "c\nd", "e\nf" :: Builder] ==#> [text|
             ( a
               b
             ,
@@ -597,21 +597,21 @@ test_tupleMultiline = describe "multiline" $ do
 
     someEmpty = describe "some empty" $ do
       it "2 elements (0 + 2)" $ do
-          tupleF ["", "a\nb"] ==#> [text|
+          tupleF ["", "a\nb" :: Builder] ==#> [text|
             (
             ,
               a
               b )
             |]
       it "2 elements (2 + 0)" $ do
-          tupleF ["a\nb", ""] ==#> [text|
+          tupleF ["a\nb", "" :: Builder] ==#> [text|
             ( a
               b
             ,
               )
             |]
       it "3 elements (0 + 2 + 0)" $ do
-          tupleF ["", "a\nb", ""] ==#> [text|
+          tupleF ["", "a\nb", "" :: Builder] ==#> [text|
             (
             ,
               a
@@ -620,7 +620,7 @@ test_tupleMultiline = describe "multiline" $ do
               )
             |]
       it "3 elements (2 + 0 + 2)" $ do
-          tupleF ["a\nb", "", "c\nd"] ==#> [text|
+          tupleF ["a\nb", "", "c\nd" :: Builder] ==#> [text|
             ( a
               b
             ,
@@ -629,7 +629,7 @@ test_tupleMultiline = describe "multiline" $ do
               d )
             |]
       it "4 elements (2 + 0 + 0 + 2)" $ do
-          tupleF ["a\nb", "", "", "c\nd"] ==#> [text|
+          tupleF ["a\nb", "", "", "c\nd" :: Builder] ==#> [text|
             ( a
               b
             ,
