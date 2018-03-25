@@ -10,9 +10,7 @@ import           Data.Monoid             ((<>))
 import           Data.String.Interpolate (i)
 import           Data.Text               (Text)
 import qualified Data.Text               as T
-import qualified Fmt.Internal.Format     as F
-import qualified Data.Text.Lazy          as LT
-import           Fmt                     ((+|), (|+))
+import           Fmt                     ((+|), (|+), format)
 import           Formatting              (Format, formatToString, int, sformat, stext,
                                           string, (%))
 import           Text.Printf             (printf)
@@ -23,12 +21,6 @@ import           Criterion.Main          (defaultMain)
 ----------------------------------------------------------------------------
 -- Format utility functions
 ----------------------------------------------------------------------------
-
-format' :: F.Params ps => F.Format -> ps -> Text
-format' f = LT.toStrict . F.format f
-
-formatS :: F.Params ps => F.Format -> ps -> String
-formatS f = LT.unpack . F.format f
 
 -- Shorter alias for @formatToString@.
 fs :: Format String a -> a
@@ -68,10 +60,10 @@ main = defaultMain
     [ bTextGroup (1 :: Int, 2 :: Int)
       [ taggedB "fmt" $
           \(a,b) -> "hello "+|a|+" world "+|b|+""
+      , taggedB "fmt old-style" $
+          \(a,b) -> format "hello {} world {}" a b :: Text
       , taggedB "formatting" $
           \(a,b) -> sformat ("hello "%int%" world "%int) a b
-      , taggedB "text-format" $
-          format' "hello {} world {}"
       , taggedB "interpolate" $
           \(a,b) -> T.pack [i|hello #{a} world #{b}|]
       , taggedB "show" $
@@ -82,10 +74,10 @@ main = defaultMain
     , bStringGroup (1 :: Int, 2 :: Int)
       [ taggedB "fmt" $
           \(a,b) -> "hello "+|a|+" world "+|b|+""
+      , taggedB "fmt old-style" $
+          \(a,b) -> format "hello {} world {}" a b :: String
       , taggedB "formatting" $
           \(a,b) -> fs ("hello "%int%" world "%int) a b
-      , taggedB "text-format" $
-          formatS "hello {} world {}"
       , taggedB "interpolate" $
           \(a,b) -> [i|hello #{a} world #{b}|]
       , taggedB "show" $
@@ -99,10 +91,10 @@ main = defaultMain
     [ bTextGroup (9 :: Int, "Beijing" :: Text)
       [ taggedB "fmt" $
           \(n,city) -> "There are "+|n|+" million bicycles in "+|city|+"."
+      , taggedB "fmt old-style" $
+          \(n,city) -> format "There are {} million bicycles in {}." n city :: Text
       , taggedB "formatting" $
           \(n,city) -> sformat ("There are "%int%" million bicycles in "%stext%".") n city
-      , taggedB "text-format" $
-          format' "There are {} million bicycles in {}."
       , taggedB "interpolate" $
           \(n,city) -> T.pack [i|There are #{n} million bicycles in #{city}.|]
       , taggedB "show" $
@@ -113,10 +105,10 @@ main = defaultMain
     , bStringGroup (9 :: Int, "Beijing" :: String)
       [ taggedB "fmt" $
           \(n,city) -> "There are "+|n|+" million bicycles in "+|city|+"."
+      , taggedB "fmt old-style" $
+          \(n,city) -> format "There are {} million bicycles in {}." n city :: String
       , taggedB "formatting" $
           \(n,city) -> fs ("There are "%int%" million bicycles in "%string%".") n city
-      , taggedB "text-format" $
-          formatS "There are {} million bicycles in {}."
       , taggedB "interpolate" $
           \(n,city) -> [i|There are #{n} million bicycles in #{city}.|]
       , taggedB "show" $
