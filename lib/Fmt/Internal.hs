@@ -39,8 +39,7 @@ import           Data.Text.Lazy.Builder hiding (fromString)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 -- Formatting bytestrings
-import qualified Data.ByteString.Base16          as B16
-import qualified Data.ByteString.Base16.Lazy     as B16L
+import qualified Data.ByteString.Builder         as BB
 import qualified Data.ByteString.Base64          as B64
 import qualified Data.ByteString.Base64.Lazy     as B64L
 import qualified Data.ByteString.Base64.URL      as B64U
@@ -72,10 +71,10 @@ Format a number or bytestring as hex:
   hexF :: a -> Builder
 
 instance FormatAsHex BS.ByteString where
-  hexF = fromText . T.decodeLatin1 . B16.encode
+  hexF = fromLazyText . TL.decodeLatin1 . BB.toLazyByteString . BB.byteStringHex
 
 instance FormatAsHex BSL.ByteString where
-  hexF = fromLazyText . TL.decodeLatin1 . B16L.encode
+  hexF = fromLazyText . TL.decodeLatin1 . BB.toLazyByteString . BB.lazyByteStringHex
 
 instance _OVERLAPPABLE_ Integral a => FormatAsHex a where
   hexF = F.hex

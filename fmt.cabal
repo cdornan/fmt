@@ -68,7 +68,6 @@ library
                        Fmt.Internal.Generic
 
   build-depends:       base >=4.6 && <5,
-                       base16-bytestring,
                        base64-bytestring,
                        bytestring,
                        containers,

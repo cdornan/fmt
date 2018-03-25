@@ -15,6 +15,8 @@
 * `tupleLikeF` has been removed. `TupleF` now has an additional instance
   that lets `tupleF` be used to format lists.
 
+* The `base16-bytestring` dependency was removed.
+
 # 0.5.0.0
 
 * From this version on, `blockListF` never puts blank lines between items.
