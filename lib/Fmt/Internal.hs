@@ -3,17 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE CPP #-}
 
--- for FormatAsHex
-#if __GLASGOW_HASKELL__ < 710
-{-# LANGUAGE OverlappingInstances #-}
-#  define _OVERLAPPING_
-#  define _OVERLAPPABLE_
-#  define _OVERLAPS_
-#else
-#  define _OVERLAPPING_ {-# OVERLAPPING #-}
-#  define _OVERLAPPABLE_ {-# OVERLAPPABLE #-}
-#  define _OVERLAPS_ {-# OVERLAPS #-}
-#endif
+#include "overlap.h"
 
 {- | A module providing access to internals (in case you really need them).
 Can change at any time, though probably won't.
