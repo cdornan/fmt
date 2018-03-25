@@ -1,3 +1,20 @@
+# 0.6
+
+* Switched to `Buildable` from `formatting` (since `text-format` is
+  unmaintained).
+
+* Removed the `double-conversion` dependency (which was sometimes causing
+  compilation issues). As the result, `exptF`, `fixedF` and `floatF` have
+  become slower.
+
+* The `precF` formatter was removed completely because its semantics was too
+  confusing. You can use `Numeric.showGFloat` to achieve a similar effect.
+
+* `floatF` now always prints a point, even if the number is integral.
+
+* `tupleLikeF` has been removed. `TupleF` now has an additional instance
+  that lets `tupleF` be used to format lists.
+
 # 0.5.0.0
 
 * From this version on, `blockListF` never puts blank lines between items.
