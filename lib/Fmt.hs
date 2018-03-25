@@ -72,7 +72,7 @@ module Fmt
   -- * Old-style formatting
   format,
   formatLn,
-  TF.Format,
+  Format,
 
   -- * Helper functions
   fmt,
@@ -171,9 +171,10 @@ import Data.List.NonEmpty (NonEmpty)
 -- Text
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
--- 'Buildable' and text-format
+import Data.Text (Text)
+-- 'Buildable' and text-format stuff
 import Formatting.Buildable
-import qualified Fmt.Internal.Format as TF
+import qualified Formatting.Internal.Raw as F
 -- Text 'Builder'
 import Data.Text.Lazy.Builder hiding (fromString)
 -- 'Foldable' and 'IsList' for list/map formatters
@@ -185,12 +186,17 @@ import qualified GHC.Exts as IsList (toList)
 #if __GLASGOW_HASKELL__ < 710
 import Data.Foldable (Foldable)
 #endif
+-- Rendering numbers
+import Numeric (showEFloat, showGFloat)
 -- Generics
 import GHC.Generics
 
 import Fmt.Internal
 import Fmt.Time
 
+-- $setup
+-- >>> :set -XOverloadedStrings
+-- >>> :set -XDeriveGeneric
 
 {- $overloadedstrings
 
@@ -348,7 +354,7 @@ characters and dates, can be put between ('+|') and ('|+'):
 
 >>> let starCount = "173"
 >>> fmtLn ("Meet "+|name|+"! She's got "+|starCount|+" stars on Github.")
-"Meet Alice! She's got 173 stars on Github."
+Meet Alice! She's got 173 stars on Github.
 
 Since the only thing ('+|') and ('|+') do is concatenate strings and do
 conversion, you can use any functions you want inside them. In this case,
@@ -380,19 +386,17 @@ Also, since in some codebases there are /lots/ of types which aren't
 'Buildable', there are operators ('+||') and ('||+'), which use 'show'
 instead of 'build':
 
-@
-__(""+|show foo|++|show bar|+"")__  ===  __(""+||foo||++||bar||+"")__
-@
+prop> (""+|show foo|++|show bar|+"") == (""+||foo||++||bar||+"")
 -}
 
 -- $god1
 -- Operators for the operators god!
 
--- | Concatenate, then convert
+-- | Concatenate, then convert.
 (+|) :: (FromBuilder b) => Builder -> Builder -> b
 (+|) str rest = fromBuilder (str <> rest)
 
--- | 'build' and concatenate, then convert
+-- | 'build' and concatenate, then convert.
 (|+) :: (Buildable a, FromBuilder b) => a -> Builder -> b
 (|+) a rest = fromBuilder (build a <> rest)
 
@@ -428,7 +432,7 @@ infixr 1 ||+
 Z̸͠A̵̕͟͠L̡̀́͠G̶̛O͝ ̴͏̀ I͞S̸̸̢͠  ̢̛͘͢C̷͟͡Ó̧̨̧͞M̡͘͟͞I̷͜N̷̕G̷̀̕
 
 (Though you can just use @""@ between @+| |+@ instead of using these
-operators, and Show-brackets don't have to be used at all because there's
+operators, and 'Show'-brackets don't have to be used at all because there's
 'show' available.)
 -}
 
@@ -463,20 +467,20 @@ infixr 1 |++||
 print to console too). Also it's polyvariadic:
 
 >>> format "{} + {} = {}" 2 2 4
-"2 + 2 = 4"
+2 + 2 = 4
 
 You can use arbitrary formatters:
 
 >>> format "0x{} + 0x{} = 0x{}" (hexF 130) (hexF 270) (hexF (130+270))
-"0x82 + 0x10e = 0x190"
+0x82 + 0x10e = 0x190
 -}
-format :: FormatType r => TF.Format -> r
+format :: FormatType r => Format -> r
 format f = format' f []
 {-# INLINE format #-}
 
 {- | Like 'format', but adds a newline.
 -}
-formatLn :: FormatType r => TF.Format -> r
+formatLn :: FormatType r => Format -> r
 formatLn f = format' (f <> "\n") []
 {-# INLINE formatLn #-}
 
@@ -560,7 +564,7 @@ unwordsF = mconcat . intersperse " " . map build . toList
 
 {- | Arrange elements on separate lines.
 
->>> fmt $ unlines ["hello", "world"]
+>>> fmt $ unlinesF ["hello", "world"]
 hello
 world
 -}
@@ -630,14 +634,13 @@ However, benchmarks have shown that the former way is actually faster.
 
 Multi-line elements are indented correctly:
 
-@
->>> __fmt $ blockListF ["hello\\nworld", "foo\\nbar\\nquix"]__
+>>> fmt $ blockListF ["hello\nworld", "foo\nbar\nquix"]
 - hello
   world
 - foo
   bar
   quix
-@
+
 -}
 blockListF :: forall f a. (Foldable f, Buildable a) => f a -> Builder
 blockListF = blockListF' "-" build
@@ -649,7 +652,7 @@ for list elements (instead of 'build') and choose the bullet character
 -}
 blockListF'
   :: forall f a. Foldable f
-  => T.Text                     -- ^ Bullet
+  => Text                       -- ^ Bullet
   -> (a -> Builder)             -- ^ Builder for elements
   -> f a                        -- ^ Structure with elements
   -> Builder
@@ -662,7 +665,7 @@ blockListF' bullet fbuild xs = if null items then "[]\n" else mconcat items
       (l:ls) -> bullet |+ " " +| l |+ "\n" <>
                 mconcat [spaces <> fromLazyText s <> "\n" | s <- ls]
 
-{-# SPECIALIZE blockListF' :: T.Text -> (a -> Builder) -> [a] -> Builder #-}
+{-# SPECIALIZE blockListF' :: Text -> (a -> Builder) -> [a] -> Builder #-}
 
 {- | A JSON-style formatter for lists.
 
@@ -840,83 +843,6 @@ jsonMapF' fbuild_k fbuild_v xs
                mconcat ["    " <> s <> "\n" | s <- ls]
 
 ----------------------------------------------------------------------------
--- Tuple formatters
-----------------------------------------------------------------------------
-
-instance (Buildable a1, Buildable a2)
-  => TupleF (a1, a2) where
-  tupleF (a1, a2) = tupleLikeF
-    [build a1, build a2]
-
-instance (Buildable a1, Buildable a2, Buildable a3)
-  => TupleF (a1, a2, a3) where
-  tupleF (a1, a2, a3) = tupleLikeF
-    [build a1, build a2, build a3]
-
-instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4)
-  => TupleF (a1, a2, a3, a4) where
-  tupleF (a1, a2, a3, a4) = tupleLikeF
-    [build a1, build a2, build a3, build a4]
-
-instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
-          Buildable a5)
-  => TupleF (a1, a2, a3, a4, a5) where
-  tupleF (a1, a2, a3, a4, a5) = tupleLikeF
-    [build a1, build a2, build a3, build a4,
-     build a5]
-
-instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
-          Buildable a5, Buildable a6)
-  => TupleF (a1, a2, a3, a4, a5, a6) where
-  tupleF (a1, a2, a3, a4, a5, a6) = tupleLikeF
-    [build a1, build a2, build a3, build a4,
-     build a5, build a6]
-
-instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
-          Buildable a5, Buildable a6, Buildable a7)
-  => TupleF (a1, a2, a3, a4, a5, a6, a7) where
-  tupleF (a1, a2, a3, a4, a5, a6, a7) = tupleLikeF
-    [build a1, build a2, build a3, build a4,
-     build a5, build a6, build a7]
-
-instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
-          Buildable a5, Buildable a6, Buildable a7, Buildable a8)
-  => TupleF (a1, a2, a3, a4, a5, a6, a7, a8) where
-  tupleF (a1, a2, a3, a4, a5, a6, a7, a8) = tupleLikeF
-    [build a1, build a2, build a3, build a4,
-     build a5, build a6, build a7, build a8]
-
-{- |
-Format a list like a tuple. (This function is used to define 'tupleF'.)
--}
-tupleLikeF :: [Builder] -> Builder
-tupleLikeF xs
-  | True `elem` mls = mconcat (intersperse ",\n" items)
-  | otherwise = "(" <> mconcat (intersperse ", " xs) <> ")"
-  where
-    (mls, items) = unzip $ zipWith3 buildItem
-                             xs (set _head True falses) (set _last True falses)
-    -- A list of 'False's which has the same length as 'xs'
-    falses = map (const False) xs
-    -- Returns 'True' if the item is multiline
-    buildItem :: Builder
-              -> Bool              -- ^ Is the item the first?
-              -> Bool              -- ^ Is the item the last?
-              -> (Bool, Builder)
-    buildItem x isFirst isLast =
-      case map fromLazyText (TL.lines (toLazyText x)) of
-        [] | isFirst && isLast -> (False, "()\n")
-           | isFirst           -> (False, "(\n")
-           |            isLast -> (False, "  )\n")
-           | otherwise         -> (False, "")
-        ls ->
-           (not (null (tail ls)),
-            mconcat . map (<> "\n") $
-              ls & _head %~ (if isFirst then ("( " <>) else ("  " <>))
-                 & _tail.each %~ ("  " <>)
-                 & _last %~ (if isLast then (<> " )") else id))
-
-----------------------------------------------------------------------------
 -- ADT formatters
 ----------------------------------------------------------------------------
 
@@ -943,7 +869,7 @@ maybeF = maybe "<Nothing>" build
 {- |
 Format an 'Either':
 
->>> eitherF (Right 1)
+>>> eitherF (Right 1 :: Either Bool Int)
 "<Right: 1>"
 -}
 eitherF :: (Buildable a, Buildable b) => Either a b -> Builder
@@ -987,7 +913,7 @@ long, or longer):
 "123456"
 -}
 padLeftF :: Buildable a => Int -> Char -> a -> Builder
-padLeftF = TF.left
+padLeftF = F.left
 
 {- |
 @padRightF n c@ pads the string with character @c@ from the right side until
@@ -1000,7 +926,7 @@ that long, or longer):
 "foobar"
 -}
 padRightF :: Buildable a => Int -> Char -> a -> Builder
-padRightF = TF.right
+padRightF = F.right
 
 {- |
 @padBothF n c@ pads the string with character @c@ from both sides until
@@ -1014,7 +940,7 @@ that long, or longer):
 
 When padding can't be distributed equally, the left side is preferred:
 
->>> padBoth 8 '=' "foo"
+>>> padBothF 8 '=' "foo"
 "===foo=="
 -}
 padBothF :: Buildable a => Int -> Char -> a -> Builder
@@ -1076,20 +1002,21 @@ scientific notation:
 "[900000000000000000000, 1e21]"
 -}
 floatF :: Real a => a -> Builder
-floatF = TF.shortest
+floatF = F.shortest
 
 {- |
-Format a floating-point number using scientific notation, with given amount
-of precision:
+Format a floating-point number using scientific notation, with the given
+amount of decimal places.
 
 >>> listF' (exptF 5) [pi,0.1,10]
 "[3.14159e0, 1.00000e-1, 1.00000e1]"
 -}
-exptF :: Real a => Int -> a -> Builder
-exptF = TF.expt
+exptF :: RealFloat a => Int -> a -> Builder
+exptF decs val = build $ showEFloat (Just decs) val ""
 
 {- |
-Format a floating-point number with given amount of precision.
+Format a floating-point number, with the given amount of digits of
+precision.
 
 For small numbers, it uses scientific notation for everything smaller than
 1e-6:
@@ -1103,34 +1030,27 @@ For large numbers, it uses scientific notation for everything larger than
 >>> listF' (precF 4) [1e3,5e3,1e4]
 "[1000, 5000, 1.000e4]"
 -}
-precF :: Real a => Int -> a -> Builder
-precF = TF.prec
+precF :: RealFloat a => Int -> a -> Builder
+precF digits val = build $ showGFloat (Just digits) val ""
 
 ----------------------------------------------------------------------------
 -- Conditional formatters
 ----------------------------------------------------------------------------
 
-{- |
-Display something only if the condition is 'True' (empty string otherwise).
-
-@
->>> __"Hello!" <> whenF showDetails (", details: "+|foobar|+"")__
-@
+{- | Display something only if the condition is 'True' (empty string
+otherwise).
 
 Note that it can only take a 'Builder' (because otherwise it would be
-unusable with ('+|')-formatted strings which can resolve to any 'FromBuilder'). Thus, use 'fmt' if you need just one value:
-
-@
->>> __"Maybe here's a number: "+|whenF cond (fmt n)|+""__
-@
+unusable with ('+|')-formatted strings which can resolve to any
+'FromBuilder'). You can use 'build' to convert any value to a 'Builder'.
 -}
 whenF :: Bool -> Builder -> Builder
 whenF True  x = x
 whenF False _ = mempty
 {-# INLINE whenF #-}
 
-{- |
-Display something only if the condition is 'False' (empty string otherwise).
+{- | Display something only if the condition is 'False' (empty string
+otherwise).
 -}
 unlessF :: Bool -> Builder -> Builder
 unlessF False x = x
@@ -1143,10 +1063,7 @@ unlessF True  _ = mempty
 
 {- | Format an arbitrary value without requiring a 'Buildable' instance:
 
-@
-data Foo = Foo { x :: Bool, y :: [Int] }
-  deriving Generic
-@
+>>> data Foo = Foo { x :: Bool, y :: [Int] } deriving Generic
 
 >>> fmt (genericF (Foo True [1,2,3]))
 Foo:
@@ -1155,10 +1072,7 @@ Foo:
 
 It works for non-record constructors too:
 
-@
-data Bar = Bar Bool [Int]
-  deriving Generic
-@
+>>> data Bar = Bar Bool [Int] deriving Generic
 
 >>> fmtLn (genericF (Bar True [1,2,3]))
 <Bar: True, [1, 2, 3]>

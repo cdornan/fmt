@@ -10,7 +10,7 @@ import           Data.Monoid             ((<>))
 import           Data.String.Interpolate (i)
 import           Data.Text               (Text)
 import qualified Data.Text               as T
-import qualified Fmt.Internal.Format     as TF
+import qualified Fmt.Internal.Format     as F
 import qualified Data.Text.Lazy          as LT
 import           Fmt                     ((+|), (|+))
 import           Formatting              (Format, formatToString, int, sformat, stext,
@@ -24,11 +24,11 @@ import           Criterion.Main          (defaultMain)
 -- Format utility functions
 ----------------------------------------------------------------------------
 
-format' :: TF.Params ps => TF.Format -> ps -> Text
-format' f = LT.toStrict . TF.format f
+format' :: F.Params ps => F.Format -> ps -> Text
+format' f = LT.toStrict . F.format f
 
-formatS :: TF.Params ps => TF.Format -> ps -> String
-formatS f = LT.unpack . TF.format f
+formatS :: F.Params ps => F.Format -> ps -> String
+formatS f = LT.unpack . F.format f
 
 -- Shorter alias for @formatToString@.
 fs :: Format String a -> a

@@ -3,6 +3,13 @@
 * Switched to `Buildable` from `formatting` (since `text-format` is
   unmaintained).
 
+* Removed the `double-conversion` dependency (which was sometimes causing
+  compilation issues).
+
+* Due to the point above, the `exptF` and `precF` formatters are slower now.
+  Additionally, they have `RealFloat` instead of `Real` as a constraint on
+  the input value.
+
 # 0.5.0.0
 
 * From this version on, `blockListF` never puts blank lines between items.

@@ -28,7 +28,6 @@ module Fmt.Internal
   FromBuilder(..),
   FormatAsHex(..),
   FormatAsBase64(..),
-  TupleF(..),
 
   -- * Classes used for 'genericF'
   GBuildable(..),
@@ -48,6 +47,10 @@ module Fmt.Internal
   -- * Functions used in 'Fmt.Time'
   fixedF,
   ordinalF,
+
+  -- * Reexports
+  module Fmt.Internal.Format,
+  module Fmt.Internal.Tuple,
 )
 where
 
@@ -65,7 +68,7 @@ import qualified Data.Text.Lazy.IO as TL
 import qualified Data.Text.Lazy.Encoding as TL
 -- 'Buildable' and raw 'Builder' formatters
 import Formatting.Buildable (Buildable(..))
-import qualified Fmt.Internal.Format as F
+import qualified Formatting.Internal.Raw as F
 -- Text 'Builder'
 import Data.Text.Lazy.Builder hiding (fromString)
 -- Bytestring
@@ -78,6 +81,12 @@ import qualified Data.ByteString.Base64          as B64
 import qualified Data.ByteString.Base64.Lazy     as B64L
 import qualified Data.ByteString.Base64.URL      as B64U
 import qualified Data.ByteString.Base64.URL.Lazy as B64UL
+
+import Fmt.Internal.Format
+import Fmt.Internal.Tuple
+
+-- $setup
+-- >>> import Fmt
 
 ----------------------------------------------------------------------------
 -- FromBuilder
@@ -161,31 +170,6 @@ instance FormatAsBase64 BSL.ByteString where
   base64UrlF = fromLazyText . TL.decodeLatin1 . B64UL.encode
 
 ----------------------------------------------------------------------------
--- Tuples
-----------------------------------------------------------------------------
-
-class TupleF a where
-  {- |
-Format a tuple (of up to 8 elements):
-
->>> tupleF (1,2,"hi")
-"(1, 2, hi)"
-
-If any of the elements takes several lines, an alternate format is used:
-
-@
->>> __fmt $ tupleF ("test","foo\\nbar","more test")__
-( test
-,
-  foo
-  bar
-,
-  more test )
-@
-  -}
-  tupleF :: a -> Builder
-
-----------------------------------------------------------------------------
 -- Classes used for 'genericF'
 ----------------------------------------------------------------------------
 
@@ -207,13 +191,13 @@ class Buildable' a where
 
 -- | Something like 'Text.Printf.PrintfType' in "Text.Printf".
 class FormatType r where
-  format' :: F.Format -> [Builder] -> r
+  format' :: Format -> [Builder] -> r
 
 instance (Buildable a, FormatType r) => FormatType (a -> r) where
   format' f xs = \x -> format' f (build x : xs)
 
 instance _OVERLAPPABLE_ FromBuilder r => FormatType r where
-  format' f xs = fromBuilder $ F.build f (reverse xs)
+  format' f xs = fromBuilder $ renderFormat f (reverse xs)
 
 ----------------------------------------------------------------------------
 -- Helpers

@@ -17,29 +17,38 @@ Written by Chris Done
 @<https://hackage.haskell.org/package/formatting/docs/Formatting-Time.html Formatting.Time>@
 from the @<https://hackage.haskell.org/package/formatting formatting>@ package.
 
-Most of the time you'll want to use one of these formatters:
+Most of the time you'll want to use one of these formatters (all of the
+examples below use @"2018-02-14 16:20:45.5 CST"@):
 
-@
->>> __'dateTimeF' t                  -- full date and time__
-"Sun May 14 16:16:47 MSK 2017"
+* 'dateTimeF' – full date and time:
 
->>> __'hmF' t                        -- hours and minutes__
-"16:16"
+    >>> dateTimeF t
+    "Wed Feb 14 16:20:45 CST 2018"
 
->>> __'hmsF' t                       -- hours, minutes and seconds__
-"16:16:47"
+* 'hmF' – hours and minutes:
 
->>> __'dateDashF' t                  -- date in ISO 8601 format__
-"2017-05-14"
+    >>> hmF t
+    "16:20"
 
->>> __'diffF' False t                -- time period (convenient for humans)__
-"3 seconds"
+* 'hmsF' – hours, minutes and seconds:
 
->>> __'diffF' True t                 -- point in time (convenient for humans)__
-"3 seconds ago"
-@
+    >>> hmsF t
+    "16:20:45"
 
-Note that two formatters from @Formatting.Time@ have been renamed:
+* 'dateDashF' – date in ISO 8601 format:
+
+    >>> dateDashF t
+    "2018-02-14"
+
+* 'diffF' – either a time period or a point in time, in a convenient for
+  humans format:
+
+    >>> diffF False t    -- time period
+    "3 seconds"
+    >>> diffF True t     -- point in time
+    "3 seconds ago"
+
+Note that two formatters from @Formatting.Time@ are called differently here:
 
 @
 pico     -> 'picosecondF'
@@ -126,6 +135,8 @@ import           Data.Time.Locale.Compat
 
 import           Fmt.Internal            (fixedF, ordinalF)
 
+-- $setup
+-- >>> let t = read "2018-02-14 16:20:45.5 CST" :: ZonedTime
 
 ----------------------------------------------------------------------------
 -- Custom
@@ -142,25 +153,24 @@ timeF f = build . T.pack . formatTime defaultTimeLocale (T.unpack f)
 
 -- | Timezone offset on the format @-HHMM@.
 --
--- >>> t <- getZonedTime
 -- >>> t
--- 2017-05-14 16:16:47.62135 MSK
+-- 2018-02-14 16:20:45.5 CST
 -- >>> tzF t
--- "+0300"
+-- "-0600"
 tzF :: FormatTime a => a -> Builder
 tzF = timeF "%z"
 
 -- | Timezone name.
 --
 -- >>> tzNameF t
--- "MSK"
+-- "CST"
 tzNameF :: FormatTime a => a -> Builder
 tzNameF = timeF "%Z"
 
 -- | As 'dateTimeFmt' @locale@ (e.g. @%a %b %e %H:%M:%S %Z %Y@).
 --
 -- >>> dateTimeF t
--- "Sun May 14 16:16:47 MSK 2017"
+-- "Wed Feb 14 16:20:45 CST 2018"
 dateTimeF :: FormatTime a => a -> Builder
 dateTimeF = timeF "%c"
 
@@ -171,28 +181,28 @@ dateTimeF = timeF "%c"
 -- | Same as @%H:%M@.
 --
 -- >>> hmF t
--- "16:16"
+-- "16:20"
 hmF :: FormatTime a => a -> Builder
 hmF = timeF "%R"
 
 -- | Same as @%H:%M:%S@.
 --
 -- >>> hmsF t
--- "16:16:47"
+-- "16:20:45"
 hmsF :: FormatTime a => a -> Builder
 hmsF = timeF "%T"
 
 -- | As 'timeFmt' @locale@ (e.g. @%H:%M:%S@).
 --
 -- >>> hmsLF t
--- "16:16:47"
+-- "16:20:45"
 hmsLF :: FormatTime a => a -> Builder
 hmsLF = timeF "%X"
 
 -- | As 'time12Fmt' @locale@ (e.g. @%I:%M:%S %p@).
 --
 -- >>> hmsPLF t
--- "04:16:47 PM"
+-- "04:20:45 PM"
 hmsPLF :: FormatTime a => a -> Builder
 hmsPLF = timeF "%r"
 
@@ -214,10 +224,7 @@ dayHalfUF = timeF "%p"
 --
 -- >>> hour24F t
 -- "16"
--- >>> let nightT = read "2017-05-14 00:21:32.714083 UTC" :: UTCTime
--- >>> nightT
--- 2017-05-14 00:21:32.714083 UTC
--- >>> hour24F nightT
+-- >>> hour24F midnight
 -- "00"
 hour24F :: FormatTime a => a -> Builder
 hour24F = timeF "%H"
@@ -226,45 +233,47 @@ hour24F = timeF "%H"
 --
 -- >>> hour12F t
 -- "04"
--- >>> hour12F nightT
+-- >>> hour12F midnight
 -- "12"
 hour12F :: FormatTime a => a -> Builder
 hour12F = timeF "%I"
 
 -- | Hour, 24-hour, leading space as needed, @ 0@ - @23@.
 --
--- >>> hour24SF nightT
+-- >>> hour24SF t
+-- "16"
+-- >>> hour24SF midnight
 -- " 0"
 hour24SF :: FormatTime a => a -> Builder
 hour24SF = timeF "%k"
 
 -- | Hour, 12-hour, leading space as needed, @ 1@ - @12@.
 --
--- >>> hour12SF nightT
+-- >>> hour12SF t
+-- " 4"
+-- >>> hour12SF midnight
 -- "12"
 hour12SF :: FormatTime a => a -> Builder
 hour12SF = timeF "%l"
 
 -- | Minute, @00@ - @59@.
 --
--- >>> otherT
--- 2017-05-14 17:12:47.897343 MSK
--- >>> minuteF otherT
--- "12"
+-- >>> minuteF t
+-- "20"
 minuteF :: FormatTime a => a -> Builder
 minuteF = timeF "%M"
 
 -- | Second, without decimal part, @00@ - @60@.
 --
 -- >>> secondF t
--- "47"
+-- "45"
 secondF :: FormatTime a => a -> Builder
 secondF = timeF "%S"
 
 -- | Picosecond, including trailing zeros, @000000000000@ - @999999999999@.
 --
 -- >>> picosecondF t
--- "621350000000"
+-- "500000000000"
 picosecondF :: FormatTime a => a -> Builder
 picosecondF = timeF "%q"
 
@@ -272,7 +281,7 @@ picosecondF = timeF "%q"
 -- For a whole number of seconds, this produces an empty string.
 --
 -- >>> subsecondF t
--- ".62135"
+-- ".5"
 subsecondF :: FormatTime a => a -> Builder
 subsecondF = timeF "%Q"
 
@@ -286,7 +295,7 @@ subsecondF = timeF "%Q"
 -- Unix epoch is formatted as @-1.1@ with @%s%Q@.
 --
 -- >>> epochF t
--- "1494767807"
+-- "1518646845"
 epochF :: FormatTime a => a -> Builder
 epochF = timeF "%s"
 
@@ -297,35 +306,35 @@ epochF = timeF "%s"
 -- | Same as @%m\/%d\/%y@.
 --
 -- >>> dateSlashF t
--- "05/14/17"
+-- "02/14/18"
 dateSlashF :: FormatTime a => a -> Builder
 dateSlashF = timeF "%D"
 
 -- | Same as @%Y-%m-%d@.
 --
 -- >>> dateDashF t
--- "2017-05-14"
+-- "2018-02-14"
 dateDashF :: FormatTime a => a -> Builder
 dateDashF = timeF "%F"
 
 -- | As 'dateFmt' @locale@ (e.g. @%m\/%d\/%y@).
 --
 -- >>> dateSlashLF t
--- "05/14/17"
+-- "02/14/18"
 dateSlashLF :: FormatTime a => a -> Builder
 dateSlashLF = timeF "%x"
 
 -- | Year.
 --
 -- >>> yearF t
--- "2017"
+-- "2018"
 yearF :: FormatTime a => a -> Builder
 yearF = timeF "%Y"
 
 -- | Last two digits of year, @00@ - @99@.
 --
 -- >>> yyF t
--- "17"
+-- "18"
 yyF :: FormatTime a => a -> Builder
 yyF = timeF "%y"
 
@@ -339,23 +348,22 @@ centuryF = timeF "%C"
 -- | Month name, long form ('fst' from 'months' @locale@), @January@ -
 -- @December@.
 --
--- >>> let longMonthT = read "2017-01-12 00:21:32.714083 UTC" :: UTCTime
--- >>> monthNameF longMonthT
--- "January"
+-- >>> monthNameF t
+-- "February"
 monthNameF :: FormatTime a => a -> Builder
 monthNameF = timeF "%B"
 
 -- | Month name, short form ('snd' from 'months' @locale@), @Jan@ - @Dec@.
 --
--- >>> monthNameShortF longMonthT
--- "Jan"
+-- >>> monthNameShortF t
+-- "Feb"
 monthNameShortF :: FormatTime a => a -> Builder
 monthNameShortF = timeF "%b"
 
 -- | Month of year, leading 0 as needed, @01@ - @12@.
 --
--- >>> monthF longMonthT
--- "01"
+-- >>> monthF t
+-- "02"
 monthF :: FormatTime a => a -> Builder
 monthF = timeF "%m"
 
@@ -383,21 +391,21 @@ dayOfMonthSF = timeF "%e"
 -- | Day of year for Ordinal Date format, @001@ - @366@.
 --
 -- >>> dayF t
--- "134"
+-- "045"
 dayF :: FormatTime a => a -> Builder
 dayF = timeF "%j"
 
 -- | Year for Week Date format e.g. @2013@.
 --
 -- >>> weekYearF t
--- "2017"
+-- "2018"
 weekYearF :: FormatTime a => a -> Builder
 weekYearF = timeF "%G"
 
 -- | Last two digits of year for Week Date format, @00@ - @99@.
 --
 -- >>> weekYYF t
--- "17"
+-- "18"
 weekYYF :: FormatTime a => a -> Builder
 weekYYF = timeF "%g"
 
@@ -411,21 +419,21 @@ weekCenturyF = timeF "%f"
 -- | Week for Week Date format, @01@ - @53@.
 --
 -- >>> weekF t
--- "19"
+-- "07"
 weekF :: FormatTime a => a -> Builder
 weekF = timeF "%V"
 
 -- | Day for Week Date format, @1@ - @7@.
 --
 -- >>> dayOfWeekF t
--- "7"
+-- "3"
 dayOfWeekF :: FormatTime a => a -> Builder
 dayOfWeekF = timeF "%u"
 
 -- | Day of week, short form ('snd' from 'wDays' @locale@), @Sun@ - @Sat@.
 --
 -- >>> dayNameShortF t
--- "Sun"
+-- "Wed"
 dayNameShortF :: FormatTime a => a -> Builder
 dayNameShortF = timeF "%a"
 
@@ -433,7 +441,7 @@ dayNameShortF = timeF "%a"
 -- @Saturday@.
 --
 -- >>> dayNameF t
--- "Sunday"
+-- "Wednesday"
 dayNameF :: FormatTime a => a -> Builder
 dayNameF = timeF "%A"
 
@@ -441,14 +449,14 @@ dayNameF = timeF "%A"
 -- 'sundayStartWeek'), @00@ - @53@.
 --
 -- >>> weekFromZeroF t
--- "20"
+-- "06"
 weekFromZeroF :: FormatTime a => a -> Builder
 weekFromZeroF = timeF "%U"
 
 -- | Day of week number, @0@ (= Sunday) - @6@ (= Saturday).
 --
 -- >>> dayOfWeekFromZeroF t
--- "0"
+-- "3"
 dayOfWeekFromZeroF :: FormatTime a => a -> Builder
 dayOfWeekFromZeroF = timeF "%w"
 
@@ -456,7 +464,7 @@ dayOfWeekFromZeroF = timeF "%w"
 -- 'mondayStartWeek'), @00@ - @53@.
 --
 -- >>> weekOfYearMonF t
--- "19"
+-- "07"
 weekOfYearMonF :: FormatTime a => a -> Builder
 weekOfYearMonF = timeF "%W"
 
@@ -522,10 +530,10 @@ diffF fix = diffed
 
 -- | Display the absolute value time span in years.
 --
--- >>> epochF t
--- "1494767807"
--- >>> yearsF 3 1494767807
--- "47.399"
+-- >>> epochF t    -- time passed since Jan 1, 1970
+-- "1518646845"
+-- >>> yearsF 3 1518646845
+-- "48.156"
 yearsF :: RealFrac n
        => Int -- ^ Decimal places.
        -> n
@@ -535,8 +543,8 @@ yearsF n = fixedF n . abs . count
 
 -- | Display the absolute value time span in days.
 --
--- >>> daysF 3 1494767807
--- "17300.553"
+-- >>> daysF 3 1518646845
+-- "17576.931"
 daysF :: RealFrac n
       => Int -- ^ Decimal places.
       -> n

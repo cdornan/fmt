@@ -22,6 +22,8 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 -- Generics
 import GHC.Generics
+-- Call stacks
+import Data.CallStack
 -- Tests
 import Test.Hspec
 
@@ -706,8 +708,8 @@ test_generic = describe "'genericF'" $ do
 -- Utilities
 ----------------------------------------------------------------------------
 
-(==%>) :: Text -> Text -> Expectation
+(==%>) :: HasCallStack => Text -> Text -> Expectation
 (==%>) = shouldBe
 
-(==#>) :: Builder -> Text -> Expectation
+(==#>) :: HasCallStack => Builder -> Text -> Expectation
 (==#>) a b = a `shouldBe` build (T.replace "_" " " b)
