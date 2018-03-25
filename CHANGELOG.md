@@ -1,4 +1,4 @@
-# 0.6.0
+# 0.6
 
 * Switched to `Buildable` from `formatting` (since `text-format` is
   unmaintained).
