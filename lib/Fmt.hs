@@ -104,7 +104,6 @@ module Fmt
 
   -- ** Tuples
   tupleF,
-  tupleLikeF,
 
   -- ** ADTs
   maybeF,
@@ -1019,7 +1018,7 @@ instance (GetFields a, Constructor c) => GBuildable (M1 C c a) where
                               prefixName
                               (mconcat (intersperse ", " fields))
     Prefix
-      | isTuple -> tupleLikeF fields
+      | isTuple -> tupleF fields
       | conIsRecord c -> nameF (build prefixName) (blockMapF fieldsWithNames)
       | null (getFields x) -> build prefixName
       -- I believe that there will be only one field in this case
@@ -1066,44 +1065,44 @@ instance Buildable' () where
 
 instance (Buildable' a1, Buildable' a2)
   => Buildable' (a1, a2) where
-  build' (a1, a2) = tupleLikeF
+  build' (a1, a2) = tupleF
     [build' a1, build' a2]
 
 instance (Buildable' a1, Buildable' a2, Buildable' a3)
   => Buildable' (a1, a2, a3) where
-  build' (a1, a2, a3) = tupleLikeF
+  build' (a1, a2, a3) = tupleF
     [build' a1, build' a2, build' a3]
 
 instance (Buildable' a1, Buildable' a2, Buildable' a3, Buildable' a4)
   => Buildable' (a1, a2, a3, a4) where
-  build' (a1, a2, a3, a4) = tupleLikeF
+  build' (a1, a2, a3, a4) = tupleF
     [build' a1, build' a2, build' a3, build' a4]
 
 instance (Buildable' a1, Buildable' a2, Buildable' a3, Buildable' a4,
           Buildable' a5)
   => Buildable' (a1, a2, a3, a4, a5) where
-  build' (a1, a2, a3, a4, a5) = tupleLikeF
+  build' (a1, a2, a3, a4, a5) = tupleF
     [build' a1, build' a2, build' a3, build' a4,
      build' a5]
 
 instance (Buildable' a1, Buildable' a2, Buildable' a3, Buildable' a4,
           Buildable' a5, Buildable' a6)
   => Buildable' (a1, a2, a3, a4, a5, a6) where
-  build' (a1, a2, a3, a4, a5, a6) = tupleLikeF
+  build' (a1, a2, a3, a4, a5, a6) = tupleF
     [build' a1, build' a2, build' a3, build' a4,
      build' a5, build' a6]
 
 instance (Buildable' a1, Buildable' a2, Buildable' a3, Buildable' a4,
           Buildable' a5, Buildable' a6, Buildable' a7)
   => Buildable' (a1, a2, a3, a4, a5, a6, a7) where
-  build' (a1, a2, a3, a4, a5, a6, a7) = tupleLikeF
+  build' (a1, a2, a3, a4, a5, a6, a7) = tupleF
     [build' a1, build' a2, build' a3, build' a4,
      build' a5, build' a6, build' a7]
 
 instance (Buildable' a1, Buildable' a2, Buildable' a3, Buildable' a4,
           Buildable' a5, Buildable' a6, Buildable' a7, Buildable' a8)
   => Buildable' (a1, a2, a3, a4, a5, a6, a7, a8) where
-  build' (a1, a2, a3, a4, a5, a6, a7, a8) = tupleLikeF
+  build' (a1, a2, a3, a4, a5, a6, a7, a8) = tupleF
     [build' a1, build' a2, build' a3, build' a4,
      build' a5, build' a6, build' a7, build' a8]
 

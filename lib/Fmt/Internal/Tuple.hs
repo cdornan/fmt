@@ -4,7 +4,7 @@
 module Fmt.Internal.Tuple
 (
   TupleF(..),
-  tupleLikeF,
+  renderTuple,
 )
 where
 
@@ -36,57 +36,61 @@ If any of the elements takes several lines, an alternate format is used:
 ,
   more test )
 
+You can also use 'tupleF' on lists to get tuple-like formatting.
   -}
   tupleF :: a -> Builder
 
 instance (Buildable a1, Buildable a2)
   => TupleF (a1, a2) where
-  tupleF (a1, a2) = tupleLikeF
+  tupleF (a1, a2) = renderTuple
     [build a1, build a2]
 
 instance (Buildable a1, Buildable a2, Buildable a3)
   => TupleF (a1, a2, a3) where
-  tupleF (a1, a2, a3) = tupleLikeF
+  tupleF (a1, a2, a3) = renderTuple
     [build a1, build a2, build a3]
 
 instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4)
   => TupleF (a1, a2, a3, a4) where
-  tupleF (a1, a2, a3, a4) = tupleLikeF
+  tupleF (a1, a2, a3, a4) = renderTuple
     [build a1, build a2, build a3, build a4]
 
 instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
           Buildable a5)
   => TupleF (a1, a2, a3, a4, a5) where
-  tupleF (a1, a2, a3, a4, a5) = tupleLikeF
+  tupleF (a1, a2, a3, a4, a5) = renderTuple
     [build a1, build a2, build a3, build a4,
      build a5]
 
 instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
           Buildable a5, Buildable a6)
   => TupleF (a1, a2, a3, a4, a5, a6) where
-  tupleF (a1, a2, a3, a4, a5, a6) = tupleLikeF
+  tupleF (a1, a2, a3, a4, a5, a6) = renderTuple
     [build a1, build a2, build a3, build a4,
      build a5, build a6]
 
 instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
           Buildable a5, Buildable a6, Buildable a7)
   => TupleF (a1, a2, a3, a4, a5, a6, a7) where
-  tupleF (a1, a2, a3, a4, a5, a6, a7) = tupleLikeF
+  tupleF (a1, a2, a3, a4, a5, a6, a7) = renderTuple
     [build a1, build a2, build a3, build a4,
      build a5, build a6, build a7]
 
 instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
           Buildable a5, Buildable a6, Buildable a7, Buildable a8)
   => TupleF (a1, a2, a3, a4, a5, a6, a7, a8) where
-  tupleF (a1, a2, a3, a4, a5, a6, a7, a8) = tupleLikeF
+  tupleF (a1, a2, a3, a4, a5, a6, a7, a8) = renderTuple
     [build a1, build a2, build a3, build a4,
      build a5, build a6, build a7, build a8]
+
+instance Buildable a => TupleF [a] where
+  tupleF = renderTuple . map build
 
 {- |
 Format a list like a tuple. (This function is used to define 'tupleF'.)
 -}
-tupleLikeF :: [Builder] -> Builder
-tupleLikeF xs
+renderTuple :: [Builder] -> Builder
+renderTuple xs
   | True `elem` mls = mconcat (intersperse ",\n" items)
   | otherwise = "(" <> mconcat (intersperse ", " xs) <> ")"
   where

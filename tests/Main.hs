@@ -508,14 +508,14 @@ test_jsonMapF = describe "'jsonMapF'" $ do
 test_tuples :: Spec
 test_tuples = describe "tuples" $ do
   test_tupleSimple
-  describe "tupleLikeF" $ do
+  describe "tupleF on lists" $ do
     test_tupleOneLine
     test_tupleMultiline
 
 test_tupleSimple :: Spec
 test_tupleSimple = it "tupleF" $ do
   -- we don't need complicated tests here, they're all tested in
-  -- 'tupleLikeF' tests
+  -- "tupleF on lists" tests
   tupleF (n, s) ==#> "(25, !)"
   tupleF (n, s, n, s) ==#> "(25, !, 25, !)"
   tupleF (n, s, n, s, 'a', 'b', 'c', 'd') ==#>
@@ -524,21 +524,21 @@ test_tupleSimple = it "tupleF" $ do
 test_tupleOneLine :: Spec
 test_tupleOneLine = describe "one-line" $ do
   it "()" $ do
-    tupleLikeF [] ==#> "()"
+    tupleF [] ==#> "()"
   it "('')" $ do
-    tupleLikeF [""] ==#> "()"
+    tupleF [""] ==#> "()"
   it "(a)" $ do
-    tupleLikeF ["a"] ==#> "(a)"
+    tupleF ["a"] ==#> "(a)"
   it "(a,b)" $ do
-    tupleLikeF ["a", "b"] ==#> "(a, b)"
+    tupleF ["a", "b"] ==#> "(a, b)"
   it "(a,'')" $ do
-    tupleLikeF ["a", ""] ==#> "(a, )"
+    tupleF ["a", ""] ==#> "(a, )"
   it "('',b)" $ do
-    tupleLikeF ["", "b"] ==#> "(, b)"
+    tupleF ["", "b"] ==#> "(, b)"
   it "('','')" $ do
-    tupleLikeF ["", ""] ==#> "(, )"
+    tupleF ["", ""] ==#> "(, )"
   it "(a,b,c)" $ do
-    tupleLikeF ["a", "ba", "caba"] ==#> "(a, ba, caba)"
+    tupleF ["a", "ba", "caba"] ==#> "(a, ba, caba)"
 
 test_tupleMultiline :: Spec
 test_tupleMultiline = describe "multiline" $ do
@@ -546,45 +546,45 @@ test_tupleMultiline = describe "multiline" $ do
   someEmpty
   it "weird case" $ do
     -- not sure whether I should fix it or not
-    tupleLikeF ["a\n"] ==#> "(a\n)"
+    tupleF ["a\n"] ==#> "(a\n)"
 
   where
     allNonEmpty = describe "all non-empty" $ do
       it "1 element (2 lines)" $ do
-          tupleLikeF ["a\nx"] ==#> [text|
+          tupleF ["a\nx"] ==#> [text|
             ( a
               x )
             |]
-          tupleLikeF ["a\n x"] ==#> [text|
+          tupleF ["a\n x"] ==#> [text|
             ( a
                x )
             |]
-          tupleLikeF [" a\nx\n"] ==#> [text|
+          tupleF [" a\nx\n"] ==#> [text|
             (  a
               x )
             |]
       it "1 element (3 lines)" $ do
-          tupleLikeF ["a\nb\nc"] ==#> [text|
+          tupleF ["a\nb\nc"] ==#> [text|
             ( a
               b
               c )
             |]
       it "2 elements (1 line + 2 lines)" $ do
-          tupleLikeF ["a", "b\nc"] ==#> [text|
+          tupleF ["a", "b\nc"] ==#> [text|
             ( a
             ,
               b
               c )
             |]
       it "2 elements (2 lines + 1 line)" $ do
-          tupleLikeF ["a\nb", "c"] ==#> [text|
+          tupleF ["a\nb", "c"] ==#> [text|
             ( a
               b
             ,
               c )
             |]
       it "3 elements (each has 2 lines)" $ do
-          tupleLikeF ["a\nb", "c\nd", "e\nf"] ==#> [text|
+          tupleF ["a\nb", "c\nd", "e\nf"] ==#> [text|
             ( a
               b
             ,
@@ -597,21 +597,21 @@ test_tupleMultiline = describe "multiline" $ do
 
     someEmpty = describe "some empty" $ do
       it "2 elements (0 + 2)" $ do
-          tupleLikeF ["", "a\nb"] ==#> [text|
+          tupleF ["", "a\nb"] ==#> [text|
             (
             ,
               a
               b )
             |]
       it "2 elements (2 + 0)" $ do
-          tupleLikeF ["a\nb", ""] ==#> [text|
+          tupleF ["a\nb", ""] ==#> [text|
             ( a
               b
             ,
               )
             |]
       it "3 elements (0 + 2 + 0)" $ do
-          tupleLikeF ["", "a\nb", ""] ==#> [text|
+          tupleF ["", "a\nb", ""] ==#> [text|
             (
             ,
               a
@@ -620,7 +620,7 @@ test_tupleMultiline = describe "multiline" $ do
               )
             |]
       it "3 elements (2 + 0 + 2)" $ do
-          tupleLikeF ["a\nb", "", "c\nd"] ==#> [text|
+          tupleF ["a\nb", "", "c\nd"] ==#> [text|
             ( a
               b
             ,
@@ -629,7 +629,7 @@ test_tupleMultiline = describe "multiline" $ do
               d )
             |]
       it "4 elements (2 + 0 + 0 + 2)" $ do
-          tupleLikeF ["a\nb", "", "", "c\nd"] ==#> [text|
+          tupleF ["a\nb", "", "", "c\nd"] ==#> [text|
             ( a
               b
             ,

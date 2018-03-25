@@ -12,6 +12,9 @@
 
 * `floatF` now always prints a point, even if the number is integral.
 
+* `tupleLikeF` has been removed. `TupleF` now has an additional instance
+  that lets `tupleF` be used to format lists.
+
 # 0.5.0.0
 
 * From this version on, `blockListF` never puts blank lines between items.
