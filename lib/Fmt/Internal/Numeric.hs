@@ -1,29 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Fmt.Internal.Numeric
-(
-  -- * Integer
-  octF,
-  binF,
-  baseF,
-
-  -- * Floating-point
-  floatF,
-  exptF,
-  fixedF,
-
-  -- * Other
-  commaizeF,
-  ordinalF,
-
-  -- * Helpers
-  groupInt,
-  atBase,
-  showSigned',
-  intToDigit',
-)
-where
+module Fmt.Internal.Numeric where
 
 
 import           Numeric

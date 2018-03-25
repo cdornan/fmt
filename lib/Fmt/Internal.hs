@@ -7,9 +7,6 @@
 
 {- | A module providing access to internals (in case you really need them).
 Can change at any time, though probably won't.
-
-It also provides some functions that are used in 'Fmt.Time' (so that
-'Fmt.Time' wouldn't need to import 'Fmt').
 -}
 module Fmt.Internal
 (
@@ -17,19 +14,13 @@ module Fmt.Internal
   FormatAsHex(..),
   FormatAsBase64(..),
 
-  -- * Classes used for 'genericF'
-  GBuildable(..),
-  GetFields(..),
-  Buildable'(..),
-
-  -- * Helpers
-  indentF',
-
   -- * Reexports
   module Fmt.Internal.Core,
-  module Fmt.Internal.Format,
+  module Fmt.Internal.Formatters,
+  module Fmt.Internal.Template,
   module Fmt.Internal.Tuple,
   module Fmt.Internal.Numeric,
+  module Fmt.Internal.Generic,
 )
 where
 
@@ -38,9 +29,7 @@ where
 import Data.Monoid ((<>))
 #endif
 -- Text
-import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
-import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL
 -- 'Buildable' and raw 'Builder' formatters
 import qualified Formatting.Internal.Raw as F
@@ -58,9 +47,11 @@ import qualified Data.ByteString.Base64.URL      as B64U
 import qualified Data.ByteString.Base64.URL.Lazy as B64UL
 
 import Fmt.Internal.Core
-import Fmt.Internal.Format
+import Fmt.Internal.Formatters
+import Fmt.Internal.Template
 import Fmt.Internal.Tuple
 import Fmt.Internal.Numeric
+import Fmt.Internal.Generic
 
 -- $setup
 -- >>> import Fmt
@@ -117,35 +108,3 @@ instance FormatAsBase64 BS.ByteString where
 instance FormatAsBase64 BSL.ByteString where
   base64F    = fromLazyText . TL.decodeLatin1 . B64L.encode
   base64UrlF = fromLazyText . TL.decodeLatin1 . B64UL.encode
-
-----------------------------------------------------------------------------
--- Classes used for 'genericF'
-----------------------------------------------------------------------------
-
-class GBuildable f where
-  gbuild :: f a -> Builder
-
-class GetFields f where
-  -- | Get fields, together with their names if available
-  getFields :: f a -> [(String, Builder)]
-
--- | A more powerful 'Buildable' used for 'genericF'. Can build functions,
--- tuples, lists, maps, etc., as well as combinations thereof.
-class Buildable' a where
-  build' :: a -> Builder
-
-----------------------------------------------------------------------------
--- Helpers
-----------------------------------------------------------------------------
-
-{- | Add a prefix to the first line, and indent all lines but the first one.
-
-The output will always end with a newline, even when the input doesn't.
--}
-indentF' :: Int -> T.Text -> Builder -> Builder
-indentF' n pref a = case TL.lines (toLazyText a) of
-  []     -> fromText pref <> "\n"
-  (x:xs) -> fromLazyText $
-            TL.unlines $ (TL.fromStrict pref <> x) : map (spaces <>) xs
-  where
-    spaces = TL.replicate (fromIntegral n) (TL.singleton ' ')

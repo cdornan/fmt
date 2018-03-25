@@ -8,15 +8,7 @@
 
 
 -- | Old-style formatting a la @text-format@.
-module Fmt.Internal.Format
-(
-  Format(..),
-  renderFormat,
-  FormatType(..),
-  format,
-  formatLn,
-)
-where
+module Fmt.Internal.Template where
 
 
 import Data.String (IsString(..))
@@ -31,6 +23,29 @@ import Fmt.Internal.Core (FromBuilder(..))
 
 -- $setup
 -- >>> import Fmt
+
+{- | An old-style formatting function taken from @text-format@ (see
+"Data.Text.Format"). Unlike 'Data.Text.Format.format' from
+"Data.Text.Format", it can produce 'String' and strict 'Text' as well (and
+print to console too). Also it's polyvariadic:
+
+>>> format "{} + {} = {}" 2 2 4
+2 + 2 = 4
+
+You can use arbitrary formatters:
+
+>>> format "0x{} + 0x{} = 0x{}" (hexF 130) (hexF 270) (hexF (130+270))
+0x82 + 0x10e = 0x190
+-}
+format :: FormatType r => Format -> r
+format f = format' f []
+{-# INLINE format #-}
+
+{- | Like 'format', but adds a newline.
+-}
+formatLn :: FormatType r => Format -> r
+formatLn f = format' (f <> "\n") []
+{-# INLINE formatLn #-}
 
 -- | A format string. This is intentionally incompatible with other
 -- string types, to make it difficult to construct a format string by
@@ -98,26 +113,3 @@ instance (Buildable a, FormatType r) => FormatType (a -> r) where
 
 instance _OVERLAPPABLE_ FromBuilder r => FormatType r where
   format' f xs = fromBuilder $ renderFormat f (reverse xs)
-
-{- | An old-style formatting function taken from @text-format@ (see
-"Data.Text.Format"). Unlike 'Data.Text.Format.format' from
-"Data.Text.Format", it can produce 'String' and strict 'Text' as well (and
-print to console too). Also it's polyvariadic:
-
->>> format "{} + {} = {}" 2 2 4
-2 + 2 = 4
-
-You can use arbitrary formatters:
-
->>> format "0x{} + 0x{} = 0x{}" (hexF 130) (hexF 270) (hexF (130+270))
-0x82 + 0x10e = 0x190
--}
-format :: FormatType r => Format -> r
-format f = format' f []
-{-# INLINE format #-}
-
-{- | Like 'format', but adds a newline.
--}
-formatLn :: FormatType r => Format -> r
-formatLn f = format' (f <> "\n") []
-{-# INLINE formatLn #-}

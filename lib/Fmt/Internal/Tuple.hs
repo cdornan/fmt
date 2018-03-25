@@ -5,11 +5,7 @@
 #include "overlap.h"
 
 
-module Fmt.Internal.Tuple
-(
-  TupleF(..),
-)
-where
+module Fmt.Internal.Tuple where
 
 
 import           Data.List (intersperse)
@@ -86,10 +82,10 @@ instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
     [build a1, build a2, build a3, build a4,
      build a5, build a6, build a7, build a8]
 
-instance _OVERLAPPABLE_ Buildable a => TupleF [a] where
+instance Buildable a => TupleF [a] where
   tupleF = tupleF . map build
 
-instance TupleF [Builder] where
+instance _OVERLAPPING_ TupleF [Builder] where
   tupleF xs
     | True `elem` mls = mconcat (intersperse ",\n" items)
     | otherwise = "(" <> mconcat (intersperse ", " xs) <> ")"

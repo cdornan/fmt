@@ -61,9 +61,11 @@ library
                        Fmt.Time
                        Fmt.Internal
                        Fmt.Internal.Core
-                       Fmt.Internal.Format
+                       Fmt.Internal.Formatters
+                       Fmt.Internal.Template
                        Fmt.Internal.Tuple
                        Fmt.Internal.Numeric
+                       Fmt.Internal.Generic
 
   build-depends:       base >=4.6 && <5,
                        base16-bytestring,

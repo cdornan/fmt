@@ -2,23 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Fmt.Internal.Core
-(
-  -- * Class
-  FromBuilder(..),
-
-  -- * Operators
-  -- ** Ordinary
-  (+|), (|+),
-  -- ** 'Show'
-  (+||), (||+),
-  -- ** Combinations
-  (|++|), (||++||), (||++|), (|++||),
-
-  -- * Functions
-  fmt, fmtLn,
-)
-where
+module Fmt.Internal.Core where
 
 
 import qualified Data.Text as T
