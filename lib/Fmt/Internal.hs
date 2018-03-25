@@ -38,25 +38,16 @@ module Fmt.Internal
   FormatType(..),
   
   -- * Helpers
-  groupInt,
-  atBase,
-  showSigned',
-  intToDigit',
   indentF',
-
-  -- * Functions used in 'Fmt.Time'
-  fixedF,
-  ordinalF,
 
   -- * Reexports
   module Fmt.Internal.Format,
   module Fmt.Internal.Tuple,
+  module Fmt.Internal.Numeric,
 )
 where
 
 -- Generic useful things
-import Numeric
-import Data.Char
 #if __GLASGOW_HASKELL__ < 804
 import Data.Monoid ((<>))
 #endif
@@ -84,6 +75,7 @@ import qualified Data.ByteString.Base64.URL.Lazy as B64UL
 
 import Fmt.Internal.Format
 import Fmt.Internal.Tuple
+import Fmt.Internal.Numeric
 
 -- $setup
 -- >>> import Fmt
@@ -203,41 +195,6 @@ instance _OVERLAPPABLE_ FromBuilder r => FormatType r where
 -- Helpers
 ----------------------------------------------------------------------------
 
-groupInt :: (Buildable a, Integral a) => Int -> Char -> a -> Builder
-groupInt 0 _ n = build n
-groupInt i c n =
-    fromLazyText . TL.reverse .
-    foldr merge "" .
-    TL.zip (zeros <> cycle' zeros') .
-    TL.reverse .
-    toLazyText . build
-      $ n
-  where
-    zeros = TL.replicate (fromIntegral i) (TL.singleton '0')
-    zeros' = TL.singleton c <> TL.tail zeros
-    merge (f, c') rest
-      | f == c = TL.singleton c <> TL.singleton c' <> rest
-      | otherwise = TL.singleton c' <> rest
-    cycle' xs = xs <> cycle' xs
-    -- Suppress the warning about redundant Integral constraint
-    _ = toInteger n
-
-atBase :: Integral a => Int -> a -> String
-atBase b _ | b < 2 || b > 36 = error ("baseF: Invalid base " ++ show b)
-atBase b n =
-  showSigned' (showIntAtBase (toInteger b) intToDigit') (toInteger n) ""
-{-# INLINE atBase #-}
-
-showSigned' :: Real a => (a -> ShowS) -> a -> ShowS
-showSigned' f n
-  | n < 0     = showChar '-' . f (negate n)
-  | otherwise = f n
-
-intToDigit' :: Int -> Char
-intToDigit' i
-  | i >= 0  && i < 10 = chr (ord '0' + i)
-  | i >= 10 && i < 36 = chr (ord 'a' + i - 10)
-  | otherwise = error ("intToDigit': Invalid int " ++ show i)
 
 {- | Add a prefix to the first line, and indent all lines but the first one.
 
@@ -250,35 +207,3 @@ indentF' n pref a = case TL.lines (toLazyText a) of
             TL.unlines $ (TL.fromStrict pref <> x) : map (spaces <>) xs
   where
     spaces = TL.replicate (fromIntegral n) (TL.singleton ' ')
-
-----------------------------------------------------------------------------
--- Functions used in Fmt.Time
-----------------------------------------------------------------------------
-
-{- |
-Format a floating-point number without scientific notation:
-
->>> listF' (fixedF 5) [pi,0.1,10]
-"[3.14159, 0.10000, 10.00000]"
--}
-fixedF :: Real a => Int -> a -> Builder
-fixedF = F.fixed
-
-{- |
-Add an ordinal suffix to a number:
-
->>> ordinalF 15
-"15th"
->>> ordinalF 22
-"22nd"
--}
-ordinalF :: (Buildable a, Integral a) => a -> Builder
-ordinalF n
-  | tens > 3 && tens < 21 = build n <> "th"
-  | otherwise = build n <> case n `mod` 10 of
-                             1 -> "st"
-                             2 -> "nd"
-                             3 -> "rd"
-                             _ -> "th"
-  where
-    tens = n `mod` 100

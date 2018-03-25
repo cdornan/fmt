@@ -4,11 +4,13 @@
   unmaintained).
 
 * Removed the `double-conversion` dependency (which was sometimes causing
-  compilation issues).
+  compilation issues). As the result, `exptF`, `fixedF` and `floatF` have
+  become slower.
 
-* Due to the point above, the `exptF` and `precF` formatters are slower now.
-  Additionally, they have `RealFloat` instead of `Real` as a constraint on
-  the input value.
+* The `precF` formatter was removed completely because its semantics was too
+  confusing. You can use `Numeric.showGFloat` to achieve a similar effect.
+
+* `floatF` now always prints a point, even if the number is integral.
 
 # 0.5.0.0
 

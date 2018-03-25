@@ -135,7 +135,6 @@ module Fmt
   -- ** Floating-point
   floatF,
   exptF,
-  precF,
   fixedF,
 
   -- ** Conditional formatting
@@ -186,8 +185,6 @@ import qualified GHC.Exts as IsList (toList)
 #if __GLASGOW_HASKELL__ < 710
 import Data.Foldable (Foldable)
 #endif
--- Rendering numbers
-import Numeric (showEFloat, showGFloat)
 -- Generics
 import GHC.Generics
 
@@ -946,92 +943,6 @@ When padding can't be distributed equally, the left side is preferred:
 padBothF :: Buildable a => Int -> Char -> a -> Builder
 padBothF i c =
   fromLazyText . TL.center (fromIntegral i) c . toLazyText . build
-
-{- |
-Break digits in a number:
-
->>> commaizeF 15830000
-"15,830,000"
--}
-commaizeF :: (Buildable a, Integral a) => a -> Builder
-commaizeF = groupInt 3 ','
-
-{- |
-Format a number as octal:
-
->>> listF' octF [7,8,9,10]
-"[7, 10, 11, 12]"
--}
-octF :: Integral a => a -> Builder
-octF = baseF 8
-
-{- |
-Format a number as binary:
-
->>> listF' binF [7,8,9,10]
-"[111, 1000, 1001, 1010]"
--}
-binF :: Integral a => a -> Builder
-binF = baseF 2
-
-{- |
-Format a number in arbitrary base (up to 36):
-
->>> baseF 3 10000
-"111201101"
->>> baseF 7 10000
-"41104"
->>> baseF 36 10000
-"7ps"
--}
-baseF :: Integral a => Int -> a -> Builder
-baseF numBase = build . atBase numBase
-
-{- |
-Format a floating-point number:
-
->>> floatF 3.1415
-"3.1415"
-
-Numbers bigger than 1e21 or smaller than 1e-6 will be displayed using
-scientific notation:
-
->>> listF' floatF [1e-6,9e-7]
-"[0.000001, 9e-7]"
->>> listF' floatF [9e20,1e21]
-"[900000000000000000000, 1e21]"
--}
-floatF :: Real a => a -> Builder
-floatF = F.shortest
-
-{- |
-Format a floating-point number using scientific notation, with the given
-amount of decimal places.
-
->>> listF' (exptF 5) [pi,0.1,10]
-"[3.14159e0, 1.00000e-1, 1.00000e1]"
--}
-exptF :: RealFloat a => Int -> a -> Builder
-exptF decs val = build $ showEFloat (Just decs) val ""
-
-{- |
-Format a floating-point number, with the given amount of digits of
-precision.
-
-For small numbers, it uses scientific notation for everything smaller than
-1e-6:
-
->>> listF' (precF 3) [1e-5,1e-6,1e-7]
-"[0.0000100, 0.00000100, 1.00e-7]"
-
-For large numbers, it uses scientific notation for everything larger than
-1eN, where N is the precision:
-
->>> listF' (precF 4) [1e3,5e3,1e4]
-"[1000, 5000, 1.000e4]"
--}
-precF :: RealFloat a => Int -> a -> Builder
-precF digits val = build $ showGFloat (Just digits) val ""
 
 ----------------------------------------------------------------------------
 -- Conditional formatters

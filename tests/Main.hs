@@ -151,8 +151,6 @@ test_floatingPoint = describe "floating-point" $ do
     exptF 2 f1_3 ==#> "1.30e0"
   it "fixedF" $ do
     fixedF 2 f1_3 ==#> "1.30"
-  it "precF" $ do
-    precF 2 f1_3 ==#> "1.3"
 
 test_hex :: Spec
 test_hex = describe "'hexF'" $ do

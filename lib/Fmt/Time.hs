@@ -43,10 +43,10 @@ examples below use @"2018-02-14 16:20:45.5 CST"@):
 * 'diffF' – either a time period or a point in time, in a convenient for
   humans format:
 
-    >>> diffF False t    -- time period
-    "3 seconds"
-    >>> diffF True t     -- point in time
-    "3 seconds ago"
+    >>> diffF False 130    -- time period (130 seconds)
+    "2 minutes"
+    >>> diffF True 130     -- point in time (130 seconds in the future)
+    "in 2 minutes"
 
 Note that two formatters from @Formatting.Time@ are called differently here:
 
@@ -133,7 +133,7 @@ import           Data.Time
 import           Data.Time.Locale.Compat
 #endif
 
-import           Fmt.Internal            (fixedF, ordinalF)
+import           Fmt.Internal.Numeric    (fixedF, ordinalF)
 
 -- $setup
 -- >>> let t = read "2018-02-14 16:20:45.5 CST" :: ZonedTime
