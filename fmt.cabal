@@ -66,6 +66,7 @@ library
                        Fmt.Internal.Tuple
                        Fmt.Internal.Numeric
                        Fmt.Internal.Generic
+                       Fmt.Internal.See
 
   build-depends:       base >=4.6 && <5,
                        base64-bytestring,
