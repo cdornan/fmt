@@ -8,6 +8,9 @@
 module Fmt.Internal.Tuple where
 
 
+#if __GLASGOW_HASKELL__ < 804
+import           Data.Monoid ((<>))
+#endif
 import           Data.List (intersperse)
 import qualified Data.Text.Lazy as TL
 import           Data.Text.Lazy.Builder

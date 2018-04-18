@@ -1,10 +1,13 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 
 module Fmt.Internal.Core where
 
-
+#if __GLASGOW_HASKELL__ < 804
+import           Data.Monoid ((<>))
+#endif
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.IO as TL

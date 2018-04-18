@@ -1,9 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP #-}
 
 
 module Fmt.Internal.Numeric where
 
 
+#if __GLASGOW_HASKELL__ < 804
+import           Data.Monoid ((<>))
+#endif
 import           Numeric
 import           Data.Char
 import           Data.Text.Lazy.Builder hiding (fromString)

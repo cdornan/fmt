@@ -24,10 +24,6 @@ module Fmt.Internal
 )
 where
 
--- Generic useful things
-#if __GLASGOW_HASKELL__ < 804
-import Data.Monoid ((<>))
-#endif
 -- Text
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy.Encoding as TL

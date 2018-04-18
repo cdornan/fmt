@@ -1,9 +1,8 @@
-resolver: nightly-2018-03-21
+resolver: lts-10.3
 
 packages:
 - .
 
 extra-deps:
-- git: https://github.com/neongreen/formatting
-  commit: 0532d763ab593c60c77b2c377d5e633af3b9f3c8
+- formatting-6.3.4
 - doctest-discover-0.1.0.9

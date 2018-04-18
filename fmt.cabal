@@ -71,7 +71,7 @@ library
                        base64-bytestring,
                        bytestring,
                        containers,
-                       formatting >= 6.3.3,
+                       formatting >= 6.3.4,
                        microlens >= 0.3,
                        text,
                        time,
