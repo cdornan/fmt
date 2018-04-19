@@ -116,7 +116,7 @@ test-suite doctests
   main-is:             doctests.hs
   build-depends:       base >=4.6 && <5
                      , doctest
-                     , doctest-discover
+  build-tool-depends:  doctest-discover:doctest-discover
 
 benchmark benches
   type:                exitcode-stdio-1.0
