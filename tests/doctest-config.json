@@ -1,4 +1,3 @@
 {
-    "sourceFolders": ["lib"],
-    "doctestOptions": ["-Iinclude/"]
+    "sourceFolders": ["lib"]
 }

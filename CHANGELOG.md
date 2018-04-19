@@ -17,6 +17,8 @@
 
 * The `base16-bytestring` dependency was removed.
 
+* Compatibility with GHC 7.6 and 7.8 was dropped.
+
 # 0.5.0.0
 
 * From this version on, `blockListF` never puts blank lines between items.

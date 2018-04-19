@@ -14,9 +14,6 @@ import Lens.Micro
 #if __GLASGOW_HASKELL__ < 804
 import Data.Monoid ((<>))
 #endif
-#if __GLASGOW_HASKELL__ < 710
-import Data.Monoid (mconcat, mempty)
-#endif
 -- Text
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
@@ -28,13 +25,8 @@ import qualified Formatting.Internal.Raw as F
 import Data.Text.Lazy.Builder hiding (fromString)
 -- 'Foldable' and 'IsList' for list/map formatters
 import Data.Foldable (toList)
-#if __GLASGOW_HASKELL__ >= 708
 import GHC.Exts (IsList, Item)
 import qualified GHC.Exts as IsList (toList)
-#endif
-#if __GLASGOW_HASKELL__ < 710
-import Data.Foldable (Foldable)
-#endif
 
 import Fmt.Internal.Core
 
@@ -258,12 +250,6 @@ jsonListF' fbuild xs
 -- Map formatters
 ----------------------------------------------------------------------------
 
-#if __GLASGOW_HASKELL__ >= 708
-#  define MAPTOLIST IsList.toList
-#else
-#  define MAPTOLIST id
-#endif
-
 {- | A simple JSON-like map formatter; works for Map, HashMap, etc, as well as
 ordinary lists of pairs.
 
@@ -272,27 +258,18 @@ ordinary lists of pairs.
 
 For multiline output, use 'jsonMapF'.
 -}
-mapF ::
-#if __GLASGOW_HASKELL__ >= 708
-    (IsList t, Item t ~ (k, v), Buildable k, Buildable v) => t -> Builder
-#else
-    (Buildable k, Buildable v) => [(k, v)] -> Builder
-#endif
+mapF :: (IsList t, Item t ~ (k, v), Buildable k, Buildable v) => t -> Builder
 mapF = mapF' build build
 {-# INLINE mapF #-}
 
 {- | A version of 'mapF' that lets you supply your own building function for
 keys and values.
 -}
-mapF' ::
-#if __GLASGOW_HASKELL__ >= 708
-    (IsList t, Item t ~ (k, v)) =>
-    (k -> Builder) -> (v -> Builder) -> t -> Builder
-#else
-    (k -> Builder) -> (v -> Builder) -> [(k, v)] -> Builder
-#endif
+mapF'
+  :: (IsList t, Item t ~ (k, v))
+  => (k -> Builder) -> (v -> Builder) -> t -> Builder
 mapF' fbuild_k fbuild_v xs =
-  "{" <> mconcat (intersperse ", " (map buildPair (MAPTOLIST xs))) <> "}"
+  "{" <> mconcat (intersperse ", " (map buildPair (IsList.toList xs))) <> "}"
   where
     buildPair (k, v) = fbuild_k k <> ": " <> fbuild_v v
 
@@ -306,30 +283,21 @@ Evens:
   - 2
   - 4
 -}
-blockMapF ::
-#if __GLASGOW_HASKELL__ >= 708
-    (IsList t, Item t ~ (k, v), Buildable k, Buildable v) => t -> Builder
-#else
-    (Buildable k, Buildable v) => [(k, v)] -> Builder
-#endif
+blockMapF :: (IsList t, Item t ~ (k, v), Buildable k, Buildable v) => t -> Builder
 blockMapF = blockMapF' build build
 {-# INLINE blockMapF #-}
 
 {- | A version of 'blockMapF' that lets you supply your own building function
 for keys and values.
 -}
-blockMapF' ::
-#if __GLASGOW_HASKELL__ >= 708
-    (IsList t, Item t ~ (k, v)) =>
-    (k -> Builder) -> (v -> Builder) -> t -> Builder
-#else
-    (k -> Builder) -> (v -> Builder) -> [(k, v)] -> Builder
-#endif
+blockMapF'
+  :: (IsList t, Item t ~ (k, v))
+  => (k -> Builder) -> (v -> Builder) -> t -> Builder
 blockMapF' fbuild_k fbuild_v xs
   | null items = "{}\n"
   | otherwise  = mconcat items
   where
-    items = map (\(k, v) -> nameF (fbuild_k k) (fbuild_v v)) (MAPTOLIST xs)
+    items = map (\(k, v) -> nameF (fbuild_k k) (fbuild_v v)) (IsList.toList xs)
 
 {- | A JSON-like map formatter (unlike 'mapF', always multiline):
 
@@ -347,32 +315,22 @@ blockMapF' fbuild_k fbuild_v xs
     ]
 }
 -}
-jsonMapF ::
-#if __GLASGOW_HASKELL__ >= 708
-    (IsList t, Item t ~ (k, v), Buildable k, Buildable v) => t -> Builder
-#else
-    (Buildable k, Buildable v) => [(k, v)] -> Builder
-#endif
+jsonMapF :: (IsList t, Item t ~ (k, v), Buildable k, Buildable v) => t -> Builder
 jsonMapF = jsonMapF' build build
 {-# INLINE jsonMapF #-}
 
 {- | A version of 'jsonMapF' that lets you supply your own building function
 for keys and values.
 -}
-jsonMapF' ::
-#if __GLASGOW_HASKELL__ >= 708
-    forall t k v.
-    (IsList t, Item t ~ (k, v)) =>
-    (k -> Builder) -> (v -> Builder) -> t -> Builder
-#else
-    forall k v.
-    (k -> Builder) -> (v -> Builder) -> [(k, v)] -> Builder
-#endif
+jsonMapF'
+  :: forall t k v.
+     (IsList t, Item t ~ (k, v))
+  => (k -> Builder) -> (v -> Builder) -> t -> Builder
 jsonMapF' fbuild_k fbuild_v xs
   | null items = "{}\n"
   | otherwise  = "{\n" <> mconcat items <> "}\n"
   where
-    items = zipWith buildItem (True : repeat False) (MAPTOLIST xs)
+    items = zipWith buildItem (True : repeat False) (IsList.toList xs)
     -- Item builder
     buildItem :: Bool -> (k, v) -> Builder
     buildItem isFirst (k, v) = do

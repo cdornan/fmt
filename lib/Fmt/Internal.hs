@@ -1,9 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE CPP #-}
 
-#include "overlap.h"
 
 {- | A module providing access to internals (in case you really need them).
 Can change at any time, though probably won't.
@@ -23,6 +21,7 @@ module Fmt.Internal
   module Fmt.Internal.Generic,
 )
 where
+
 
 -- Text
 import qualified Data.Text.Encoding as T
@@ -72,7 +71,7 @@ instance FormatAsHex BS.ByteString where
 instance FormatAsHex BSL.ByteString where
   hexF = fromLazyText . TL.decodeLatin1 . BB.toLazyByteString . BB.lazyByteStringHex
 
-instance _OVERLAPPABLE_ Integral a => FormatAsHex a where
+instance {-# OVERLAPPABLE #-} Integral a => FormatAsHex a where
   hexF = F.hex
 
 ----------------------------------------------------------------------------

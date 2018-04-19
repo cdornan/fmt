@@ -5,8 +5,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-#include "overlap.h"
-
 
 module Fmt.Internal.Generic where
 
@@ -168,7 +166,7 @@ instance (Buildable' a1, Buildable' a2, Buildable' a3, Buildable' a4,
     [build' a1, build' a2, build' a3, build' a4,
      build' a5, build' a6, build' a7, build' a8]
 
-instance _OVERLAPPING_ Buildable' [Char] where
+instance {-# OVERLAPPING #-} Buildable' [Char] where
   build' = build
 
 instance Buildable' a => Buildable' [a] where
@@ -205,7 +203,7 @@ instance (Buildable' a, Buildable' b) => Buildable' (Either a b) where
 instance Buildable' (a -> b) where
   build' _ = "<function>"
 
-instance _OVERLAPPABLE_ Buildable a => Buildable' a where
+instance {-# OVERLAPPABLE #-} Buildable a => Buildable' a where
   build' = build
 
 ----------------------------------------------------------------------------

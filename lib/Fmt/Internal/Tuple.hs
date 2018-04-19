@@ -2,8 +2,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 
-#include "overlap.h"
-
 
 module Fmt.Internal.Tuple where
 
@@ -88,7 +86,7 @@ instance (Buildable a1, Buildable a2, Buildable a3, Buildable a4,
 instance Buildable a => TupleF [a] where
   tupleF = tupleF . map build
 
-instance _OVERLAPPING_ TupleF [Builder] where
+instance {-# OVERLAPPING #-} TupleF [Builder] where
   tupleF xs
     | True `elem` mls = mconcat (intersperse ",\n" items)
     | otherwise = "(" <> mconcat (intersperse ", " xs) <> ")"

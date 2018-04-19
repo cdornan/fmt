@@ -4,8 +4,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-#include "overlap.h"
-
 
 -- | Old-style formatting a la @text-format@.
 module Fmt.Internal.Template where
@@ -111,5 +109,5 @@ class FormatType r where
 instance (Buildable a, FormatType r) => FormatType (a -> r) where
   format' f xs = \x -> format' f (build x : xs)
 
-instance _OVERLAPPABLE_ FromBuilder r => FormatType r where
+instance {-# OVERLAPPABLE #-} FromBuilder r => FormatType r where
   format' f xs = fromBuilder $ renderFormat f (reverse xs)
