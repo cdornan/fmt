@@ -258,7 +258,7 @@ and so on.)
 
 To format strings, put variables between ('+|') and ('|+'):
 
->>> let name = "Alice"
+>>> let name = "Alice" :: String
 >>> "Meet "+|name|+"!" :: String
 "Meet Alice!"
 
