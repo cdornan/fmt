@@ -112,6 +112,8 @@ test-suite doctests
   build-depends:       base >=4.6 && <5
                      , doctest
   build-tool-depends:  doctest-discover:doctest-discover
+  if impl(ghc < 8.0)
+    buildable: False
 
 benchmark benches
   type:                exitcode-stdio-1.0
