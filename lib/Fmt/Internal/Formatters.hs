@@ -80,7 +80,7 @@ nameF k v = case TL.lines (toLazyText v) of
     ls  -> k <> ":\n" <>
            mconcat ["  " <> fromLazyText s <> "\n" | s <- ls]
 
-{- | Put words between elements.
+{- | Put spaces between elements.
 
 >>> fmt $ unwordsF ["hello", "world"]
 hello world
