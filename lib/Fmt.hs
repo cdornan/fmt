@@ -53,8 +53,8 @@ module Fmt
   Format,
 
   -- * Helper functions
-  fmt,
-  fmtLn,
+  fmt, fmtLn,
+  pretty, prettyLn,
 
   Builder,
   Buildable(..),
@@ -348,7 +348,6 @@ operators, and 'Show'-brackets don't have to be used at all because there's
 
 {- docs
 ~~~~~~~~~~~~~~~~~~~~
-* write explicitly that 'build' can be used and is useful sometimes
 * mention that fmt doesn't do the neat thing that formatting does with (<>)
   (or maybe it does? there's a monoid instance for functions after all,
   though I might also have to write a IsString instance for (a -> Builder))

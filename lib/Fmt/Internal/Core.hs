@@ -134,3 +134,15 @@ fmt = fromBuilder
 fmtLn :: FromBuilder b => Builder -> b
 fmtLn = fromBuilder . (<> "\n")
 {-# INLINE fmtLn #-}
+
+{- | 'pretty' shows a value using its 'Buildable' instance.
+-}
+pretty :: (Buildable a, FromBuilder b) => a -> b
+pretty = fmt . build
+{-# INLINE pretty #-}
+
+{- | Like 'pretty', but appends a newline.
+-}
+prettyLn :: (Buildable a, FromBuilder b) => a -> b
+prettyLn = fmtLn . build
+{-# INLINE prettyLn #-}

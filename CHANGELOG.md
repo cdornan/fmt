@@ -6,6 +6,10 @@
   strings for various HTTP libraries that are intent on using `ByteString`
   for text.
 
+* Added `pretty :: (Buildable a, FromBuilder b) => a -> b` for formatting
+  anything as `Buildable`. There's also `prettyLn` for consistency with
+  `fmt` and `fmtLn`.
+
 # 0.6
 
 * Switched to `Buildable` from `formatting` (since `text-format` is
