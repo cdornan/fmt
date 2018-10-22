@@ -21,6 +21,7 @@ import qualified Data.Map as M
 import Data.Map (Map)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
+import qualified Data.ByteString.Builder as BB
 -- Generics
 import GHC.Generics
 -- Call stacks
@@ -109,8 +110,14 @@ test_outputTypes = describe "output as" $ do
     ("a"+|n|+"b" :: Text) `shouldBe` "a25b"
   it "Lazy Text" $
     ("a"+|n|+"b" :: TL.Text) `shouldBe` "a25b"
-  it "Builder" $
+  it "ByteString" $
+    ("a"+|n|+"b" :: BS.ByteString) `shouldBe` "a25b"
+  it "Lazy ByteString" $
+    ("a"+|n|+"b" :: BSL.ByteString) `shouldBe` "a25b"
+  it "Text Builder" $
     ("a"+|n|+"b" :: Builder) `shouldBe` "a25b"
+  it "ByteString Builder" $
+    BB.toLazyByteString ("a"+|n|+"b" :: BB.Builder) `shouldBe` "a25b"
 
 ----------------------------------------------------------------------------
 -- Tests for various simple formatters
