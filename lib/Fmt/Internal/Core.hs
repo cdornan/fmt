@@ -9,9 +9,14 @@ module Fmt.Internal.Core where
 import           Data.Monoid ((<>))
 #endif
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.IO as TL
+import qualified Data.Text.Lazy.Encoding as TL
 import           Data.Text.Lazy.Builder hiding (fromString)
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Lazy as BSL
+import qualified Data.ByteString.Builder as BB
 import           Formatting.Buildable (Buildable(..))
 
 
@@ -37,6 +42,18 @@ instance FromBuilder T.Text where
 
 instance FromBuilder TL.Text where
   fromBuilder = toLazyText
+  {-# INLINE fromBuilder #-}
+
+instance FromBuilder BS.ByteString where
+  fromBuilder = T.encodeUtf8 . TL.toStrict . toLazyText
+  {-# INLINE fromBuilder #-}
+
+instance FromBuilder BSL.ByteString where
+  fromBuilder = TL.encodeUtf8 . toLazyText
+  {-# INLINE fromBuilder #-}
+
+instance FromBuilder BB.Builder where
+  fromBuilder = TL.encodeUtf8Builder . toLazyText
   {-# INLINE fromBuilder #-}
 
 instance (a ~ ()) => FromBuilder (IO a) where
@@ -96,10 +113,10 @@ infixr 1 |++||
 -- Functions
 ----------------------------------------------------------------------------
 
-{- | 'fmt' converts things to 'String', 'Text' or 'Builder'.
+{- | 'fmt' converts things to 'String', 'T.Text', 'BS.ByteString' or 'Builder'.
 
 Most of the time you won't need it, as strings produced with ('+|') and
-('|+') can already be used as 'String', 'Text', etc. However, combinators
+('|+') can already be used as 'String', 'T.Text', etc. However, combinators
 like 'listF' can only produce 'Builder' (for better type inference), and you
 need to use 'fmt' on them.
 

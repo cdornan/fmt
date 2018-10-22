@@ -1,3 +1,11 @@
+# 0.6.1
+
+* Added `instance FromBuilder ByteString` (for both lazy and strict
+  bytestrings) and `instance FromBuilder BS.Builder`. These instances
+  generate UTF8-encoded bytestrings. This allows producing formatting
+  strings for various HTTP libraries that are intent on using `ByteString`
+  for text.
+
 # 0.6
 
 * Switched to `Buildable` from `formatting` (since `text-format` is
