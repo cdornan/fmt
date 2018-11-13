@@ -9,6 +9,7 @@
 module Fmt.Internal.Template where
 
 
+import Data.CallStack
 import Data.String (IsString(..))
 import Data.Text (Text, splitOn)
 import Data.Text.Lazy.Builder hiding (fromString)
@@ -35,13 +36,13 @@ You can use arbitrary formatters:
 >>> format "0x{} + 0x{} = 0x{}" (hexF 130) (hexF 270) (hexF (130+270))
 0x82 + 0x10e = 0x190
 -}
-format :: FormatType r => Format -> r
+format :: (HasCallStack, FormatType r) => Format -> r
 format f = format' f []
 {-# INLINE format #-}
 
 {- | Like 'format', but adds a newline.
 -}
-formatLn :: FormatType r => Format -> r
+formatLn :: (HasCallStack, FormatType r) => Format -> r
 formatLn f = format' (f <> "\n") []
 {-# INLINE formatLn #-}
 

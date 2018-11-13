@@ -1,3 +1,7 @@
+# 0.6.1.1
+
+* Added `HasCallStack` to partial functions.
+
 # 0.6.1
 
 * Added `instance FromBuilder ByteString` (for both lazy and strict

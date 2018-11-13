@@ -5,6 +5,7 @@
 module Fmt.Internal.Numeric where
 
 
+import           Data.CallStack
 #if __GLASGOW_HASKELL__ < 804
 import           Data.Monoid ((<>))
 #endif
@@ -51,7 +52,7 @@ Format a number in arbitrary base (up to 36):
 >>> baseF 36 10000
 "7ps"
 -}
-baseF :: Integral a => Int -> a -> Builder
+baseF :: (HasCallStack, Integral a) => Int -> a -> Builder
 baseF numBase = build . atBase numBase
 
 ----------------------------------------------------------------------------
