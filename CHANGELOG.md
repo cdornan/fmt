@@ -1,3 +1,7 @@
+# next
+
+* Bumped the `hspec` upper bound.
+
 # 0.6.1.1
 
 * Added `HasCallStack` to partial functions.
