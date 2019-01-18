@@ -94,7 +94,7 @@ test-suite tests
                      , call-stack
                      , containers
                      , fmt
-                     , hspec >= 2.2 && < 2.7
+                     , hspec >= 2.2 && < 2.8
                      , neat-interpolation
                      , text
                      , vector
