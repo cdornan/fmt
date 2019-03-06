@@ -32,6 +32,13 @@ import Fmt.Internal.Core
 
 
 ----------------------------------------------------------------------------
+-- Doctest setup
+----------------------------------------------------------------------------
+
+-- $setup
+-- >>> import Fmt
+
+----------------------------------------------------------------------------
 -- Text formatters
 ----------------------------------------------------------------------------
 
@@ -127,11 +134,10 @@ listF = listF' build
 {- | A version of 'listF' that lets you supply your own building function for
 list elements.
 
-For instance, to format a list of lists you'd have to do this (since there's
-no 'Buildable' instance for lists):
+For instance, to format a list of numbers as hex:
 
->>> listF' listF [[1,2,3],[4,5,6]]
-"[[1, 2, 3], [4, 5, 6]]"
+>>> listF' hexF [1234, 5678]
+"[4d2, 162e]"
 -}
 listF' :: (Foldable f) => (a -> Builder) -> f a -> Builder
 listF' fbuild xs = mconcat $
