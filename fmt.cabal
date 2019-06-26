@@ -46,7 +46,12 @@ author:              Artyom Kazak <yom@artyom.me>,
 maintainer:          yom@artyom.me
 -- copyright:
 category:            Text
-tested-with:         GHC == 7.10.3, GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.4, GHC == 8.6.2
+tested-with:
+  GHC == 7.10.3
+  GHC == 8.0.2
+  GHC == 8.2.2
+  GHC == 8.4.4
+  GHC == 8.6.4
 build-type:          Simple
 extra-source-files:  CHANGELOG.md
                      tests/doctest-config.json
