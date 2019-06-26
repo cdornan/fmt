@@ -1,6 +1,7 @@
-# next
+# 0.6.1.2
 
 * Bumped the `hspec` upper bound.
+* Fixed doctests.
 
 # 0.6.1.1
 

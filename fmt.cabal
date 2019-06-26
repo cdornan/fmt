@@ -1,5 +1,5 @@
 name:                fmt
-version:             0.6.1.1
+version:             0.6.1.2
 synopsis:            A new formatting library
 description:
   A new formatting library that tries to be simple to understand while still
@@ -112,6 +112,8 @@ test-suite doctests
   main-is:             doctests.hs
   build-depends:       base >=4.6 && <5
                      , doctest
+                     , QuickCheck
+
   build-tool-depends:  doctest-discover:doctest-discover
   if impl(ghc < 8.0)
     buildable: False
