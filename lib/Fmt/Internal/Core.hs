@@ -96,13 +96,13 @@ infixr 1 ||+
 (||++||) a rest = show a |+ rest
 {-# INLINE (||++||) #-}
 
-(||++|) :: (Buildable a, FromBuilder b) => a -> Builder -> b
-(||++|) a rest = a |++| rest
-{-# INLINE (||++|) #-}
-
-(|++||) :: (Show a, FromBuilder b) => a -> Builder -> b
-(|++||) a rest = a ||++|| rest
+(|++||) :: (Buildable a, FromBuilder b) => a -> Builder -> b
+(|++||) a rest = a |++| rest
 {-# INLINE (|++||) #-}
+
+(||++|) :: (Show a, FromBuilder b) => a -> Builder -> b
+(||++|) a rest = a ||++|| rest
+{-# INLINE (||++|) #-}
 
 infixr 1 |++|
 infixr 1 ||++||

@@ -72,7 +72,9 @@ instance FormatAsHex BSL.ByteString where
   hexF = fromLazyText . TL.decodeLatin1 . BB.toLazyByteString . BB.lazyByteStringHex
 
 instance {-# OVERLAPPABLE #-} Integral a => FormatAsHex a where
-  hexF = F.hex
+  hexF i = sgn <> F.hex (abs i)
+    where
+      sgn = if i<0 then "-" else ""
 
 ----------------------------------------------------------------------------
 -- Base64

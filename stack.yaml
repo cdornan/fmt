@@ -1,8 +1,6 @@
-resolver: lts-12.10
+resolver: lts-18.4
 
 packages:
 - .
 
-extra-deps:
-- formatting-6.3.4
-- doctest-discover-0.1.0.9
+extra-deps: []
