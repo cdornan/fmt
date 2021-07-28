@@ -9,7 +9,7 @@ module Fmt.Internal.Formatters where
 
 
 -- Generic useful things
-import Data.List
+import Data.List (intersperse)
 import Lens.Micro
 #if __GLASGOW_HASKELL__ < 804
 import Data.Monoid ((<>))
