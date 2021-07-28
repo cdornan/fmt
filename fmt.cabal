@@ -1,5 +1,5 @@
 name:                fmt
-version:             0.6.1.2
+version:             0.6.2.0
 synopsis:            A new formatting library
 description:
   A new formatting library that tries to be simple to understand while still
@@ -37,13 +37,13 @@ description:
     conversion. There are some convenience formatters which aren't present in
     @formatting@ (like ones for formatting maps, lists, converting to base64,
     etc). Some find the operator syntax annoying, while others like it.
-homepage:            http://github.com/aelve/fmt
-bug-reports:         http://github.com/aelve/fmt/issues
+homepage:            http://github.com/cdornan/fmt
+bug-reports:         http://github.com/cdornan/fmt/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Artyom Kazak <yom@artyom.me>,
                      Dmitry Kovanikov <kovanikov@gmail.com>
-maintainer:          yom@artyom.me
+maintainer:          Chris Dornan <chris@chrisdornan.com>
 -- copyright:
 category:            Text
 tested-with:
@@ -52,6 +52,8 @@ tested-with:
   GHC == 8.2.2
   GHC == 8.4.4
   GHC == 8.6.4
+  GHC == 8.6.5
+  GHC == 8.10.4
 build-type:          Simple
 extra-source-files:  CHANGELOG.md
                      tests/doctest-config.json
@@ -59,7 +61,7 @@ cabal-version:       >=1.10
 
 source-repository head
   type:                git
-  location:            git://github.com/aelve/fmt.git
+  location:            git://github.com/cdornan/fmt.git
 
 library
   exposed-modules:     Fmt
@@ -77,7 +79,7 @@ library
                        bytestring,
                        call-stack,
                        containers,
-                       formatting >= 6.3.4,
+                       formatting >= 7.0.0,
                        microlens >= 0.3,
                        text,
                        time,
@@ -99,7 +101,7 @@ test-suite tests
                      , call-stack
                      , containers
                      , fmt
-                     , hspec >= 2.2 && < 2.8
+                     , hspec >= 2.2
                      , neat-interpolation
                      , text
                      , vector

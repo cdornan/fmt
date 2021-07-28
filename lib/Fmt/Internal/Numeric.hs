@@ -69,13 +69,16 @@ Format a floating-point number:
 Numbers smaller than 1e-6 or bigger-or-equal to 1e21 will be displayed using
 scientific notation:
 
+>>> listF' floatF [-1.2,-12.2]
+"[-1.2, -12.2]"
 >>> listF' floatF [1e-6,9e-7]
 "[0.000001, 9.0e-7]"
 >>> listF' floatF [9e20,1e21]
 "[900000000000000000000.0, 1.0e21]"
 -}
 floatF :: Real a => a -> Builder
-floatF a | d < 1e-6 || d >= 1e21 = build $ showEFloat Nothing d ""
+floatF a | d < 0                 = "-" <> floatF (-d)
+         | d < 1e-6 || d >= 1e21 = build $ showEFloat Nothing d ""
          | otherwise             = build $ showFFloat Nothing d ""
   where d = realToFrac a :: Double
 

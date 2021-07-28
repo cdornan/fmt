@@ -21,7 +21,7 @@ import Data.Sequence (Seq)
 import Data.List.NonEmpty (NonEmpty)
 #endif
 
-import Data.List
+import Data.List as L
 import Data.Text.Lazy.Builder hiding (fromString)
 import GHC.Generics
 import Formatting.Buildable

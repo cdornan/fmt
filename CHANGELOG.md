@@ -1,3 +1,13 @@
+# 0.6.2.0
+
+* Cleared `hspec` upper bound
+* Qualified all Data.List imports
+* Fixed tests to work with newer (>=0.4) neat-interpolation (#30)
+* Adjusted lower bounds of formatting dependency to avoid unsigned 0
+  issues (#31)
+* fixed floatF handling of negative numbers (#36)
+* unconfused ``||++|`` and ``|++||`` (#29)
+
 # 0.6.1.2
 
 * Bumped the `hspec` upper bound.

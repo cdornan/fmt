@@ -2,13 +2,16 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE CPP #-}
 
 
 module Main where
 
 
 -- Monoid
+#if __GLASGOW_HASKELL__ < 804
 import Data.Monoid ((<>))
+#endif
 -- Text
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -277,43 +280,43 @@ test_blockListF = describe "'blockListF'" $ do
         blockListF ([] :: [Int]) ==#> "[]\n"
 
     nullElements = it "null elements" $ do
-        blockListF ([""] :: [Text]) ==#> [text|
+        blockListF ([""] :: [Text]) ==$> [text|
           -
           |]
-        blockListF (["",""] :: [Text]) ==#> [text|
+        blockListF (["",""] :: [Text]) ==$> [text|
           -
           -
           |]
-        blockListF (["","a",""] :: [Text]) ==#> [text|
+        blockListF (["","a",""] :: [Text]) ==$> [text|
           -
           - a
           -
           |]
 
     singleLineElements = it "single-line elements" $ do
-        blockListF (["a"] :: [Text]) ==#> [text|
+        blockListF (["a"] :: [Text]) ==$> [text|
           - a
           |]
-        blockListF (["a","b"] :: [Text]) ==#> [text|
+        blockListF (["a","b"] :: [Text]) ==$> [text|
           -_a
           -_b
           |]
-        blockListF (["a","b","ccc"] :: [Text]) ==#> [text|
+        blockListF (["a","b","ccc"] :: [Text]) ==$> [text|
           - a
           - b
           - ccc
           |]
 
     multiLineElements = it "multi-line elements" $ do
-        blockListF (["a\nx"] :: [Text]) ==#> [text|
+        blockListF (["a\nx"] :: [Text]) ==$> [text|
           - a
             x
           |]
-        blockListF (["a\n x"] :: [Text]) ==#> [text|
+        blockListF (["a\n x"] :: [Text]) ==$> [text|
           - a
              x
           |]
-        blockListF (["a\n x"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#> [text|
+        blockListF (["a\n x"," b\nxx\ny y ","c\n\n"] :: [Text]) ==$> [text|
           - a
              x
           -  b
@@ -324,17 +327,17 @@ test_blockListF = describe "'blockListF'" $ do
           |]
 
     mixed = it "mix of single-line and multi-line" $ do
-        blockListF (["a\nx","b"] :: [Text]) ==#> [text|
+        blockListF (["a\nx","b"] :: [Text]) ==$> [text|
           - a
             x
           - b
           |]
-        blockListF (["a\nx","b\n"] :: [Text]) ==#> [text|
+        blockListF (["a\nx","b\n"] :: [Text]) ==$> [text|
           - a
             x
           - b
           |]
-        blockListF (["a"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#> [text|
+        blockListF (["a"," b\nxx\ny y ","c\n\n"] :: [Text]) ==$> [text|
           - a
           -  b
             xx
@@ -356,18 +359,18 @@ test_jsonListF = describe "'jsonListF'" $ do
         jsonListF ([] :: [Int]) ==#> "[]\n"
 
     nullElements = it "null elements" $ do
-        jsonListF ([""] :: [Text]) ==#> [text|
+        jsonListF ([""] :: [Text]) ==$> [text|
           [
 
           ]
           |]
-        jsonListF (["",""] :: [Text]) ==#> [text|
+        jsonListF (["",""] :: [Text]) ==$> [text|
           [
 
           ,
           ]
           |]
-        jsonListF (["","a",""] :: [Text]) ==#> [text|
+        jsonListF (["","a",""] :: [Text]) ==$> [text|
           [
 
           , a
@@ -376,18 +379,18 @@ test_jsonListF = describe "'jsonListF'" $ do
           |]
 
     singleLineElements = it "single-line elements" $ do
-        jsonListF (["a"] :: [Text]) ==#> [text|
+        jsonListF (["a"] :: [Text]) ==$> [text|
           [
             a
           ]
           |]
-        jsonListF (["a","b"] :: [Text]) ==#> [text|
+        jsonListF (["a","b"] :: [Text]) ==$> [text|
           [
             a
           , b
           ]
           |]
-        jsonListF (["a","b","ccc"] :: [Text]) ==#> [text|
+        jsonListF (["a","b","ccc"] :: [Text]) ==$> [text|
           [
             a
           , b
@@ -396,19 +399,19 @@ test_jsonListF = describe "'jsonListF'" $ do
           |]
 
     multiLineElements = it "multi-line elements" $ do
-        jsonListF (["a\nx"] :: [Text]) ==#> [text|
+        jsonListF (["a\nx"] :: [Text]) ==$> [text|
           [
             a
             x
           ]
           |]
-        jsonListF (["a\n x"] :: [Text]) ==#> [text|
+        jsonListF (["a\n x"] :: [Text]) ==$> [text|
           [
             a
              x
           ]
           |]
-        jsonListF (["a\n x"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#> [text|
+        jsonListF (["a\n x"," b\nxx\ny y ","c\n\n"] :: [Text]) ==$> [text|
           [
             a
              x
@@ -421,21 +424,21 @@ test_jsonListF = describe "'jsonListF'" $ do
           |]
 
     mixed = it "mix of single-line and multi-line" $ do
-        jsonListF (["a\nx","b"] :: [Text]) ==#> [text|
+        jsonListF (["a\nx","b"] :: [Text]) ==$> [text|
           [
             a
             x
           , b
           ]
           |]
-        jsonListF (["a\nx","b\n"] :: [Text]) ==#> [text|
+        jsonListF (["a\nx","b\n"] :: [Text]) ==$> [text|
           [
             a
             x
           , b
           ]
           |]
-        jsonListF (["a"," b\nxx\ny y ","c\n\n"] :: [Text]) ==#> [text|
+        jsonListF (["a"," b\nxx\ny y ","c\n\n"] :: [Text]) ==$> [text|
           [
             a
           ,  b
@@ -477,7 +480,7 @@ test_blockMapF = describe "'blockMapF'" $ do
     blockMapF ([("hi", ""),
                 ("foo"," a\n  b"),
                 ("bar","a"),
-                ("baz","a\ng")] :: [(Text, Text)]) ==#> [text|
+                ("baz","a\ng")] :: [(Text, Text)]) ==$> [text|
       hi:
       foo:
          a
@@ -496,7 +499,7 @@ test_jsonMapF = describe "'jsonMapF'" $ do
     jsonMapF ([("hi", ""),
                ("foo"," a\n  b"),
                ("bar","a"),
-               ("baz","a\ng")] :: [(Text, Text)]) ==#> [text|
+               ("baz","a\ng")] :: [(Text, Text)]) ==$> [text|
       {
         hi:
       , foo:
@@ -559,40 +562,40 @@ test_tupleMultiline = describe "multiline" $ do
   where
     allNonEmpty = describe "all non-empty" $ do
       it "1 element (2 lines)" $ do
-          tupleF ["a\nx" :: Builder] ==#> [text|
+          tupleF ["a\nx" :: Builder] ==$> [text|
             ( a
               x )
             |]
-          tupleF ["a\n x" :: Builder] ==#> [text|
+          tupleF ["a\n x" :: Builder] ==$> [text|
             ( a
                x )
             |]
-          tupleF [" a\nx\n" :: Builder] ==#> [text|
+          tupleF [" a\nx\n" :: Builder] ==$> [text|
             (  a
               x )
             |]
       it "1 element (3 lines)" $ do
-          tupleF ["a\nb\nc" :: Builder] ==#> [text|
+          tupleF ["a\nb\nc" :: Builder] ==$> [text|
             ( a
               b
               c )
             |]
       it "2 elements (1 line + 2 lines)" $ do
-          tupleF ["a", "b\nc" :: Builder] ==#> [text|
+          tupleF ["a", "b\nc" :: Builder] ==$> [text|
             ( a
             ,
               b
               c )
             |]
       it "2 elements (2 lines + 1 line)" $ do
-          tupleF ["a\nb", "c" :: Builder] ==#> [text|
+          tupleF ["a\nb", "c" :: Builder] ==$> [text|
             ( a
               b
             ,
               c )
             |]
       it "3 elements (each has 2 lines)" $ do
-          tupleF ["a\nb", "c\nd", "e\nf" :: Builder] ==#> [text|
+          tupleF ["a\nb", "c\nd", "e\nf" :: Builder] ==$> [text|
             ( a
               b
             ,
@@ -605,21 +608,21 @@ test_tupleMultiline = describe "multiline" $ do
 
     someEmpty = describe "some empty" $ do
       it "2 elements (0 + 2)" $ do
-          tupleF ["", "a\nb" :: Builder] ==#> [text|
+          tupleF ["", "a\nb" :: Builder] ==$> [text|
             (
             ,
               a
               b )
             |]
       it "2 elements (2 + 0)" $ do
-          tupleF ["a\nb", "" :: Builder] ==#> [text|
+          tupleF ["a\nb", "" :: Builder] ==$> [text|
             ( a
               b
             ,
               )
             |]
       it "3 elements (0 + 2 + 0)" $ do
-          tupleF ["", "a\nb", "" :: Builder] ==#> [text|
+          tupleF ["", "a\nb", "" :: Builder] ==$> [text|
             (
             ,
               a
@@ -628,7 +631,7 @@ test_tupleMultiline = describe "multiline" $ do
               )
             |]
       it "3 elements (2 + 0 + 2)" $ do
-          tupleF ["a\nb", "", "c\nd" :: Builder] ==#> [text|
+          tupleF ["a\nb", "", "c\nd" :: Builder] ==$> [text|
             ( a
               b
             ,
@@ -637,7 +640,7 @@ test_tupleMultiline = describe "multiline" $ do
               d )
             |]
       it "4 elements (2 + 0 + 0 + 2)" $ do
-          tupleF ["a\nb", "", "", "c\nd" :: Builder] ==#> [text|
+          tupleF ["a\nb", "", "", "c\nd" :: Builder] ==$> [text|
             ( a
               b
             ,
@@ -678,7 +681,7 @@ test_generic = describe "'genericF'" $ do
       genericF (Foo n) ==#> "<Foo: 25>"
       genericF (Bar (n-1) (n+1)) ==#> "<Bar: 24, 26>"
     it "records" $ do
-      genericF (Qux 1 True "hi") ==#> [text|
+      genericF (Qux 1 True "hi") ==$> [text|
         Qux:
           q1: 1
           q2: True
@@ -716,6 +719,15 @@ test_generic = describe "'genericF'" $ do
 
 (==%>) :: HasCallStack => Text -> Text -> Expectation
 (==%>) = shouldBe
+
+-- the RHS has @neat-interpolation@ string for which later versions (>=0.4) are discarding the final
+-- newline; we must detect when it is doing so and restore the newline
+(==$>) :: HasCallStack => Builder -> Text -> Expectation
+(==$>) a b0 = a ==#> b
+  where
+    b = case T.last b0 == '\n' of
+      True  -> b0
+      False -> b0 <> "\n"
 
 (==#>) :: HasCallStack => Builder -> Text -> Expectation
 (==#>) a b = a `shouldBe` build (T.replace "_" " " b)
