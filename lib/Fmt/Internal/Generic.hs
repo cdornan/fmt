@@ -65,6 +65,27 @@ on it. It's merely a convenience function.
 genericF :: (Generic a, GBuildable (Rep a)) => a -> Builder
 genericF = gbuild . from
 
+{- | A newtype for deriving a generic 'Buildable' instance for any type
+using @DerivingVia@.
+
+>>> :set -XDerivingVia
+>>> :{
+data Bar = Bar { x :: Bool, y :: [Int] }
+  deriving stock Generic
+  deriving Buildable via GenericBuildable Bar
+:}
+
+>>> pretty (Bar True [1,2,3])
+Bar:
+  x: True
+  y: [1, 2, 3]
+
+-}
+newtype GenericBuildable a = GenericBuildable a
+
+instance (GBuildable (Rep a), Generic a) => Buildable (GenericBuildable a) where
+  build (GenericBuildable a) = genericF a
+
 ----------------------------------------------------------------------------
 -- GBuildable
 ----------------------------------------------------------------------------
