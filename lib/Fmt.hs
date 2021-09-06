@@ -120,6 +120,7 @@ module Fmt
 
   -- ** Generic formatting
   genericF,
+  GenericBuildable(..),
 )
 where
 
