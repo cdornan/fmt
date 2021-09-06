@@ -1,3 +1,7 @@
+# 0.6.3.0
+
+* Add support for `deriving ... via GenericBuildable T`
+
 # 0.6.2.0
 
 * Cleared `hspec` upper bound
