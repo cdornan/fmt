@@ -108,22 +108,18 @@ instance (GetFields a, Constructor c) => GBuildable (M1 C c a) where
   --   * Ordinarily e.g. "Foo" is prefix and e.g. ":|" is infix
   --   * However, "Foo" can be infix when defined as "a `Foo` b"
   --   * And ":|" can be prefix when defined as "(:|) a b"
-  gbuild c@(M1 x) = case conFixity c of
-    Infix _ _
-      | [a, b] <- fields -> format "({} {} {})" a infixName b
-      -- this case should never happen, but still
-      | otherwise        -> format "<{}: {}>"
-                              prefixName
-                              (mconcat (intersperse ", " fields))
-    Prefix
-      | isTuple -> tupleF fields
-      | conIsRecord c -> nameF (build prefixName) (blockMapF fieldsWithNames)
-      | null (getFields x) -> build prefixName
-      -- I believe that there will be only one field in this case
-      | null (conName c) -> mconcat (intersperse ", " fields)
-      | otherwise -> format "<{}: {}>"
-                       prefixName
-                       (mconcat (intersperse ", " fields))
+  gbuild c@(M1 x)
+    | Infix _ _ <- conFixity c
+    -- There will always be two fields in this context.
+    , [a, b] <- fields = format "({} {} {})" a infixName b
+    | isTuple = tupleF fields
+    | conIsRecord c = nameF (build prefixName) (blockMapF fieldsWithNames)
+    | null (getFields x) = build prefixName
+    -- I believe that there will be only one field in this case
+    | null (conName c) = mconcat (intersperse ", " fields)
+    | otherwise = format "<{}: {}>"
+                    prefixName
+                    (mconcat (intersperse ", " fields))
     where
       (prefixName, infixName)
         | ":" `isPrefixOf` conName c = ("(" ++ conName c ++ ")", conName c)
