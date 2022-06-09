@@ -110,6 +110,7 @@ instance (GetFields a, Constructor c) => GBuildable (M1 C c a) where
   --   * And ":|" can be prefix when defined as "(:|) a b"
   gbuild c@(M1 x)
     | Infix _ _ <- conFixity c
+    -- There will always be two fields in this context.
     , [a, b] <- fields = format "({} {} {})" a infixName b
     | isTuple = tupleF fields
     | conIsRecord c = nameF (build prefixName) (blockMapF fieldsWithNames)
