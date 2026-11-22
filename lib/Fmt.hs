@@ -325,7 +325,7 @@ Also, since in some codebases there are /lots/ of types which aren't
 'Buildable', there are operators ('+||') and ('||+'), which use 'show'
 instead of 'build':
 
-prop> (""+|show foo|++|show bar|+"") == (""+||foo||++||bar||+"")
+prop> (""+|show foo|++|show bar|+"") == (""+||foo||++||bar||+"" :: String)
 -}
 
 -- $god1
